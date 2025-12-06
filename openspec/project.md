@@ -4,13 +4,11 @@
 OpenKey Swift is a port of OpenKey to Swift - an open-source Vietnamese input method application for macOS. The application uses an advanced backspace technique to provide seamless Vietnamese text input, eliminating the underlining issues present in default system input methods.
 
 ### Key Features
-- **Input Methods**: Telex, VNI, Simple Telex
-- **Character Encodings**: Unicode, TCVN3 (ABC), VNI Windows, Unicode Compound, Vietnamese Locale CP 1258
+- **Input Methods**: Telex, Simple Telex
+- **Character Encoding**: Unicode only
 - **Spell Checking**: Validates Vietnamese word combinations
-- **Macro/Text Expansion**: Unlimited length text shortcuts
 - **Smart Switch**: Remembers language preference per application
 - **Quick Telex**: cc=ch, gg=gi, kk=kh, nn=ng, qq=qu, pp=ph, tt=th
-- **Orthography Options**: Support both modern (oà, uý) and traditional (òa, úy) styles
 - **Auto-capitalization**: Automatically capitalize first letter of sentences
 
 ## Tech Stack
@@ -34,20 +32,20 @@ OpenKey Swift is a port of OpenKey to Swift - an open-source Vietnamese input me
 ### Architecture Patterns
 ```
 Sources/
-├── OpenKeySwift/
+├── VnIme/
 │   ├── App/                    # Entry point, AppDelegate
 │   ├── Core/                   # Vietnamese input engine
 │   │   ├── Engine/             # Main processing logic
-│   │   ├── InputMethods/       # Telex, VNI handlers
-│   │   ├── CharacterTables/    # Unicode, TCVN3, VNI encodings
+│   │   ├── InputMethods/       # Telex, Simple Telex handlers
+│   │   ├── CharacterTables/    # Unicode encoding
 │   │   └── Spelling/           # Spell checking rules
 │   ├── EventHandling/          # CGEventTap, keyboard hook
-│   ├── Features/               # Macro, Smart Switch, Quick Telex
+│   ├── Features/               # Smart Switch, Quick Telex
 │   ├── UI/                     # SwiftUI views, Menu bar
 │   ├── Storage/                # UserDefaults, settings
 │   └── Utilities/              # Extensions, helpers
-├── OpenKeySwiftTests/          # Unit tests
-└── OpenKeySwiftUITests/        # UI tests
+├── VnImeTests/                 # Unit tests
+└── VnImeUITests/               # UI tests
 ```
 
 **Design Patterns**:
@@ -59,8 +57,7 @@ Sources/
 ### Testing Strategy
 - **Unit Tests**:
   - Core engine logic (character conversion, spelling rules)
-  - Input method rules (Telex, VNI transformations)
-  - Macro expansion
+  - Input method rules (Telex, Simple Telex transformations)
 - **Integration Tests**:
   - Event handling pipeline
   - Settings persistence
@@ -84,14 +81,13 @@ Sources/
 ### Vietnamese Input Method Concepts
 - **Tone marks (dấu thanh)**: acute (sắc), grave (huyền), hook (hỏi), tilde (ngã), dot below (nặng)
 - **Modifier marks (dấu mũ)**: circumflex (â, ê, ô), breve (ă), horn (ơ, ư), stroke (đ)
-- **Mark placement**: Rules for placing tone marks according to modern/traditional orthography
+- **Mark placement**: Rules for placing tone marks (modern style)
 - **Spell checking**: Validate consonant clusters, vowel combinations, valid syllables
 
 ### Technical Concepts
 - **CGEventTap**: macOS API to intercept keyboard events system-wide
 - **Accessibility permissions**: Required to capture keyboard events
 - **Backspace technique**: Delete old characters and send newly converted characters
-- **Code tables**: Mapping from internal representation to various output encodings
 
 ### Data Structures from Original OpenKey
 - **TypingWord buffer**: Stores current word being typed with metadata (caps, tone, marks)

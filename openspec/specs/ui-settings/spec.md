@@ -1,7 +1,7 @@
 # ui-settings Specification
 
 ## Purpose
-TBD - created by archiving change port-openkey-to-swift. Update Purpose after archive.
+Defines the user interface components including the menu bar integration, settings panel, and application lifecycle management.
 ## Requirements
 ### Requirement: Menu Bar Integration
 

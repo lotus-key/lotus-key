@@ -1,7 +1,7 @@
 # input-methods Specification
 
 ## Purpose
-TBD - created by archiving change port-openkey-to-swift. Update Purpose after archive.
+Defines the input method protocols and implementations (Telex, Simple Telex) for Vietnamese text entry, including transformation rules and Quick Telex shortcuts.
 ## Requirements
 ### Requirement: Telex Input Method
 

@@ -1,7 +1,7 @@
 # spell-checking Specification
 
 ## Purpose
-TBD - created by archiving change port-openkey-to-swift. Update Purpose after archive.
+Defines the spell checking system that validates Vietnamese syllables, consonant clusters, vowel combinations, and end consonants to ensure correct word formation.
 ## Requirements
 ### Requirement: Vietnamese Spell Checking
 

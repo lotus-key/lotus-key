@@ -1,7 +1,7 @@
 # core-engine Specification
 
 ## Purpose
-TBD - created by archiving change port-openkey-to-swift. Update Purpose after archive.
+Defines the core Vietnamese input processing engine that handles character conversion, tone mark placement, typing buffer management, and Unicode output.
 ## Requirements
 ### Requirement: Vietnamese Input Processing Engine
 

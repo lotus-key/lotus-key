@@ -1,7 +1,7 @@
 # event-handling Specification
 
 ## Purpose
-TBD - created by archiving change port-openkey-to-swift. Update Purpose after archive.
+Defines the keyboard event handling system using CGEventTap for system-wide keyboard interception, text injection, hotkey handling, and application compatibility.
 ## Requirements
 ### Requirement: Keyboard Event Interception
 

@@ -1,7 +1,7 @@
 # smart-switch Specification
 
 ## Purpose
-TBD - created by archiving change port-openkey-to-swift. Update Purpose after archive.
+Defines the Smart Switch feature that remembers and automatically restores the user's language preference (Vietnamese/English) for each application.
 ## Requirements
 ### Requirement: Per-Application Language Memory
 

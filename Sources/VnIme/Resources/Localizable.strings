@@ -1,0 +1,43 @@
+/*
+  Localizable.strings
+  VnIme
+
+  Vietnamese Input Method for macOS
+*/
+
+// MARK: - App General
+"app.name" = "VnIme";
+"app.version" = "Version %@";
+
+// MARK: - Menu Bar
+"menu.vietnamese" = "Tiếng Việt";
+"menu.english" = "English";
+"menu.settings" = "Cài đặt...";
+"menu.quit" = "Thoát VnIme";
+
+// MARK: - Settings - General
+"settings.general" = "Chung";
+"settings.general.launchAtLogin" = "Khởi động cùng hệ thống";
+"settings.general.showDockIcon" = "Hiển thị icon trên Dock";
+"settings.general.spellCheck" = "Kiểm tra chính tả";
+"settings.general.smartSwitch" = "Chuyển ngôn ngữ thông minh theo ứng dụng";
+
+// MARK: - Settings - Input Method
+"settings.inputMethod" = "Kiểu gõ";
+"settings.inputMethod.telex" = "Telex";
+"settings.inputMethod.simpleTelex" = "Simple Telex";
+"settings.inputMethod.quickTelex" = "Quick Telex (cc=ch, gg=gi...)";
+"settings.inputMethod.autoCapitalize" = "Tự động viết hoa đầu câu";
+
+// MARK: - Settings - About
+"settings.about" = "Giới thiệu";
+"settings.about.description" = "Bộ gõ tiếng Việt cho macOS";
+"settings.about.github" = "Mã nguồn trên GitHub";
+"settings.about.license" = "Giấy phép GPL-3.0";
+
+// MARK: - Accessibility
+"accessibility.description" = "VnIme cần quyền truy cập để nhận sự kiện bàn phím và hỗ trợ gõ tiếng Việt.";
+
+// MARK: - Errors
+"error.accessibilityNotEnabled" = "Vui lòng bật quyền truy cập trong Cài đặt hệ thống > Riêng tư & Bảo mật > Trợ năng";
+"error.eventTapFailed" = "Không thể tạo trình lắng nghe sự kiện bàn phím";
