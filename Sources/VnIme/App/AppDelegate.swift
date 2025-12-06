@@ -139,6 +139,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Configure engine based on settings
         engine.spellCheckEnabled = settings.spellCheckEnabled
         engine.quickTelex.isEnabled = settings.quickTelexEnabled
+        engine.restoreIfWrongSpelling = settings.restoreIfWrongSpelling
 
         // Set input method based on settings
         if settings.inputMethod == "Simple Telex" {
@@ -228,6 +229,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             engine.spellCheckEnabled = settings.spellCheckEnabled
         case .quickTelexEnabled:
             engine.quickTelex.isEnabled = settings.quickTelexEnabled
+        case .restoreIfWrongSpelling:
+            engine.restoreIfWrongSpelling = settings.restoreIfWrongSpelling
         default:
             break
         }
@@ -247,8 +250,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openSettings() {
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        NSApp.activate(ignoringOtherApps: true)
+        if #available(macOS 14.0, *) {
+            NSApp.activate(ignoringOtherApps: true)
+            if let settingsItem = NSApp.mainMenu?.item(withTitle: "VnIme")?.submenu?.item(withTitle: "Settings…") {
+                NSApp.sendAction(settingsItem.action!, to: settingsItem.target, from: nil)
+            }
+        } else {
+            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            NSApp.activate(ignoringOtherApps: true)
+        }
     }
 
     // MARK: - Helpers

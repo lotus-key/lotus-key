@@ -10,6 +10,7 @@ public enum SettingsKey: String {
     case launchAtLogin = "VnImeLaunchAtLogin"
     case showDockIcon = "VnImeShowDockIcon"
     case autoCapitalize = "VnImeAutoCapitalize"
+    case restoreIfWrongSpelling = "VnImeRestoreIfWrongSpelling"
 }
 
 /// Protocol for settings storage
@@ -19,6 +20,7 @@ public protocol SettingsStoring: AnyObject, Sendable {
     var spellCheckEnabled: Bool { get set }
     var quickTelexEnabled: Bool { get set }
     var autoCapitalize: Bool { get set }
+    var restoreIfWrongSpelling: Bool { get set }
 
     // App behavior
     var smartSwitchEnabled: Bool { get set }
@@ -55,7 +57,8 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
             SettingsKey.quickTelexEnabled.rawValue: true,
             SettingsKey.launchAtLogin.rawValue: false,
             SettingsKey.showDockIcon.rawValue: false,
-            SettingsKey.autoCapitalize.rawValue: true
+            SettingsKey.autoCapitalize.rawValue: true,
+            SettingsKey.restoreIfWrongSpelling.rawValue: true
         ])
     }
 
@@ -114,6 +117,20 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
             defaults.set(newValue, forKey: SettingsKey.autoCapitalize.rawValue)
             lock.unlock()
             settingsChangedSubject.send(.autoCapitalize)
+        }
+    }
+
+    public var restoreIfWrongSpelling: Bool {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return defaults.bool(forKey: SettingsKey.restoreIfWrongSpelling.rawValue)
+        }
+        set {
+            lock.lock()
+            defaults.set(newValue, forKey: SettingsKey.restoreIfWrongSpelling.rawValue)
+            lock.unlock()
+            settingsChangedSubject.send(.restoreIfWrongSpelling)
         }
     }
 
@@ -186,7 +203,8 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
         let keys: [SettingsKey] = [
             .inputMethod, .spellCheckEnabled,
             .smartSwitchEnabled, .quickTelexEnabled,
-            .launchAtLogin, .showDockIcon, .autoCapitalize
+            .launchAtLogin, .showDockIcon, .autoCapitalize,
+            .restoreIfWrongSpelling
         ]
 
         lock.lock()

@@ -25,10 +25,11 @@ struct SettingsView: View {
 
 /// General settings tab
 struct GeneralSettingsView: View {
-    @AppStorage("launchAtLogin") private var launchAtLogin = false
-    @AppStorage("showDockIcon") private var showDockIcon = false
-    @AppStorage("spellCheckEnabled") private var spellCheckEnabled = true
-    @AppStorage("smartSwitchEnabled") private var smartSwitchEnabled = true
+    @AppStorage(SettingsKey.launchAtLogin.rawValue) private var launchAtLogin = false
+    @AppStorage(SettingsKey.showDockIcon.rawValue) private var showDockIcon = false
+    @AppStorage(SettingsKey.spellCheckEnabled.rawValue) private var spellCheckEnabled = true
+    @AppStorage(SettingsKey.restoreIfWrongSpelling.rawValue) private var restoreIfWrongSpelling = true
+    @AppStorage(SettingsKey.smartSwitchEnabled.rawValue) private var smartSwitchEnabled = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -40,9 +41,24 @@ struct GeneralSettingsView: View {
                 .padding(.vertical, 4)
             }
 
-            GroupBox("Features") {
+            GroupBox("Spelling") {
                 VStack(alignment: .leading, spacing: 8) {
                     Toggle("Enable spell checking", isOn: $spellCheckEnabled)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Toggle("Restore keys if invalid word", isOn: $restoreIfWrongSpelling)
+                            .disabled(!spellCheckEnabled)
+                        Text("Hold Ctrl to temporarily disable")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.leading, 20)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
+            GroupBox("Features") {
+                VStack(alignment: .leading, spacing: 8) {
                     Toggle("Smart language switch per app", isOn: $smartSwitchEnabled)
                 }
                 .padding(.vertical, 4)
@@ -57,9 +73,9 @@ struct GeneralSettingsView: View {
 
 /// Input method settings tab
 struct InputMethodSettingsView: View {
-    @AppStorage("inputMethod") private var inputMethod = "Telex"
-    @AppStorage("quickTelexEnabled") private var quickTelexEnabled = true
-    @AppStorage("autoCapitalize") private var autoCapitalize = true
+    @AppStorage(SettingsKey.inputMethod.rawValue) private var inputMethod = "Telex"
+    @AppStorage(SettingsKey.quickTelexEnabled.rawValue) private var quickTelexEnabled = true
+    @AppStorage(SettingsKey.autoCapitalize.rawValue) private var autoCapitalize = true
 
     private let inputMethods = ["Telex", "Simple Telex"]
 
