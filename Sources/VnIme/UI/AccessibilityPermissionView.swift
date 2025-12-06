@@ -1,10 +1,10 @@
 import AppKit
-import Combine
+import Observation
 import SwiftUI
 
 /// View explaining accessibility permission requirements
 struct AccessibilityPermissionView: View {
-    @ObservedObject var viewModel: AccessibilityPermissionViewModel
+    var viewModel: AccessibilityPermissionViewModel
 
     var body: some View {
         VStack(spacing: 24) {
@@ -113,11 +113,12 @@ private struct PermissionReasonRow: View {
 }
 
 /// View model for accessibility permission handling
+@Observable
 @MainActor
-final class AccessibilityPermissionViewModel: ObservableObject {
-    @Published var isPermissionGranted: Bool = false
+final class AccessibilityPermissionViewModel {
+    var isPermissionGranted: Bool = false
 
-    private var timer: Timer?
+    private var monitoringTask: Task<Void, Never>?
     var onPermissionGranted: (() -> Void)?
     var onDismiss: (() -> Void)?
 
@@ -139,17 +140,18 @@ final class AccessibilityPermissionViewModel: ObservableObject {
     }
 
     func startMonitoring() {
-        // Check permission status periodically
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor [weak self] in
-                self?.checkPermission()
+        // Check permission status periodically using structured concurrency
+        monitoringTask = Task {
+            while !Task.isCancelled {
+                checkPermission()
+                try? await Task.sleep(for: .seconds(1))
             }
         }
     }
 
     func stopMonitoring() {
-        timer?.invalidate()
-        timer = nil
+        monitoringTask?.cancel()
+        monitoringTask = nil
     }
 
     func dismiss() {
@@ -230,7 +232,9 @@ final class AccessibilityPermissionWindowController {
 
     /// Request permission with prompt (shows system dialog)
     static func requestPermission() -> Bool {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+        // Use the well-known string value directly to avoid Swift 6 concurrency issues
+        // with the kAXTrustedCheckOptionPrompt C global
+        let options = ["AXTrustedCheckOptionPrompt": true] as CFDictionary
         return AXIsProcessTrustedWithOptions(options)
     }
 }

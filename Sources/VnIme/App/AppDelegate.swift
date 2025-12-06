@@ -250,14 +250,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openSettings() {
-        if #available(macOS 14.0, *) {
-            NSApp.activate(ignoringOtherApps: true)
-            if let settingsItem = NSApp.mainMenu?.item(withTitle: "VnIme")?.submenu?.item(withTitle: "Settings…") {
-                NSApp.sendAction(settingsItem.action!, to: settingsItem.target, from: nil)
-            }
-        } else {
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-            NSApp.activate(ignoringOtherApps: true)
+        NSApp.activate(ignoringOtherApps: true)
+        if let settingsItem = NSApp.mainMenu?.item(withTitle: "VnIme")?.submenu?.item(withTitle: "Settings…") {
+            NSApp.sendAction(settingsItem.action!, to: settingsItem.target, from: nil)
         }
     }
 

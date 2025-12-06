@@ -12,10 +12,10 @@ OpenKey Swift is a port of OpenKey to Swift - an open-source Vietnamese input me
 - **Auto-capitalization**: Automatically capitalize first letter of sentences
 
 ## Tech Stack
-- **Language**: Swift 5.9+
+- **Language**: Swift 6.2+
 - **UI Framework**: SwiftUI (Settings), AppKit (Menu bar, CGEventTap)
-- **Minimum macOS**: macOS 13.0 (Ventura)
-- **Build System**: Swift Package Manager / Xcode
+- **Minimum macOS**: macOS 15.0 (Sequoia)
+- **Build System**: Swift Package Manager / Xcode 26+
 - **Core Engine**: Complete rewrite in Swift (no C++ wrapping)
 
 ## Project Conventions

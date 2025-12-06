@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:vn-ime}",
+      "name": "Debug VnIme",
+      "target": "VnIme",
+      "configuration": "debug",
+      "preLaunchTask": "swift: Build Debug VnIme"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:vn-ime}",
+      "name": "Release VnIme",
+      "target": "VnIme",
+      "configuration": "release",
+      "preLaunchTask": "swift: Build Release VnIme"
+    }
+  ]
+}

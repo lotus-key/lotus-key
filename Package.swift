@@ -1,11 +1,11 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.2
 
 import PackageDescription
 
 let package = Package(
     name: "VnIme",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v15)
     ],
     products: [
         .executable(
@@ -21,9 +21,6 @@ let package = Package(
             path: "Sources/VnIme",
             resources: [
                 .process("Resources")
-            ],
-            swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .testTarget(
