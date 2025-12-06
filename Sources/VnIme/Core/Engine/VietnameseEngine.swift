@@ -528,7 +528,82 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
         // This handles cases like adding ending consonant after vowel with tone
         _ = buffer.refreshTonePosition()
 
+        // Check grammar auto-adjust when a trigger consonant is typed
+        // This handles non-standard typing orders like "thuwon" → "thương"
+        if isGrammarTriggerConsonant(char.lowercased().first) {
+            if checkGrammar() {
+                // Grammar was adjusted - need to regenerate output
+                // since vowel modifiers changed
+                _ = buffer.refreshTonePosition()
+            }
+        }
+
         return generateResult(previousLength: oldLength)
+    }
+
+    // MARK: - Grammar Auto-Adjust
+
+    /// Grammar trigger consonants - when typed after "uo" pattern, check for auto-correction
+    /// These are ending consonants that finalize the syllable structure
+    private static let grammarTriggerConsonants: Set<Character> = ["n", "c", "i", "m", "p", "t"]
+
+    /// Check for "uo" pattern with partial horn and auto-correct (XOR logic).
+    ///
+    /// Implements OpenKey's `checkGrammar()` behavior (Engine.cpp:290-347):
+    /// - Only adjusts if exactly one of U/O has horn (XOR = true)
+    /// - ưo → ươ (u has horn, o doesn't)
+    /// - uơ → ươ (o has horn, u doesn't)
+    /// - Does NOT change: uo (neither has horn) or ươ (both have horn)
+    ///
+    /// This handles non-standard typing orders like "thuwong" → "thương"
+    /// where user types horn on "u" first, then "o", then ending consonant.
+    ///
+    /// - Returns: true if grammar was adjusted, false otherwise
+    @discardableResult
+    private func checkGrammar() -> Bool {
+        // Need at least 3 characters for "uo" + consonant pattern
+        guard buffer.count >= 3 else { return false }
+
+        let chars = buffer.allCharacters
+
+        // Scan backward looking for "uo" + trigger consonant pattern
+        // The pattern we're looking for: u at [i-2], o at [i-1], consonant at [i]
+        for i in stride(from: buffer.count - 1, through: 2, by: -1) {
+            guard let base = chars[i].baseCharacter else { continue }
+
+            // Check if current char is a grammar trigger consonant
+            guard Self.grammarTriggerConsonants.contains(base) else { continue }
+
+            // Check for "uo" pattern before the consonant
+            let oIndex = i - 1
+            let uIndex = i - 2
+
+            guard let oBase = chars[oIndex].baseCharacter,
+                  let uBase = chars[uIndex].baseCharacter,
+                  oBase == "o", uBase == "u" else { continue }
+
+            let oHasHorn = chars[oIndex].state.contains(.hornOrBreve)
+            let uHasHorn = chars[uIndex].state.contains(.hornOrBreve)
+
+            // XOR check: exactly one has horn → apply horn to both
+            // ưo (true, false) → ươ
+            // uơ (false, true) → ươ
+            // uo (false, false) → no change (user didn't intend horn)
+            // ươ (true, true) → no change (already correct)
+            if uHasHorn != oHasHorn {
+                buffer[uIndex].state.insert(.hornOrBreve)
+                buffer[oIndex].state.insert(.hornOrBreve)
+                return true
+            }
+        }
+
+        return false
+    }
+
+    /// Check if a character is a grammar trigger consonant
+    private func isGrammarTriggerConsonant(_ char: Character?) -> Bool {
+        guard let c = char else { return false }
+        return Self.grammarTriggerConsonants.contains(c)
     }
 
     // MARK: - Backspace Handling
