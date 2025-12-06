@@ -12,7 +12,7 @@ Bộ gõ tiếng Việt cho macOS, được viết lại hoàn toàn bằng Swif
 
 ## Yêu cầu hệ thống
 
-- macOS 13.0 (Ventura) trở lên
+- macOS 15.0 (Sequoia) trở lên
 - Quyền truy cập Accessibility (System Settings → Privacy & Security → Accessibility)
 
 ## Thiết lập quyền Accessibility
@@ -107,8 +107,8 @@ VnIme tự động bypass khi phát hiện IME tiếng Nhật, Trung, Hàn đang
 
 ### Yêu cầu
 
-- Xcode 15+ hoặc Swift 5.9+
-- macOS 13.0+
+- Xcode 26+ hoặc Swift 6.2+
+- macOS 15.0+
 
 ### Build
 
