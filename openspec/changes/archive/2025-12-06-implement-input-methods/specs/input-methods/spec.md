@@ -1,8 +1,5 @@
-# input-methods Specification
+## MODIFIED Requirements
 
-## Purpose
-Defines the input method protocols and implementations (Telex, Simple Telex) for Vietnamese text entry, including transformation rules and Quick Telex shortcuts.
-## Requirements
 ### Requirement: Telex Input Method
 
 The system SHALL support the Telex input method for Vietnamese text entry.
@@ -137,48 +134,7 @@ The system SHALL support Simple Telex variants with reduced key combinations. Si
 
 ---
 
-### Requirement: Quick Telex Consonant Shortcuts
-
-The system SHALL support Quick Telex shortcuts for common consonant combinations when enabled.
-
-#### Scenario: Quick consonant 'cc' to 'ch'
-- **WHEN** Quick Telex is enabled
-- **AND** user types 'cc'
-- **THEN** the system transforms to 'ch'
-
-#### Scenario: Quick consonant 'gg' to 'gi'
-- **WHEN** Quick Telex is enabled
-- **AND** user types 'gg'
-- **THEN** the system transforms to 'gi'
-
-#### Scenario: Quick consonant 'nn' to 'ng'
-- **WHEN** Quick Telex is enabled
-- **AND** user types 'nn'
-- **THEN** the system transforms to 'ng'
-
-#### Scenario: All quick consonant mappings
-- **WHEN** Quick Telex is enabled
-- **THEN** the following shortcuts are available: cc→ch, gg→gi, kk→kh, nn→ng, pp→ph, qq→qu, tt→th
-
-#### Scenario: Quick Telex disabled
-- **WHEN** Quick Telex is disabled
-- **AND** user types 'cc'
-- **THEN** 'cc' is output as-is without transformation
-
----
-
-### Requirement: Input Method Switching
-
-The system SHALL allow switching between Telex and Simple Telex at runtime.
-
-#### Scenario: Switch input method
-- **WHEN** user changes input method
-- **THEN** new session starts
-- **AND** subsequent input uses new method rules
-
-#### Scenario: Preserve language state on method switch
-- **WHEN** input method is changed
-- **THEN** Vietnamese/English language state is preserved
+## ADDED Requirements
 
 ### Requirement: Input Method Registry
 
@@ -215,4 +171,3 @@ The system SHALL integrate Quick Telex shortcuts into the input processing pipel
 #### Scenario: Quick Telex with subsequent input
 - **WHEN** user types 'cca' (quick telex + vowel)
 - **THEN** result is 'cha'
-

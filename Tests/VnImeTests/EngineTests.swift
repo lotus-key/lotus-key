@@ -538,4 +538,247 @@ final class EngineTests: XCTestCase {
         // After adding ending, tone should have been repositioned if needed
         XCTAssertFalse(engine.isEmpty)
     }
+
+    // MARK: - Undo Mechanism Tests
+
+    func testUndoCircumflex() {
+        // aa → â, aaa → aa
+        let result = engine.processString("aaa")
+        XCTAssertEqual(result, "aa", "aaa should undo circumflex to produce 'aa'")
+    }
+
+    func testUndoCircumflexE() {
+        // ee → ê, eee → ee
+        let result = engine.processString("eee")
+        XCTAssertEqual(result, "ee", "eee should undo circumflex to produce 'ee'")
+    }
+
+    func testUndoCircumflexO() {
+        // oo → ô, ooo → oo
+        let result = engine.processString("ooo")
+        XCTAssertEqual(result, "oo", "ooo should undo circumflex to produce 'oo'")
+    }
+
+    func testUndoCircumflexWithTempDisable() {
+        // aaaa → aaa (tempDisableKey prevents re-transform after undo)
+        let result = engine.processString("aaaa")
+        XCTAssertEqual(result, "aaa", "aaaa should produce 'aaa' (tempDisableKey)")
+    }
+
+    func testUndoCircumflexEWithTempDisable() {
+        // eeee → eee (tempDisableKey prevents re-transform after undo)
+        let result = engine.processString("eeee")
+        XCTAssertEqual(result, "eee", "eeee should produce 'eee' (tempDisableKey)")
+    }
+
+    func testUndoCircumflexOWithTempDisable() {
+        // oooo → ooo (tempDisableKey prevents re-transform after undo)
+        let result = engine.processString("oooo")
+        XCTAssertEqual(result, "ooo", "oooo should produce 'ooo' (tempDisableKey)")
+    }
+
+    func testUndoStroke() {
+        // dd → đ, ddd → dd
+        let result = engine.processString("ddd")
+        XCTAssertEqual(result, "dd", "ddd should undo stroke to produce 'dd'")
+    }
+
+    func testUndoStrokeWithTempDisable() {
+        // dddd → ddd (tempDisableKey prevents re-transform after undo)
+        let result = engine.processString("dddd")
+        XCTAssertEqual(result, "ddd", "dddd should produce 'ddd' (tempDisableKey)")
+    }
+
+    func testUndoHorn() {
+        // ow → ơ, oww → ow
+        let result = engine.processString("oww")
+        XCTAssertEqual(result, "ow", "oww should undo horn to produce 'ow'")
+    }
+
+    func testUndoBreve() {
+        // aw → ă, aww → aw
+        let result = engine.processString("aww")
+        XCTAssertEqual(result, "aw", "aww should undo breve to produce 'aw'")
+    }
+
+    func testUndoTone() {
+        // as → á, ass → as
+        let result = engine.processString("ass")
+        XCTAssertEqual(result, "as", "ass should undo tone to produce 'as'")
+    }
+
+    func testUndoResetAfterWordBreak() {
+        // After word break, undo state should reset
+        // "aaaa " + "aa" → "aaa aa" (not "aaa â") - tempDisableKey resets after word break
+        // The first "aaaa" produces "aaa" (circumflex + undo + tempDisabled literal)
+        // The space resets tempDisableKey
+        // The next "aa" produces "â" (circumflex works again after reset)
+        let result = engine.processString("aaaa aa")
+        XCTAssertEqual(result, "aaa â", "tempDisableKey should reset after word break, allowing transformation in new word")
+    }
+
+    // MARK: - Bracket Key Integration Tests
+
+    func testBracketKeyAtStart() {
+        // First verify the input method returns the right transformation
+        let telex = TelexInputMethod()
+        var state = InputMethodState()
+        let transformation = telex.processCharacter("[", context: "", state: &state)
+        XCTAssertNotNil(transformation, "TelexInputMethod should return transformation for '['")
+
+        if let t = transformation, case .standalone(let char) = t.type {
+            XCTAssertEqual(char, "ơ", "Standalone should be 'ơ'")
+        } else {
+            XCTFail("Expected standalone transformation, got: \(String(describing: transformation?.type))")
+        }
+
+        // Verify isSpecialKey returns true for [
+        XCTAssertTrue(telex.isSpecialKey("["), "[ should be a special key")
+        XCTAssertTrue(engine.inputMethod.isSpecialKey("["), "Engine's input method should recognize '[' as special")
+
+        // [ at start → ơ
+        let result = engine.processString("[")
+        XCTAssertEqual(result, "ơ", "[ at start should produce 'ơ'")
+    }
+
+    func testBracketKeyAfterConsonant() {
+        // b[ → bơ
+        let result = engine.processString("b[")
+        XCTAssertEqual(result, "bơ", "b[ should produce 'bơ'")
+    }
+
+    func testBracketKeyClosedAfterConsonant() {
+        // b] → bư
+        let result = engine.processString("b]")
+        XCTAssertEqual(result, "bư", "b] should produce 'bư'")
+    }
+
+    func testBracketKeyUSpecialCase() {
+        // u[ → uơ (special case)
+        let result = engine.processString("u[")
+        XCTAssertEqual(result, "uơ", "u[ should produce 'uơ'")
+    }
+
+    func testBracketKeyAfterVowelLiteral() {
+        // a[ → a[ (literal after vowel)
+        let result = engine.processString("a[")
+        XCTAssertEqual(result, "a[", "a[ should produce 'a[' (literal)")
+    }
+
+    // MARK: - Standalone W Tests
+
+    func testStandaloneWAtStart() {
+        // w at start → ư (in Telex)
+        let result = engine.processString("w")
+        XCTAssertEqual(result, "ư", "w at start should produce 'ư' in Telex")
+    }
+
+    func testStandaloneWAfterConsonant() {
+        // bw → bư (in Telex)
+        let result = engine.processString("bw")
+        XCTAssertEqual(result, "bư", "bw should produce 'bư' in Telex")
+    }
+
+    // MARK: - Simple Telex Engine Tests
+
+    func testSimpleTelexOWNoHorn() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // ow → ow in Simple Telex (no horn)
+        let result = simpleEngine.processString("ow")
+        XCTAssertEqual(result, "ow", "ow in Simple Telex should stay 'ow'")
+    }
+
+    func testSimpleTelexUWNoHorn() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // uw → uw in Simple Telex (no horn)
+        let result = simpleEngine.processString("uw")
+        XCTAssertEqual(result, "uw", "uw in Simple Telex should stay 'uw'")
+    }
+
+    func testSimpleTelexAWBreve() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // aw → ă in Simple Telex (breve works)
+        let result = simpleEngine.processString("aw")
+        XCTAssertEqual(result, "ă", "aw in Simple Telex should produce 'ă'")
+    }
+
+    func testSimpleTelexStandaloneWNoConversion() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // w at start → w in Simple Telex (no → ư)
+        let result = simpleEngine.processString("w")
+        XCTAssertEqual(result, "w", "w in Simple Telex should stay 'w'")
+    }
+
+    func testSimpleTelexBracketWorks() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // [ at start → ơ in Simple Telex (bracket works)
+        let result = simpleEngine.processString("[")
+        XCTAssertEqual(result, "ơ", "[ in Simple Telex should produce 'ơ'")
+    }
+
+    func testSimpleTelexAWWUndo() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // aww → aw in Simple Telex (undo breve)
+        let result = simpleEngine.processString("aww")
+        XCTAssertEqual(result, "aw", "aww in Simple Telex should undo breve to produce 'aw'")
+    }
+
+    func testSimpleTelexAWWWTempDisable() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // awww → aww in Simple Telex (tempDisableKey after undo)
+        let result = simpleEngine.processString("awww")
+        XCTAssertEqual(result, "aww", "awww in Simple Telex should produce 'aww' (tempDisableKey)")
+    }
+
+    // MARK: - Quick Telex Integration Tests
+
+    func testQuickTelexCC() {
+        engine.quickTelex.isEnabled = true
+        let result = engine.processString("cc")
+        XCTAssertEqual(result, "ch", "cc with Quick Telex enabled should produce 'ch'")
+    }
+
+    func testQuickTelexGG() {
+        engine.quickTelex.isEnabled = true
+        let result = engine.processString("gg")
+        XCTAssertEqual(result, "gi", "gg with Quick Telex enabled should produce 'gi'")
+    }
+
+    func testQuickTelexNN() {
+        engine.quickTelex.isEnabled = true
+        let result = engine.processString("nn")
+        XCTAssertEqual(result, "ng", "nn with Quick Telex enabled should produce 'ng'")
+    }
+
+    func testQuickTelexTT() {
+        engine.quickTelex.isEnabled = true
+        let result = engine.processString("tt")
+        XCTAssertEqual(result, "th", "tt with Quick Telex enabled should produce 'th'")
+    }
+
+    func testQuickTelexDisabled() {
+        engine.quickTelex.isEnabled = false
+        let result = engine.processString("cc")
+        XCTAssertEqual(result, "cc", "cc with Quick Telex disabled should stay 'cc'")
+    }
+
+    func testQuickTelexInWord() {
+        engine.quickTelex.isEnabled = true
+        let result = engine.processString("cca")
+        XCTAssertEqual(result, "cha", "cca with Quick Telex should produce 'cha'")
+    }
 }

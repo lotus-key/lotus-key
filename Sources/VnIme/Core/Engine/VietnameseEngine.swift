@@ -63,6 +63,12 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
     private var stateHistory: [[TypedCharacter]] = []
     private let maxHistorySize = 10
 
+    /// Input method state for undo tracking
+    private var inputMethodState: InputMethodState = InputMethodState()
+
+    /// Quick Telex handler for consonant shortcuts (cc=ch, gg=gi, etc.)
+    public var quickTelex: QuickTelex = QuickTelex()
+
     public var inputMethod: any InputMethod { _inputMethod }
     public var characterTable: any CharacterTable { _characterTable }
 
@@ -97,6 +103,12 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
             return .passThrough
         }
 
+        // Check for special keys BEFORE word break check
+        // This allows bracket keys ([, ]) to be processed as shortcuts
+        if _inputMethod.isSpecialKey(char) {
+            return processCharacter(char)
+        }
+
         // Handle word break
         if VietnameseConstants.isWordBreak(char) {
             return handleWordBreak()
@@ -109,16 +121,64 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
     // MARK: - Character Processing
 
     private func processCharacter(_ char: Character) -> EngineResult {
+        // 1. Check Quick Telex first (before input method)
+        if quickTelex.isEnabled,
+           let lastChar = buffer.last?.baseCharacter,
+           let expansion = quickTelex.processShortcut(char, previousCharacter: lastChar) {
+            return applyQuickTelexExpansion(expansion, originalChar: char)
+        }
+
         // Get context string for input method
         let context = buffer.toUnicodeString()
 
-        // Check if input method has a transformation
-        if let transformation = _inputMethod.processCharacter(char, context: context) {
-            return applyTransformation(transformation, originalChar: char)
+        // 2. Check if input method has a transformation (with state for undo support)
+        if let transformation = _inputMethod.processCharacter(char, context: context, state: &inputMethodState) {
+            // For undo tracking, we capture what the buffer would look like
+            // if we just added the character without transformation.
+            // e.g., for "a" + "a" → "â", the originalChars should be "aa" (to restore on undo)
+            // Note: undo restores to originalChars WITHOUT adding the undo key again
+            let originalCharsForUndo = context + String(char)
+
+            let result = applyTransformation(transformation, originalChar: char)
+
+            // Track this transformation for potential undo (if it was successful and has a category)
+            // Only track non-undo transformations
+            if case .undo(_) = transformation.type {
+                // Don't track undo itself
+            } else if case .replace(_, _) = result,
+                      let category = transformation.category {
+                inputMethodState.lastTransformation = LastTransformation(
+                    type: category,
+                    triggerKey: char,
+                    originalChars: originalCharsForUndo
+                )
+            }
+
+            return result
         }
 
         // No transformation - just add character to buffer
+        // Clear last transformation since this is a new character
+        inputMethodState.lastTransformation = nil
         return addCharacterToBuffer(char)
+    }
+
+    /// Apply Quick Telex expansion (e.g., cc → ch, gg → gi)
+    private func applyQuickTelexExpansion(_ expansion: String, originalChar: Character) -> EngineResult {
+        let oldLength = previousOutputLength
+
+        // Remove the last character (the first of the doubled pair)
+        _ = buffer.removeLast()
+
+        // Add the expansion characters
+        for char in expansion {
+            buffer.append(char)
+        }
+
+        // Clear undo state (Quick Telex expansions are not undoable)
+        inputMethodState.lastTransformation = nil
+
+        return generateResult(previousLength: oldLength, wasTransformed: true)
     }
 
     private func applyTransformation(_ transformation: InputTransformation, originalChar: Character) -> EngineResult {
@@ -142,6 +202,18 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
             applyReplacement(replacement)
             wasTransformed = true
 
+        case .undo(let originalChars):
+            // Restore original characters and add the trigger key
+            applyUndo(originalChars: originalChars, triggerKey: originalChar)
+            wasTransformed = true
+
+        case .standalone(let char):
+            // Add standalone character (e.g., [ → ơ, ] → ư)
+            // For Vietnamese characters (ơ, ư), we need to compose them properly
+            let isUpper = originalChar.isUppercase
+            applyStandaloneVowel(char, uppercase: isUpper)
+            wasTransformed = true
+
         case .none:
             // Add character as-is
             buffer.append(originalChar)
@@ -154,6 +226,71 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
         }
 
         return generateResult(previousLength: oldLength, wasTransformed: wasTransformed)
+    }
+
+    /// Apply undo: restore original characters
+    /// The originalChars already includes the key sequence (e.g., "aa" for circumflex undo)
+    private func applyUndo(originalChars: String, triggerKey: Character) {
+        // Clear current buffer
+        buffer.clear()
+
+        // Restore original characters (already includes the key sequence)
+        for char in originalChars {
+            buffer.append(char)
+        }
+        // Note: We do NOT add triggerKey again - originalChars already has the complete sequence
+    }
+
+    /// Apply a standalone Vietnamese vowel (e.g., ơ, ư)
+    /// These need to be composed from base + modifier since we store ASCII bases
+    private func applyStandaloneVowel(_ char: Character, uppercase: Bool) {
+        switch char {
+        case "ơ", "Ơ":
+            // ơ = o + horn
+            var typedChar = TypedCharacter(character: "o", caps: uppercase)
+            typedChar.state.insert(.hornOrBreve)
+            buffer.append(typedChar)
+
+        case "ư", "Ư":
+            // ư = u + horn
+            var typedChar = TypedCharacter(character: "u", caps: uppercase)
+            typedChar.state.insert(.hornOrBreve)
+            buffer.append(typedChar)
+
+        case "ă", "Ă":
+            // ă = a + breve
+            var typedChar = TypedCharacter(character: "a", caps: uppercase)
+            typedChar.state.insert(.hornOrBreve)
+            buffer.append(typedChar)
+
+        case "â", "Â":
+            // â = a + circumflex
+            var typedChar = TypedCharacter(character: "a", caps: uppercase)
+            typedChar.state.insert(.circumflex)
+            buffer.append(typedChar)
+
+        case "ê", "Ê":
+            // ê = e + circumflex
+            var typedChar = TypedCharacter(character: "e", caps: uppercase)
+            typedChar.state.insert(.circumflex)
+            buffer.append(typedChar)
+
+        case "ô", "Ô":
+            // ô = o + circumflex
+            var typedChar = TypedCharacter(character: "o", caps: uppercase)
+            typedChar.state.insert(.circumflex)
+            buffer.append(typedChar)
+
+        case "đ", "Đ":
+            // đ = d + stroke
+            var typedChar = TypedCharacter(character: "d", caps: uppercase)
+            typedChar.state.insert(.stroke)
+            buffer.append(typedChar)
+
+        default:
+            // For regular ASCII characters, just add them
+            buffer.append(TypedCharacter(character: char, caps: uppercase))
+        }
     }
 
     /// Apply tone mark to appropriate vowel
@@ -403,6 +540,7 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
         // Finalize current word and start new session
         buffer.clear()
         previousOutputLength = 0
+        inputMethodState.reset()
         return .passThrough
     }
 
@@ -437,6 +575,7 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
         buffer.clear()
         previousOutputLength = 0
         clearHistory()
+        inputMethodState.reset()
     }
 
     public func setInputMethod(_ method: any InputMethod) {
