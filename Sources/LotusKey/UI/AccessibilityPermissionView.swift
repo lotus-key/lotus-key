@@ -16,27 +16,27 @@ struct AccessibilityPermissionView: View {
                 .foregroundStyle(.orange)
 
             // Title
-            Text("Accessibility Permission Required")
+            Text(L("Accessibility Permission Required"))
                 .font(.title2)
                 .fontWeight(.bold)
 
             // Description
             VStack(alignment: .leading, spacing: 12) {
-                Text("LotusKey needs accessibility permissions to:")
+                Text(L("LotusKey needs accessibility permissions to:"))
                     .font(.headline)
 
                 VStack(alignment: .leading, spacing: 8) {
                     PermissionReasonRow(
                         icon: "keyboard",
-                        text: "Intercept keyboard events for Vietnamese input"
+                        text: L("Intercept keyboard events for Vietnamese input")
                     )
                     PermissionReasonRow(
                         icon: "character.cursor.ibeam",
-                        text: "Send text to applications"
+                        text: L("Send text to applications")
                     )
                     PermissionReasonRow(
                         icon: "arrow.left.arrow.right",
-                        text: "Switch between Vietnamese and English modes"
+                        text: L("Switch between Vietnamese and English modes")
                     )
                 }
             }
@@ -49,14 +49,14 @@ struct AccessibilityPermissionView: View {
                 Circle()
                     .fill(viewModel.isPermissionGranted ? .green : .red)
                     .frame(width: 10, height: 10)
-                Text(viewModel.isPermissionGranted ? "Permission Granted" : "Permission Required")
+                Text(viewModel.isPermissionGranted ? L("Permission Granted") : L("Permission Required"))
                     .foregroundStyle(viewModel.isPermissionGranted ? .green : .red)
             }
 
             // Buttons
             VStack(spacing: 12) {
                 Button(action: viewModel.openSystemSettings) {
-                    Label("Open System Settings", systemImage: "gearshape")
+                    Label(L("Open System Settings"), systemImage: "gearshape")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -64,14 +64,14 @@ struct AccessibilityPermissionView: View {
 
                 if viewModel.isPermissionGranted {
                     Button(action: viewModel.dismiss) {
-                        Text("Continue")
+                        Text(L("Continue"))
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.large)
                 } else {
                     Button(action: viewModel.checkPermission) {
-                        Text("Check Permission Status")
+                        Text(L("Check Permission Status"))
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
@@ -80,7 +80,7 @@ struct AccessibilityPermissionView: View {
             }
 
             // Help text
-            Text("Go to System Settings → Privacy & Security → Accessibility,\nthen enable LotusKey in the list.")
+            Text(L("Go to System Settings → Privacy & Security → Accessibility,\nthen enable LotusKey in the list."))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -240,7 +240,7 @@ final class AccessibilityPermissionWindowController {
             defer: false
         )
         window.contentView = hostingView
-        window.title = "LotusKey - Permission Required"
+        window.title = L("LotusKey - Permission Required")
         window.level = .floating
         window.center()
 

@@ -1,0 +1,76 @@
+/* Vietnamese localizations */
+
+/* Tabs */
+"General" = "Chung";
+"About" = "Giới thiệu";
+
+/* Sections */
+"Input" = "Kiểu gõ";
+"Spelling" = "Chính tả";
+"Behavior" = "Hệ thống";
+"Compatibility" = "Tương thích";
+
+/* Input settings */
+"Input Method" = "Kiểu gõ";
+"Quick Telex" = "Gõ nhanh";
+"cc → ch, gg → gi\nkk → kh, ngg → ngh\nqq → qu" = "cc → ch, gg → gi\nkk → kh, ngg → ngh\nqq → qu";
+"Auto-capitalize" = "Viết hoa chữ cái đầu câu";
+
+/* Spelling settings */
+"Spell Checking" = "Kiểm tra chính tả";
+"Restore Invalid Words" = "Tự khôi phục phím với từ sai";
+"Reverts text if spelling is invalid.\nHold ⌃ Control to bypass." = "Khôi phục văn bản nếu từ sai.\nGiữ ⌃ Control để bỏ qua.";
+
+/* Behavior settings */
+"Smart Language Switch" = "Chuyển chế độ thông minh";
+"Remembers Vietnamese or English preference for each application." = "Ghi nhớ ngôn ngữ theo ứng dụng.";
+"Launch at Login" = "Khởi động cùng macOS";
+"Show in Dock" = "Hiện biểu tượng trên thanh Dock";
+"Language" = "Ngôn ngữ";
+"Follow System" = "Theo hệ thống";
+
+/* Compatibility settings */
+"Fix Browser Autocomplete" = "Sửa lỗi gợi ý (trình duyệt)";
+"Fixes input issues in browser address bars and search fields." = "Sửa lỗi nhập liệu trong thanh địa chỉ và ô tìm kiếm của trình duyệt.";
+"Fix Chromium Browsers" = "Sửa lỗi trên Chromium";
+"Chrome, Edge, Arc, Brave, and other Chromium-based browsers." = "Chrome, Edge, Arc, Brave và các trình duyệt dựa trên Chromium.";
+"Step-by-Step Mode" = "Gửi từng phím";
+"Sends keys one at a time.\nSlower but more compatible." = "Gửi từng phím một.\nChậm hơn nhưng tương thích tốt hơn.";
+
+/* About tab */
+"LotusKey" = "LotusKey";
+"Version %@" = "Phiên bản %@";
+"Vietnamese Input Method for macOS" = "Bộ gõ Tiếng Việt dành cho macOS";
+"GitHub" = "GitHub";
+"© 2025 Cong Tran" = "© 2025 Cong Tran";
+"Licensed under GPL-3.0" = "Giấy phép GPL-3.0";
+
+/* Menu bar */
+"Vietnamese" = "Tiếng Việt";
+"English" = "Tiếng Anh";
+"Settings..." = "Bảng điều khiển...";
+"Quit LotusKey" = "Thoát";
+
+/* Restart dialog */
+"Restart Required" = "Cần khởi động lại";
+"Restart Now" = "Khởi động lại ngay";
+"Later" = "Để sau";
+"Language change requires restart." = "Thay đổi ngôn ngữ cần khởi động lại ứng dụng.";
+
+/* Accessibility Permission */
+"Accessibility Permission Required" = "Cần cấp quyền truy cập";
+"LotusKey needs accessibility permissions to:" = "LotusKey cần quyền truy cập để:";
+"Intercept keyboard events for Vietnamese input" = "Nhận sự kiện bàn phím cho gõ tiếng Việt";
+"Send text to applications" = "Gửi văn bản đến ứng dụng";
+"Switch between Vietnamese and English modes" = "Chuyển đổi giữa chế độ Tiếng Việt và Tiếng Anh";
+"Permission Granted" = "Đã cấp quyền";
+"Permission Required" = "Cần cấp quyền";
+"Open System Settings" = "Mở Cài đặt hệ thống";
+"Continue" = "Tiếp tục";
+"Check Permission Status" = "Kiểm tra trạng thái quyền";
+"Go to System Settings → Privacy & Security → Accessibility,\nthen enable LotusKey in the list." = "Vào Cài đặt hệ thống → Riêng tư & Bảo mật → Trợ năng,\nsau đó bật LotusKey trong danh sách.";
+"LotusKey - Permission Required" = "LotusKey - Cần cấp quyền";
+
+/* Errors */
+"LotusKey Error" = "Lỗi LotusKey";
+"OK" = "OK";

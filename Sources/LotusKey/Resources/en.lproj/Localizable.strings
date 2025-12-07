@@ -1,0 +1,76 @@
+/* English localizations - Base language */
+
+/* Tabs */
+"General" = "General";
+"About" = "About";
+
+/* Sections */
+"Input" = "Input";
+"Spelling" = "Spelling";
+"Behavior" = "Behavior";
+"Compatibility" = "Compatibility";
+
+/* Input settings */
+"Input Method" = "Input Method";
+"Quick Telex" = "Quick Telex";
+"cc → ch, gg → gi\nkk → kh, ngg → ngh\nqq → qu" = "cc → ch, gg → gi\nkk → kh, ngg → ngh\nqq → qu";
+"Auto-capitalize" = "Auto-capitalize";
+
+/* Spelling settings */
+"Spell Checking" = "Spell Checking";
+"Restore Invalid Words" = "Restore Invalid Words";
+"Reverts text if spelling is invalid.\nHold ⌃ Control to bypass." = "Reverts text if spelling is invalid.\nHold ⌃ Control to bypass.";
+
+/* Behavior settings */
+"Smart Language Switch" = "Smart Language Switch";
+"Remembers Vietnamese or English preference for each application." = "Remembers Vietnamese or English preference for each application.";
+"Launch at Login" = "Launch at Login";
+"Show in Dock" = "Show in Dock";
+"Language" = "Language";
+"Follow System" = "Follow System";
+
+/* Compatibility settings */
+"Fix Browser Autocomplete" = "Fix Browser Autocomplete";
+"Fixes input issues in browser address bars and search fields." = "Fixes input issues in browser address bars and search fields.";
+"Fix Chromium Browsers" = "Fix Chromium Browsers";
+"Chrome, Edge, Arc, Brave, and other Chromium-based browsers." = "Chrome, Edge, Arc, Brave, and other Chromium-based browsers.";
+"Step-by-Step Mode" = "Step-by-Step Mode";
+"Sends keys one at a time.\nSlower but more compatible." = "Sends keys one at a time.\nSlower but more compatible.";
+
+/* About tab */
+"LotusKey" = "LotusKey";
+"Version %@" = "Version %@";
+"Vietnamese Input Method for macOS" = "Vietnamese Input Method for macOS";
+"GitHub" = "GitHub";
+"© 2025 Cong Tran" = "© 2025 Cong Tran";
+"Licensed under GPL-3.0" = "Licensed under GPL-3.0";
+
+/* Menu bar */
+"Vietnamese" = "Vietnamese";
+"English" = "English";
+"Settings..." = "Settings...";
+"Quit LotusKey" = "Quit LotusKey";
+
+/* Restart dialog */
+"Restart Required" = "Restart Required";
+"Restart Now" = "Restart Now";
+"Later" = "Later";
+"Language change requires restart." = "Language change requires restart.";
+
+/* Accessibility Permission */
+"Accessibility Permission Required" = "Accessibility Permission Required";
+"LotusKey needs accessibility permissions to:" = "LotusKey needs accessibility permissions to:";
+"Intercept keyboard events for Vietnamese input" = "Intercept keyboard events for Vietnamese input";
+"Send text to applications" = "Send text to applications";
+"Switch between Vietnamese and English modes" = "Switch between Vietnamese and English modes";
+"Permission Granted" = "Permission Granted";
+"Permission Required" = "Permission Required";
+"Open System Settings" = "Open System Settings";
+"Continue" = "Continue";
+"Check Permission Status" = "Check Permission Status";
+"Go to System Settings → Privacy & Security → Accessibility,\nthen enable LotusKey in the list." = "Go to System Settings → Privacy & Security → Accessibility,\nthen enable LotusKey in the list.";
+"LotusKey - Permission Required" = "LotusKey - Permission Required";
+
+/* Errors */
+"LotusKey Error" = "LotusKey Error";
+"OK" = "OK";

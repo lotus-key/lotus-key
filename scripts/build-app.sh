@@ -22,6 +22,13 @@ mkdir -p "${RESOURCES_DIR}"
 # Copy executable
 cp "${BUILD_DIR}/${APP_NAME}" "${MACOS_DIR}/"
 
+# Copy SPM resource bundle (for localization)
+RESOURCE_BUNDLE="${BUILD_DIR}/LotusKey_LotusKey.bundle"
+if [ -d "${RESOURCE_BUNDLE}" ]; then
+    cp -R "${RESOURCE_BUNDLE}" "${RESOURCES_DIR}/"
+    echo "📦 Copied resource bundle"
+fi
+
 # Tạo Info.plist
 cat > "${CONTENTS_DIR}/Info.plist" << PLIST
 <?xml version="1.0" encoding="UTF-8"?>

@@ -41,6 +41,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         applyLifecycleSettings()
         setupMenuBar()
         setupEventHandler()
+        setupSettingsWindowObserver()
+    }
+
+    /// Observe Settings window close to restore activation policy
+    private func setupSettingsWindowObserver() {
+        NotificationCenter.default.publisher(for: .settingsWindowClosed)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                // Restore accessory mode if user prefers hidden dock icon
+                if !self.settings.showDockIcon {
+                    AppLifecycleManager.shared.setDockIconVisible(false)
+                }
+            }
+            .store(in: &cancellables)
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -101,7 +116,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
 
         // Language mode toggle
-        languageModeItem = NSMenuItem(title: "Vietnamese", action: #selector(toggleLanguageMode), keyEquivalent: "")
+        languageModeItem = NSMenuItem(
+            title: L("Vietnamese"),
+            action: #selector(toggleLanguageMode),
+            keyEquivalent: ""
+        )
         languageModeItem?.target = self
         languageModeItem?.state = .on
         menu.addItem(languageModeItem!)
@@ -109,13 +128,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem.separator())
 
         // Settings
-        menu.addItem(NSMenuItem(title: "Settings...", action: #selector(openSettings), keyEquivalent: ","))
+        menu.addItem(NSMenuItem(
+            title: L("Settings..."),
+            action: #selector(openSettings),
+            keyEquivalent: ","
+        ))
 
         menu.addItem(NSMenuItem.separator())
 
         // Quit
-        menu.addItem(
-            NSMenuItem(title: "Quit LotusKey", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(
+            title: L("Quit LotusKey"),
+            action: #selector(NSApplication.terminate(_:)),
+            keyEquivalent: "q"
+        ))
 
         statusItem?.menu = menu
     }
@@ -238,7 +264,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func updateLanguageModeMenuItem(isVietnameseMode: Bool) {
-        languageModeItem?.title = isVietnameseMode ? "Vietnamese" : "English"
+        languageModeItem?.title = isVietnameseMode
+            ? L("Vietnamese")
+            : L("English")
         languageModeItem?.state = isVietnameseMode ? .on : .off
         updateMenuBarIcon(isVietnameseMode: isVietnameseMode)
     }
@@ -387,19 +415,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openSettings() {
-        NSApp.activate(ignoringOtherApps: true)
-        // Open Settings window using the standard macOS action for Settings scene
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        // Post notification to trigger Settings opening via the hidden SwiftUI window.
+        // This approach uses @Environment(\.openSettings) which is the official SwiftUI API
+        // for opening Settings, ensuring native styling (tabs, liquid glass design).
+        NotificationCenter.default.post(name: .openSettingsRequest, object: nil)
     }
 
     // MARK: - Helpers
 
     private func showError(_ message: String) {
         let alert = NSAlert()
-        alert.messageText = "LotusKey Error"
+        alert.messageText = L("LotusKey Error")
         alert.informativeText = message
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: L("OK"))
         alert.runModal()
     }
 }

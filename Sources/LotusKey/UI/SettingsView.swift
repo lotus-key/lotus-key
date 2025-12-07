@@ -24,18 +24,27 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.fixChromiumBrowser.rawValue) private var fixChromiumBrowser = true
     @AppStorage(SettingsKey.sendKeyStepByStep.rawValue) private var sendKeyStepByStep = false
 
+    // i18n
+    @AppStorage(SettingsKey.appLanguage.rawValue) private var appLanguageRaw = AppLanguage.system.rawValue
+    @State private var showRestartAlert = false
+
     private let inputMethods = ["Telex", "Simple Telex"]
+
+    private var appLanguage: AppLanguage {
+        get { AppLanguage(rawValue: appLanguageRaw) ?? .system }
+        nonmutating set { appLanguageRaw = newValue.rawValue }
+    }
 
     var body: some View {
         TabView {
             generalTab
                 .tabItem {
-                    Label("General", systemImage: "gearshape")
+                    Label(L("General"), systemImage: "gearshape")
                 }
 
             aboutTab
                 .tabItem {
-                    Label("About", systemImage: "info.circle")
+                    Label(L("About"), systemImage: "info.circle")
                 }
         }
         .frame(width: 420, height: 420)
@@ -46,7 +55,7 @@ struct SettingsView: View {
     private var generalTab: some View {
         Form {
             Section {
-                Picker("Input Method", selection: $inputMethod) {
+                Picker(L("Input Method"), selection: $inputMethod) {
                     ForEach(inputMethods, id: \.self) { method in
                         Text(method).tag(method)
                     }
@@ -54,72 +63,117 @@ struct SettingsView: View {
 
                 Toggle(isOn: $quickTelexEnabled) {
                     HelpLabel(
-                        "Quick Telex",
-                        help: "cc → ch, gg → gi\nkk → kh, ngg → ngh\nqq → qu"
+                        L("Quick Telex"),
+                        help: L("cc → ch, gg → gi\nkk → kh, ngg → ngh\nqq → qu")
                     )
                 }
 
-                Toggle("Auto-capitalize", isOn: $autoCapitalize)
+                Toggle(L("Auto-capitalize"), isOn: $autoCapitalize)
             } header: {
-                Label("Input", systemImage: "keyboard")
+                Label(L("Input"), systemImage: "keyboard")
             }
 
             Section {
-                Toggle("Spell Checking", isOn: $spellCheckEnabled)
+                Toggle(L("Spell Checking"), isOn: $spellCheckEnabled)
 
                 Toggle(isOn: $restoreIfWrongSpelling) {
                     HelpLabel(
-                        "Restore Invalid Words",
-                        help: "Reverts text if spelling is invalid.\nHold ⌃ Control to bypass."
+                        L("Restore Invalid Words"),
+                        help: L("Reverts text if spelling is invalid.\nHold ⌃ Control to bypass.")
                     )
                 }
                 .disabled(!spellCheckEnabled)
             } header: {
-                Label("Spelling", systemImage: "textformat.abc")
+                Label(L("Spelling"), systemImage: "textformat.abc")
             }
 
             Section {
                 Toggle(isOn: $smartSwitchEnabled) {
                     HelpLabel(
-                        "Smart Language Switch",
-                        help: "Remembers Vietnamese or English preference for each application."
+                        L("Smart Language Switch"),
+                        help: L("Remembers Vietnamese or English preference for each application.")
                     )
                 }
 
-                Toggle("Launch at Login", isOn: $launchAtLogin)
+                Toggle(L("Launch at Login"), isOn: $launchAtLogin)
 
-                Toggle("Show in Dock", isOn: $showDockIcon)
+                Toggle(L("Show in Dock"), isOn: $showDockIcon)
+
+                Picker(L("Language"), selection: Binding(
+                    get: { appLanguage },
+                    set: { newValue in
+                        appLanguageRaw = newValue.rawValue
+                        showRestartAlert = true
+                    }
+                )) {
+                    ForEach(AppLanguage.allCases, id: \.self) { lang in
+                        Text(lang.displayName).tag(lang)
+                    }
+                }
             } header: {
-                Label("Behavior", systemImage: "arrow.triangle.2.circlepath")
+                Label(L("Behavior"), systemImage: "arrow.triangle.2.circlepath")
             }
 
             Section {
                 Toggle(isOn: $fixBrowserAutocomplete) {
                     HelpLabel(
-                        "Fix Browser Autocomplete",
-                        help: "Fixes input issues in browser address bars and search fields."
+                        L("Fix Browser Autocomplete"),
+                        help: L("Fixes input issues in browser address bars and search fields.")
                     )
                 }
 
                 Toggle(isOn: $fixChromiumBrowser) {
                     HelpLabel(
-                        "Fix Chromium Browsers",
-                        help: "Chrome, Edge, Arc, Brave, and other Chromium-based browsers."
+                        L("Fix Chromium Browsers"),
+                        help: L("Chrome, Edge, Arc, Brave, and other Chromium-based browsers.")
                     )
                 }
                 .disabled(!fixBrowserAutocomplete)
 
                 Toggle(isOn: $sendKeyStepByStep) {
                     HelpLabel(
-                        "Step-by-Step Mode",
-                        help: "Sends keys one at a time.\nSlower but more compatible."
+                        L("Step-by-Step Mode"),
+                        help: L("Sends keys one at a time.\nSlower but more compatible.")
                     )
                 }
             } header: {
-                Label("Compatibility", systemImage: "puzzlepiece.extension")
+                Label(L("Compatibility"), systemImage: "puzzlepiece.extension")
             }
         }
         .formStyle(.grouped)
+        .alert(L("Restart Required"), isPresented: $showRestartAlert) {
+            Button(L("Restart Now")) {
+                restartApp()
+            }
+            Button(L("Later"), role: .cancel) {}
+        } message: {
+            Text(L("Language change requires restart."))
+        }
+    }
+
+    private func restartApp() {
+        // Ensure UserDefaults is written to disk before restart
+        UserDefaults.standard.synchronize()
+
+        // Clear localization cache so it reloads on next launch
+        LocalizationManager.invalidateCache()
+
+        // Get the app bundle path
+        let bundlePath = Bundle.main.bundlePath
+
+        // Use /usr/bin/open with delay to restart after quit
+        let task = Process()
+        task.launchPath = "/bin/sh"
+        task.arguments = ["-c", "sleep 0.5 && open '\(bundlePath)'"]
+
+        do {
+            try task.run()
+        } catch {
+            print("Failed to schedule restart: \(error)")
+        }
+
+        // Terminate the app
+        NSApp.terminate(nil)
     }
 
     // MARK: - About Tab
@@ -137,13 +191,13 @@ struct SettingsView: View {
                 Text("LotusKey")
                     .font(.title.bold())
 
-                Text("Version \(appVersion)")
+                Text(L("Version \(appVersion)"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
             // Description
-            Text("Vietnamese Input Method for macOS")
+            Text(L("Vietnamese Input Method for macOS"))
                 .font(.callout)
                 .foregroundStyle(.secondary)
 
@@ -153,7 +207,7 @@ struct SettingsView: View {
             HStack(spacing: 16) {
                 if let url = URL(string: "https://github.com/lotus-key/lotus-key") {
                     Link(destination: url) {
-                        Label("GitHub", systemImage: "link")
+                        Label(L("GitHub"), systemImage: "link")
                     }
                     .buttonStyle(.link)
                 }
@@ -164,7 +218,7 @@ struct SettingsView: View {
                 .font(.caption)
                 .foregroundStyle(.tertiary)
 
-            Text("Licensed under GPL-3.0")
+            Text(L("Licensed under GPL-3.0"))
                 .font(.caption)
                 .foregroundStyle(.tertiary)
 

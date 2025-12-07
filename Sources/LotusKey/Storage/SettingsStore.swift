@@ -15,6 +15,23 @@ public enum SettingsKey: String {
     case fixBrowserAutocomplete = "LotusKeyFixBrowserAutocomplete"
     case fixChromiumBrowser = "LotusKeyFixChromiumBrowser"
     case sendKeyStepByStep = "LotusKeySendKeyStepByStep"
+    // i18n
+    case appLanguage = "LotusKeyAppLanguage"
+}
+
+/// App language selection for i18n
+public enum AppLanguage: String, CaseIterable {
+    case system = "system"
+    case english = "en"
+    case vietnamese = "vi"
+
+    public var displayName: String {
+        switch self {
+        case .system: return L("Follow System")
+        case .english: return "English"
+        case .vietnamese: return "Tiếng Việt"
+        }
+    }
 }
 
 /// Protocol for settings storage
@@ -35,6 +52,9 @@ public protocol SettingsStoring: AnyObject, Sendable {
     var fixBrowserAutocomplete: Bool { get set }
     var fixChromiumBrowser: Bool { get set }
     var sendKeyStepByStep: Bool { get set }
+
+    // i18n
+    var appLanguage: AppLanguage { get set }
 
     // Publisher for settings changes
     var settingsChanged: AnyPublisher<SettingsKey, Never> { get }
@@ -72,6 +92,8 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
             SettingsKey.fixBrowserAutocomplete.rawValue: true,
             SettingsKey.fixChromiumBrowser.rawValue: true,
             SettingsKey.sendKeyStepByStep.rawValue: false,
+            // i18n
+            SettingsKey.appLanguage.rawValue: AppLanguage.system.rawValue,
         ])
     }
 
@@ -254,6 +276,23 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
         }
     }
 
+    // MARK: - i18n
+
+    public var appLanguage: AppLanguage {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            let rawValue = defaults.string(forKey: SettingsKey.appLanguage.rawValue) ?? "system"
+            return AppLanguage(rawValue: rawValue) ?? .system
+        }
+        set {
+            lock.lock()
+            defaults.set(newValue.rawValue, forKey: SettingsKey.appLanguage.rawValue)
+            lock.unlock()
+            settingsChangedSubject.send(.appLanguage)
+        }
+    }
+
     // MARK: - Reset
 
     public func resetToDefaults() {
@@ -265,6 +304,8 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
             // Advanced settings
             .fixBrowserAutocomplete, .fixChromiumBrowser,
             .sendKeyStepByStep,
+            // i18n
+            .appLanguage,
         ]
 
         lock.lock()
