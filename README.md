@@ -127,17 +127,25 @@ swift test
 
 ```text
 Sources/LotusKey/
-├── App/                    # Entry point, AppDelegate
-├── Core/                   # Vietnamese input engine
-│   ├── Engine/             # Main processing logic
-│   ├── InputMethods/       # Telex, Simple Telex handlers
-│   ├── CharacterTables/    # Unicode encoding
-│   └── Spelling/           # Spell checking rules
-├── EventHandling/          # CGEventTap, keyboard hook
-├── Features/               # Smart Switch, Quick Telex
-├── UI/                     # SwiftUI views, Menu bar
-├── Storage/                # UserDefaults, settings
-└── Utilities/              # Extensions, helpers
+├── App/                        # Entry point
+│   ├── LotusKeyApp.swift       # SwiftUI App
+│   ├── AppDelegate.swift       # NSApplicationDelegate
+│   └── AppLifecycleManager.swift
+├── Core/                       # Vietnamese input engine
+│   ├── Engine/                 # Main processing logic
+│   ├── InputMethods/           # Telex, Simple Telex handlers
+│   ├── CharacterTables/        # Unicode encoding
+│   └── Spelling/               # Spell checking rules
+├── EventHandling/              # CGEventTap, keyboard hook
+├── Features/                   # Smart Switch, Quick Telex
+├── UI/                         # SwiftUI views
+├── Storage/                    # UserDefaults, settings
+├── Utilities/                  # Extensions, helpers
+└── Resources/                  # Assets, Info.plist
+
+Tests/
+├── LotusKeyTests/              # Unit tests
+└── LotusKeyUITests/            # UI tests
 ```
 
 ## Đóng góp

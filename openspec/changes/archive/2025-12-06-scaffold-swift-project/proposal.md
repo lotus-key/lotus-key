@@ -2,7 +2,7 @@
 
 ## Why
 
-The project currently lacks a Swift codebase structure. OpenKey Swift needs a proper Swift Package Manager project scaffold following 2024-2025 best practices to enable development of the Vietnamese input method application for macOS.
+The project currently lacks a Swift codebase structure. LotusKey needs a proper Swift Package Manager project scaffold following 2024-2025 best practices to enable development of the Vietnamese input method application for macOS.
 
 ## What Changes
 

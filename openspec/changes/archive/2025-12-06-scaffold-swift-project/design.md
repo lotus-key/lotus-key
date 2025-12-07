@@ -2,7 +2,7 @@
 
 ## Context
 
-OpenKey Swift is a macOS Vietnamese input method application that requires:
+LotusKey is a macOS Vietnamese input method application that requires:
 - System-wide keyboard event capture (CGEventTap) - requires Accessibility permissions
 - Background operation with menu bar UI
 - SwiftUI for settings, AppKit for system integration
@@ -47,7 +47,7 @@ swiftSettings: [
 **Rationale:** Matches `project.md` architecture. Groups related code by domain (Core, EventHandling, Features, UI) rather than technical layer.
 
 ```
-Sources/OpenKeySwift/
+Sources/LotusKey/
 ├── App/                    # Entry point
 ├── Core/                   # Domain logic
 │   ├── Engine/

@@ -1,7 +1,7 @@
 # Project Context
 
 ## Purpose
-OpenKey Swift is a port of OpenKey to Swift - an open-source Vietnamese input method application for macOS. The application uses an advanced backspace technique to provide seamless Vietnamese text input, eliminating the underlining issues present in default system input methods.
+LotusKey is a port of OpenKey to Swift - an open-source Vietnamese input method application for macOS. The application uses an advanced backspace technique to provide seamless Vietnamese text input, eliminating the underlining issues present in default system input methods.
 
 ### Key Features
 - **Input Methods**: Telex, Simple Telex
@@ -31,21 +31,52 @@ OpenKey Swift is a port of OpenKey to Swift - an open-source Vietnamese input me
 
 ### Architecture Patterns
 ```
-Sources/
-├── LotusKey/
-│   ├── App/                    # Entry point, AppDelegate
-│   ├── Core/                   # Vietnamese input engine
-│   │   ├── Engine/             # Main processing logic
-│   │   ├── InputMethods/       # Telex, Simple Telex handlers
-│   │   ├── CharacterTables/    # Unicode encoding
-│   │   └── Spelling/           # Spell checking rules
-│   ├── EventHandling/          # CGEventTap, keyboard hook
-│   ├── Features/               # Smart Switch, Quick Telex
-│   ├── UI/                     # SwiftUI views, Menu bar
-│   ├── Storage/                # UserDefaults, settings
-│   └── Utilities/              # Extensions, helpers
-├── LotusKeyTests/                 # Unit tests
-└── LotusKeyUITests/               # UI tests
+Sources/LotusKey/
+├── App/                        # Entry point
+│   ├── LotusKeyApp.swift       # SwiftUI App
+│   ├── AppDelegate.swift       # NSApplicationDelegate
+│   └── AppLifecycleManager.swift
+├── Core/                       # Vietnamese input engine
+│   ├── Engine/                 # Main processing logic
+│   │   ├── VietnameseEngine.swift
+│   │   ├── TypingBuffer.swift
+│   │   ├── TypedCharacter.swift
+│   │   ├── CharacterState.swift
+│   │   └── VietnameseTable.swift
+│   ├── InputMethods/           # Telex, Simple Telex handlers
+│   │   ├── InputMethod.swift
+│   │   ├── InputMethodRegistry.swift
+│   │   ├── TelexInputMethod.swift
+│   │   └── SimpleTelexInputMethod.swift
+│   ├── CharacterTables/        # Unicode encoding
+│   │   └── CharacterTable.swift
+│   └── Spelling/               # Spell checking rules
+│       └── SpellChecker.swift
+├── EventHandling/              # CGEventTap, keyboard hook
+│   ├── KeyboardEventHandler.swift
+│   ├── TextInjector.swift
+│   ├── KeyboardLayoutConverter.swift
+│   ├── InputSourceDetector.swift
+│   ├── HotkeyDetector.swift
+│   └── ApplicationDetector.swift
+├── Features/                   # Smart Switch, Quick Telex
+│   ├── SmartSwitch.swift
+│   └── QuickTelex.swift
+├── UI/                         # SwiftUI views
+│   ├── SettingsView.swift
+│   └── AccessibilityPermissionView.swift
+├── Storage/                    # UserDefaults, settings
+│   └── SettingsStore.swift
+├── Utilities/                  # Extensions, helpers
+│   └── Extensions.swift
+└── Resources/                  # Assets, Info.plist
+    ├── LotusKey-Info.plist
+    ├── Localizable.strings
+    └── Assets.xcassets/
+
+Tests/
+├── LotusKeyTests/              # Unit tests
+└── LotusKeyUITests/            # UI tests
 ```
 
 **Design Patterns**:
