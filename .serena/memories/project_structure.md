@@ -16,7 +16,7 @@ lotus-key/
 │       ├── App/                        # Entry point
 │       │   ├── LotusKeyApp.swift       # @main SwiftUI App entry
 │       │   ├── AppDelegate.swift       # NSApplicationDelegate
-│       │   └── AppLifecycleManager.swift
+│       │   └── AppLifecycleManager.swift # Login item, dock visibility
 │       │
 │       ├── Core/                       # Vietnamese input engine
 │       │   ├── Engine/                 # Main processing logic
@@ -60,10 +60,17 @@ lotus-key/
 │       ├── Utilities/                  # Extensions, helpers
 │       │   └── Extensions.swift
 │       │
+│       ├── Localization/               # i18n support
+│       │   └── Localized.swift         # LocalizationManager, L() function
+│       │
 │       └── Resources/                  # Assets, localization
 │           ├── LotusKey-Info.plist
-│           ├── Localizable.strings
-│           └── Assets.xcassets/
+│           ├── Assets.xcassets/
+│           │   └── AppIcon.appiconset/
+│           ├── en.lproj/
+│           │   └── Localizable.strings
+│           └── vi.lproj/
+│               └── Localizable.strings
 │
 ├── Tests/
 │   ├── LotusKeyTests/                  # Unit tests
@@ -85,10 +92,20 @@ lotus-key/
 │
 ├── OpenKey/                            # Reference implementation (git submodule)
 │
+├── LotusKey.app/                       # Built application bundle
+│
 └── openspec/                           # OpenSpec specifications
     ├── project.md                      # Project conventions
     ├── AGENTS.md                       # AI agent instructions
     ├── specs/                          # Current specifications
+    │   ├── core-engine/spec.md
+    │   ├── event-handling/spec.md
+    │   ├── input-methods/spec.md
+    │   ├── spell-checking/spec.md
+    │   ├── smart-switch/spec.md
+    │   ├── ui-settings/spec.md
+    │   ├── project-structure/spec.md
+    │   └── i18n/spec.md
     └── changes/                        # Change proposals
         └── archive/                    # Completed changes
 ```
@@ -98,6 +115,7 @@ lotus-key/
 ### Entry Points
 - `Sources/LotusKey/App/LotusKeyApp.swift` - Main app entry (@main)
 - `Sources/LotusKey/App/AppDelegate.swift` - App lifecycle management
+- `Sources/LotusKey/App/AppLifecycleManager.swift` - Login item, dock visibility
 
 ### Core Engine
 - `Sources/LotusKey/Core/Engine/VietnameseEngine.swift` - Main engine protocol and implementation
@@ -129,6 +147,11 @@ lotus-key/
 ### Storage
 - `Sources/LotusKey/Storage/SettingsStore.swift` - UserDefaults wrapper
 
+### Localization
+- `Sources/LotusKey/Localization/Localized.swift` - LocalizationManager enum, L() helper function
+- `Sources/LotusKey/Resources/en.lproj/Localizable.strings` - English strings
+- `Sources/LotusKey/Resources/vi.lproj/Localizable.strings` - Vietnamese strings
+
 ### Configuration
 - `Package.swift` - SPM dependencies and targets
 - `.swiftlint.yml` - Linting rules
@@ -148,7 +171,22 @@ LotusKey (executable target)
 │       ├── SpellChecker (protocol) → DefaultSpellChecker
 │       └── TypingBuffer
 │
+├── Localization
+│   └── LocalizationManager (enum) + L() helper
+│
 └── UI Layer
     ├── SettingsView (SwiftUI)
     └── MenuBarView (AppKit)
 ```
+
+## OpenSpec Specifications
+
+The project uses OpenSpec for managing requirements:
+- `openspec/specs/core-engine/spec.md` - Vietnamese input processing engine
+- `openspec/specs/event-handling/spec.md` - Keyboard event handling
+- `openspec/specs/input-methods/spec.md` - Telex, Simple Telex methods
+- `openspec/specs/spell-checking/spec.md` - Vietnamese spell checking
+- `openspec/specs/smart-switch/spec.md` - Per-app language memory
+- `openspec/specs/ui-settings/spec.md` - Settings UI
+- `openspec/specs/project-structure/spec.md` - Project structure
+- `openspec/specs/i18n/spec.md` - Internationalization

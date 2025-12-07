@@ -162,3 +162,33 @@ final class EngineTests: XCTestCase {
 ### Test Naming
 - Use descriptive names: `testBackspaceEmptyBuffer`, `testPunctuationIsWordBreak`
 - Group related tests with MARK comments
+
+### Coverage Requirements
+- Core logic components: 100% line coverage required
+- Logic components include: CharacterState, TypedCharacter, TypingBuffer, VietnameseEngine, VietnameseTable, CharacterTable, InputMethod, InputMethodRegistry, TelexInputMethod, SimpleTelexInputMethod, SpellChecker, QuickTelex
+- Non-logic (UI, EventHandling, Storage, App) excluded from coverage requirement
+
+## Localization Conventions
+
+### String Localization
+```swift
+// SwiftUI - automatic localization via LocalizedStringKey
+Text("Settings")  // Automatically localized
+
+// AppKit / manual
+let text = L("Settings")  // Uses LocalizationManager
+
+// With format
+String(format: L("Version %@"), version)
+```
+
+### Localizable.strings Format
+```
+/* Comment describing the string */
+"key" = "value";
+```
+
+### Language Support
+- English (en) - Default language
+- Vietnamese (vi) - Primary user language
+- "Follow System" option available

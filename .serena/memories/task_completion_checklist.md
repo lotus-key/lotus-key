@@ -93,7 +93,8 @@ For code in event handling path:
 ## Testing Guidelines
 
 ### Target Coverage
-- Core engine: 80%+ coverage
+- Core logic components: 100% line coverage (CharacterState, TypedCharacter, TypingBuffer, VietnameseEngine, VietnameseTable, CharacterTable, InputMethod*, SpellChecker, QuickTelex)
+- Non-logic components (UI, EventHandling, Storage, App): Best effort
 - Unit tests for character conversion, spelling rules
 - Integration tests for event handling, settings persistence
 - UI tests for settings panel, menu bar actions
@@ -101,3 +102,11 @@ For code in event handling path:
 ### Test File Locations
 - Unit tests: `Tests/LotusKeyTests/`
 - UI tests: `Tests/LotusKeyUITests/`
+
+### Coverage Verification
+```bash
+swift test --enable-code-coverage
+xcrun llvm-cov report .build/debug/LotusKeyPackageTests.xctest/Contents/MacOS/LotusKeyPackageTests \
+  -instr-profile=.build/debug/codecov/default.profdata \
+  --ignore-filename-regex='Tests/.*'
+```

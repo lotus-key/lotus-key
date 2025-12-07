@@ -1,7 +1,7 @@
 # i18n Specification
 
 ## Purpose
-TBD - created by archiving change add-i18n-support. Update Purpose after archive.
+Defines the internationalization system for LotusKey, supporting English and Vietnamese user interfaces with automatic system language detection and manual language selection.
 ## Requirements
 ### Requirement: Language Support
 
@@ -171,28 +171,34 @@ The system SHALL localize all help text and tooltips.
 
 ---
 
-### Requirement: String Catalog Format
+### Requirement: Localization File Format
 
-The system SHALL use Swift String Catalogs for localization.
+The system SHALL use `.lproj` folders with `Localizable.strings` files for localization.
 
-#### Scenario: String catalog file exists
+#### Scenario: Localization files exist
 - **WHEN** project is built
-- **THEN** `Localizable.xcstrings` file exists in Resources
+- **THEN** `en.lproj/Localizable.strings` file exists in Resources
+- **AND** `vi.lproj/Localizable.strings` file exists in Resources
 
 #### Scenario: All strings extracted
-- **WHEN** string catalog is compiled
-- **THEN** all user-facing strings have corresponding keys
-- **AND** Xcode automatically extracts keys from SwiftUI string literals
+- **WHEN** localization files are compiled
+- **THEN** all user-facing strings have corresponding keys in both language files
+- **AND** keys are consistent between English and Vietnamese files
 
 #### Scenario: SwiftUI automatic localization
 - **WHEN** SwiftUI views use string literals
 - **THEN** strings are automatically treated as `LocalizedStringKey`
-- **AND** translated values are retrieved from string catalog
+- **AND** translated values are retrieved from Localizable.strings
 
 #### Scenario: AppKit explicit localization
 - **WHEN** AppKit components (menu bar) need localized strings
-- **THEN** code uses `String(localized:)` initializer
-- **AND** keys match entries in string catalog
+- **THEN** code uses `L()` helper function from `Localized.swift`
+- **AND** keys match entries in Localizable.strings files
+
+#### Scenario: LocalizationManager implementation
+- **WHEN** app needs to access localized strings programmatically
+- **THEN** `LocalizationManager` enum provides language management
+- **AND** `L()` function wraps `Bundle.main.localizedString(forKey:value:table:)`
 
 ---
 

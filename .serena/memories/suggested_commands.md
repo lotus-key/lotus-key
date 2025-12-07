@@ -11,6 +11,9 @@ swift build -c release
 
 # Run the application (after building)
 .build/release/LotusKey
+
+# Build with verbose output
+swift build -v
 ```
 
 ## Testing Commands
@@ -27,6 +30,14 @@ swift test --filter EngineTests
 
 # Run specific test method
 swift test --filter "EngineTests/testEngineInitialization"
+
+# Run tests with code coverage
+swift test --enable-code-coverage
+
+# Generate coverage report
+xcrun llvm-cov report .build/debug/LotusKeyPackageTests.xctest/Contents/MacOS/LotusKeyPackageTests \
+  -instr-profile=.build/debug/codecov/default.profdata \
+  --ignore-filename-regex='Tests/.*'
 ```
 
 ## Linting Commands
@@ -43,6 +54,9 @@ swiftlint version
 
 # Install SwiftLint (if not installed)
 brew install swiftlint
+
+# Lint specific files
+swiftlint lint Sources/LotusKey/Core/
 ```
 
 ## Full Verification (Recommended Before Commit)
@@ -70,6 +84,7 @@ git commit -m "fix: resolve bug"
 git commit -m "refactor: restructure code"
 git commit -m "test: add tests"
 git commit -m "docs: update documentation"
+git commit -m "feat(i18n): add localization support"
 ```
 
 ## OpenSpec Commands
@@ -119,6 +134,9 @@ xcodebuild -version
 
 # Check Swift version
 swift --version
+
+# Get current date
+date "+%Y-%m-%d"
 ```
 
 ## Performance Considerations
@@ -126,3 +144,19 @@ swift --version
 - Event callback must return quickly (< 1ms) to avoid keyboard lag
 - Avoid blocking operations in event handler
 - Low memory footprint (runs continuously in background)
+
+## Code Coverage Commands
+
+```bash
+# Run tests with coverage
+swift test --enable-code-coverage
+
+# View coverage report
+xcrun llvm-cov report .build/debug/LotusKeyPackageTests.xctest/Contents/MacOS/LotusKeyPackageTests \
+  -instr-profile=.build/debug/codecov/default.profdata
+
+# Export coverage to HTML
+xcrun llvm-cov show .build/debug/LotusKeyPackageTests.xctest/Contents/MacOS/LotusKeyPackageTests \
+  -instr-profile=.build/debug/codecov/default.profdata \
+  -format=html -output-dir=coverage-report
+```

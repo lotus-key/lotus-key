@@ -39,6 +39,7 @@ The project SHALL organize source code under `Sources/LotusKey/` following a fea
   - `Sources/LotusKey/UI/`
   - `Sources/LotusKey/Storage/`
   - `Sources/LotusKey/Utilities/`
+  - `Sources/LotusKey/Localization/`
 
 #### Scenario: Entry point structure
 
@@ -75,13 +76,14 @@ The project SHALL include resources for assets, localization, and configuration.
 #### Scenario: Localization files exist
 
 - **WHEN** the project is scaffolded
-- **THEN** `Sources/LotusKey/Resources/Localizable.strings` SHALL exist
-- **AND** it SHALL support Vietnamese (primary) and English languages
+- **THEN** `Sources/LotusKey/Resources/en.lproj/Localizable.strings` SHALL exist for English
+- **AND** `Sources/LotusKey/Resources/vi.lproj/Localizable.strings` SHALL exist for Vietnamese
+- **AND** `Sources/LotusKey/Localization/Localized.swift` SHALL exist for localization helpers
 
 #### Scenario: Info.plist exists
 
 - **WHEN** the project is scaffolded
-- **THEN** `Sources/LotusKey/Resources/Info.plist` SHALL exist
+- **THEN** `Sources/LotusKey/Resources/LotusKey-Info.plist` SHALL exist
 - **AND** it SHALL include `NSAccessibilityUsageDescription` key for accessibility permissions
 
 ### Requirement: Protocol-First Design

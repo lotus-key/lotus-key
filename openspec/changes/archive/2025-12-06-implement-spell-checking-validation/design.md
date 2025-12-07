@@ -222,7 +222,7 @@ So words like "giếng", "giết", "giếc" pass validation correctly even with 
 
 ### Feature Comparison
 
-| Feature | OpenKey | ibus-lotus | VN-IME (proposed) |
+| Feature | OpenKey | ibus-lotus | LotusKey (proposed) |
 |---------|---------|------------|-------------------|
 | Validation approach | Direct table scan | Matrix-based groups | Hybrid (matrix + direct) |
 | CV compatibility | Implicit in `_vowelCombine` | Explicit `cvMatrix` | Explicit matrix |
@@ -244,7 +244,7 @@ if tone != ToneNone && tone != ToneAcute && tone != ToneDot {
 return true
 ```
 
-Note: ibus-lotus includes "k" in sharp endings (OpenKey only has c,ch,p,t). "k" appears as END consonant in some loan words. VN-IME should follow OpenKey's stricter rule.
+Note: ibus-lotus includes "k" in sharp endings (OpenKey only has c,ch,p,t). "k" appears as END consonant in some loan words. LotusKey should follow OpenKey's stricter rule.
 
 ### ibus-lotus CV Matrix (5 consonant groups × 8 vowel groups)
 
@@ -291,7 +291,7 @@ OpenKey maintains a parallel `KeyStates[MAX_BUFF]` array that stores the ORIGINA
 1. Calculate backspaces needed = current buffer length
 2. Output characters from `KeyStates` (original input)
 
-VN-IME needs to implement this pattern for restore-on-invalid feature.
+LotusKey needs to implement this pattern for restore-on-invalid feature.
 
 ### Complete OpenKey _vowelCombine Entries
 

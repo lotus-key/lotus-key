@@ -5,11 +5,15 @@ LotusKey is a Vietnamese input method for macOS, rewritten in Swift from [OpenKe
 
 ## Key Features
 - **Input Methods**: Telex, Simple Telex
-- **Character Encoding**: Unicode only
+- **Character Encoding**: Unicode only (pre-composed NFC)
 - **Spell Checking**: Validates Vietnamese word combinations
+- **Restore Invalid Words**: Restores original keystrokes when spelling is invalid
 - **Smart Switch**: Remembers language preference per application
 - **Quick Telex**: cc=ch, gg=gi, kk=kh, nn=ng, qq=qu, pp=ph, tt=th
 - **Auto-capitalization**: Automatically capitalizes first letter of sentences
+- **Grammar Auto-Adjust**: Automatically fixes ưo/uơ → ươ patterns
+- **Break Keycode Detection**: ESC, arrows, Tab, Enter reset typing session
+- **Localization**: English and Vietnamese UI (with language selector)
 
 ## Tech Stack
 - **Language**: Swift 6.2+
@@ -29,6 +33,7 @@ None - uses only Apple built-in frameworks:
 - AppKit (NSStatusItem, NSMenu, application lifecycle)
 - SwiftUI (Settings UI)
 - Combine (Reactive settings updates)
+- ServiceManagement (SMAppService for launch at login)
 
 ## Reference Implementation
 - Original OpenKey: https://github.com/tuyenvm/OpenKey
@@ -50,6 +55,7 @@ None - uses only Apple built-in frameworks:
 - **CGEventTap**: macOS API to intercept keyboard events system-wide
 - **Accessibility permissions**: Required to capture keyboard events
 - **Backspace technique**: Delete old characters and send newly converted characters
+- **Break keycodes**: ESC, arrows, Tab, Enter reset typing session immediately
 
 ### Data Structures (from Original OpenKey)
 - **TypingWord buffer**: Stores current word being typed with metadata (caps, tone, marks)
@@ -60,3 +66,25 @@ None - uses only Apple built-in frameworks:
   - bits 19-23: mark flags (5 tone marks)
   - bit 24: standalone flag
   - bit 25: character code vs keycode flag
+
+## Settings Keys (UserDefaults)
+All settings use prefix `LotusKey`:
+- `LotusKeyVietnameseEnabled` - Vietnamese mode on/off
+- `LotusKeyInputMethod` - Selected input method ("telex", "simple-telex")
+- `LotusKeySpellCheckEnabled` - Enable spell checking
+- `LotusKeyRestoreIfWrongSpelling` - Restore original keys on invalid words
+- `LotusKeyQuickTelexEnabled` - Enable Quick Telex shortcuts
+- `LotusKeySmartSwitchEnabled` - Enable per-app language memory
+- `LotusKeyLaunchAtLogin` - Start with macOS
+- `LotusKeyShowDockIcon` - Show in Dock
+- `LotusKeyFixBrowserAutocomplete` - Inject NNBSP for autocomplete
+- `LotusKeyFixChromiumBrowser` - Use Shift+Arrow workaround
+- `LotusKeySendKeyStepByStep` - Send keys one-by-one
+- `LotusKeyAppLanguage` - UI language ("system", "en", "vi")
+
+## Localization
+- English (en) - Default
+- Vietnamese (vi)
+- "Follow System" option
+- Uses `.lproj` folders with `Localizable.strings`
+- `L()` helper function and `LocalizationManager` enum
