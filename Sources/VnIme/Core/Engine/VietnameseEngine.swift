@@ -521,17 +521,21 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
         // This handles cases like adding ending consonant after vowel with tone
         _ = buffer.refreshTonePosition()
 
+        // Track whether grammar auto-adjustment occurred (triggers replace instead of passthrough)
+        var wasTransformed = false
+
         // Check grammar auto-adjust when a trigger consonant is typed
         // This handles non-standard typing orders like "thuwon" → "thương"
         if isGrammarTriggerConsonant(char.lowercased().first) {
-            if checkGrammar() {
+            wasTransformed = checkGrammar()
+            if wasTransformed {
                 // Grammar was adjusted - need to regenerate output
                 // since vowel modifiers changed
                 _ = buffer.refreshTonePosition()
             }
         }
 
-        return generateResult(previousLength: oldLength)
+        return generateResult(previousLength: oldLength, wasTransformed: wasTransformed)
     }
 
     // MARK: - Grammar Auto-Adjust
@@ -733,23 +737,19 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
         let newOutput = buffer.toUnicodeString()
         let newLength = newOutput.count
 
-        // If output changed, need to replace
-        if newLength > 0 {
-            let backspaces = previousOutputLength
-            previousOutputLength = newLength
+        let backspaces = previousOutputLength
+        previousOutputLength = newLength
 
-            // Only pass through if:
-            // 1. No previous output to delete (backspaces == 0)
-            // 2. Only one character was added (newLength == 1)
-            // 3. Character was NOT transformed (e.g., 'a' -> 'á' should NOT pass through)
-            if backspaces == 0 && newLength == 1 && !wasTransformed {
-                return .passThrough
-            }
-
-            return .replace(backspaceCount: backspaces, replacement: newOutput)
+        // Pass through when no transformation occurred.
+        // The keystroke will be displayed by the system - we just track it internally.
+        // This eliminates flickering for normal keystrokes (e.g., "hi" -> no backspace needed).
+        if !wasTransformed {
+            return .passThrough
         }
 
-        return .passThrough
+        // Transformation occurred - need to replace text.
+        // Send backspaces to delete old chars, then send new transformed text.
+        return .replace(backspaceCount: backspaces, replacement: newOutput)
     }
 
     // MARK: - State Management
