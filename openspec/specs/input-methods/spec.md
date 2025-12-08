@@ -98,17 +98,27 @@ The system SHALL support Simple Telex variants with reduced key combinations. Si
 - **AND** user types 'dd'
 - **THEN** the system transforms to 'đ' (same as Telex)
 
-#### Scenario: Simple Telex W key no horn for o
+#### Scenario: Simple Telex W key no horn for single o
 - **WHEN** Simple Telex is selected
-- **AND** user types 'ow'
+- **AND** user types 'ow' (single 'o' not preceded by 'u')
 - **THEN** 'w' is treated as literal character
 - **AND** result is 'ow' (not 'ơ')
 
-#### Scenario: Simple Telex W key no horn for u
+#### Scenario: Simple Telex W key no horn for single u
 - **WHEN** Simple Telex is selected
-- **AND** user types 'uw'
+- **AND** user types 'uw' (single 'u' not followed by 'o')
 - **THEN** 'w' is treated as literal character
 - **AND** result is 'uw' (not 'ư')
+
+#### Scenario: Simple Telex uo pattern transformation
+- **WHEN** Simple Telex is selected
+- **AND** user types 'uow' (u followed by o, then w)
+- **THEN** the system transforms to 'ươ' (horn applied to both)
+
+#### Scenario: Simple Telex thuowng to thương
+- **WHEN** Simple Telex is selected
+- **AND** user types 'thuowng'
+- **THEN** the system transforms to 'thương'
 
 #### Scenario: Simple Telex breve with 'aw'
 - **WHEN** Simple Telex is selected
@@ -130,12 +140,16 @@ The system SHALL support Simple Telex variants with reduced key combinations. Si
 - **AND** user types 'awww'
 - **THEN** result is 'aww' (tempDisableKey prevents re-transformation)
 
-#### Scenario: Simple Telex bracket keys
+#### Scenario: Simple Telex bracket keys pass through
 - **WHEN** Simple Telex is selected
 - **AND** user types '[' or ']'
-- **THEN** bracket key shortcuts work identically to Telex
+- **THEN** the bracket character is output as literal (no transformation)
+- **AND** bracket keys are not considered special keys
 
----
+#### Scenario: Simple Telex bracket after vowel
+- **WHEN** Simple Telex is selected
+- **AND** user types 'a[' or 'o]'
+- **THEN** result is 'a[' or 'o]' (literal passthrough)
 
 ### Requirement: Quick Telex Consonant Shortcuts
 

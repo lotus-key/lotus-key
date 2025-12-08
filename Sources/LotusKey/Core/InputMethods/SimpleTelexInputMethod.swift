@@ -3,13 +3,13 @@ import Foundation
 /// Simple Telex input method variant.
 ///
 /// Key differences from standard Telex:
-/// - `ow` stays `ow` (no horn transformation to ơ)
-/// - `uw` stays `uw` (no horn transformation to ư)
-/// - `aw` → `ă` (breve still works)
-/// - Standalone `w` stays `w` (no → ư conversion)
-/// - Bracket keys `[` → ơ, `]` → ư still work
+/// - `ow` → `ơ` (horn works - pattern matching runs regardless of Simple Telex)
+/// - `uw` → `ư` (horn works - pattern matching runs regardless of Simple Telex)
+/// - `aw` → `ă` (breve works)
+/// - Standalone `w` stays `w` (ONLY standalone w → ư is blocked)
+/// - Bracket keys `[` and `]` pass through as literal (word break)
 ///
-/// Reference: OpenKey's vSimpleTelex1 at Engine.cpp:1187
+/// Reference: OpenKey's vSimpleTelex1 at Engine.cpp:1155-1187, 1541
 public struct SimpleTelexInputMethod: InputMethod {
     public let name = "Simple Telex"
 
@@ -29,6 +29,12 @@ public struct SimpleTelexInputMethod: InputMethod {
 
     public func processCharacter(_ character: Character, context: String, state: inout InputMethodState) -> InputTransformation? {
         let char = character.lowercased().first ?? character
+
+        // Block bracket keys - pass through as literal (word break)
+        // Reference: OpenKey Engine.cpp:1541 - bracket keys cause word break in Simple Telex
+        if char == "[" || char == "]" {
+            return nil
+        }
 
         // Check if key is temporarily disabled (after undo)
         if state.isDisabled(char) {
@@ -51,7 +57,12 @@ public struct SimpleTelexInputMethod: InputMethod {
     }
 
     public func isSpecialKey(_ character: Character) -> Bool {
-        telex.isSpecialKey(character)
+        let char = character.lowercased().first ?? character
+        // Brackets are NOT special in Simple Telex - they pass through as literal
+        if char == "[" || char == "]" {
+            return false
+        }
+        return telex.isSpecialKey(character)
     }
 
     // MARK: - Undo Detection
@@ -70,12 +81,20 @@ public struct SimpleTelexInputMethod: InputMethod {
             return nil
         }
 
-        // Simple Telex only undoes breve (aww → aw)
-        // Horn undo is not applicable since ow/uw don't transform
-        if case .breve = last.type, char == "w" {
-            state.disableKey(char)
-            state.lastTransformation = nil
-            return InputTransformation(type: .undo(originalChars: last.originalChars))
+        // Simple Telex supports undo for both breve and horn
+        // aww → aw (undo breve)
+        // oww → ow, uww → uw (undo horn)
+        if char == "w" {
+            if case .breve = last.type {
+                state.disableKey(char)
+                state.lastTransformation = nil
+                return InputTransformation(type: .undo(originalChars: last.originalChars))
+            }
+            if case .horn = last.type {
+                state.disableKey(char)
+                state.lastTransformation = nil
+                return InputTransformation(type: .undo(originalChars: last.originalChars))
+            }
         }
 
         return nil
@@ -84,25 +103,36 @@ public struct SimpleTelexInputMethod: InputMethod {
     // MARK: - W Key Handling (Simple Telex specific)
 
     /// Handle W key with Simple Telex rules:
-    /// - `ow` stays `ow` (no horn)
-    /// - `uw` stays `uw` (no horn)
-    /// - `aw` → `ă` (breve still works)
-    /// - Standalone `w` stays `w`
+    /// - `ow` → `ơ` (horn works - pattern matching runs regardless of Simple Telex)
+    /// - `uw` → `ư` (horn works - pattern matching runs regardless of Simple Telex)
+    /// - `aw` → `ă` (breve works)
+    /// - Standalone `w` stays `w` (ONLY this is blocked)
+    ///
+    /// Reference: OpenKey Engine.cpp:1155-1187
+    /// - Pattern matching runs first regardless of Simple Telex mode
+    /// - Simple Telex only blocks fallback standalone w → ư
     private func handleSimpleTelexWKey(context: String, state: inout InputMethodState) -> InputTransformation? {
         let lower = context.lowercased()
 
-        // Case 1: w after o/u → no transformation (literal w)
-        if lower.hasSuffix("o") || lower.hasSuffix("u") {
-            return nil  // Pass through as literal
+        // Case 1: w after o → horn (ow → ơ)
+        // Pattern matching runs regardless of Simple Telex mode
+        if lower.hasSuffix("o") {
+            return InputTransformation(type: .modifier(.horn), category: .horn)
         }
 
-        // Case 2: w after a → breve (ă)
+        // Case 2: w after u → horn (uw → ư)
+        // Pattern matching runs regardless of Simple Telex mode
+        if lower.hasSuffix("u") {
+            return InputTransformation(type: .modifier(.horn), category: .horn)
+        }
+
+        // Case 3: w after a → breve (aw → ă)
         if lower.hasSuffix("a") {
             return InputTransformation(type: .modifier(.breve), category: .breve)
         }
 
-        // Case 3: Standalone w → no transformation (unlike Telex)
-        // Simple Telex does NOT convert standalone w to ư
+        // Case 4: Standalone w → no transformation
+        // Simple Telex ONLY blocks standalone w → ư conversion
         return nil
     }
 }

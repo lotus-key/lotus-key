@@ -231,20 +231,30 @@ final class InputMethodTests: XCTestCase {
         }
     }
 
-    func testSimpleTelexOWNoHorn() {
+    func testSimpleTelexOWHorn() {
         let simpleTelex = SimpleTelexInputMethod()
 
-        // ow → ow (NO horn in Simple Telex)
+        // ow → ơ (horn WORKS in Simple Telex - pattern matching runs regardless)
         let result = simpleTelex.processCharacter("w", context: "o")
-        XCTAssertNil(result, "ow should be nil (pass through) in Simple Telex")
+        XCTAssertNotNil(result)
+        if case .modifier(.horn) = result?.type {
+            // Expected
+        } else {
+            XCTFail("Expected horn modifier for 'ow' in Simple Telex")
+        }
     }
 
-    func testSimpleTelexUWNoHorn() {
+    func testSimpleTelexUWHorn() {
         let simpleTelex = SimpleTelexInputMethod()
 
-        // uw → uw (NO horn in Simple Telex)
+        // uw → ư (horn WORKS in Simple Telex - pattern matching runs regardless)
         let result = simpleTelex.processCharacter("w", context: "u")
-        XCTAssertNil(result, "uw should be nil (pass through) in Simple Telex")
+        XCTAssertNotNil(result)
+        if case .modifier(.horn) = result?.type {
+            // Expected
+        } else {
+            XCTFail("Expected horn modifier for 'uw' in Simple Telex")
+        }
     }
 
     func testSimpleTelexAWBreve() {
@@ -268,16 +278,73 @@ final class InputMethodTests: XCTestCase {
         XCTAssertNil(result, "Standalone w should be nil (pass through) in Simple Telex")
     }
 
-    func testSimpleTelexBracketWorks() {
+    func testSimpleTelexBracketPassthrough() {
         let simpleTelex = SimpleTelexInputMethod()
 
-        // [ at start → ơ (bracket WORKS in Simple Telex)
-        let result = simpleTelex.processCharacter("[", context: "")
-        XCTAssertNotNil(result)
-        if case .standalone(let char) = result?.type {
-            XCTAssertEqual(char, "ơ")
+        // [ → [ (literal, pass through in Simple Telex)
+        // Reference: OpenKey Engine.cpp:1541 - bracket keys cause word break
+        let openResult = simpleTelex.processCharacter("[", context: "")
+        XCTAssertNil(openResult, "[ should pass through (nil) in Simple Telex")
+
+        // ] → ] (literal, pass through)
+        let closeResult = simpleTelex.processCharacter("]", context: "")
+        XCTAssertNil(closeResult, "] should pass through (nil) in Simple Telex")
+
+        // a[ → a[ (literal, pass through)
+        let afterVowelResult = simpleTelex.processCharacter("[", context: "a")
+        XCTAssertNil(afterVowelResult, "[ after vowel should pass through in Simple Telex")
+    }
+
+    func testSimpleTelexBracketNotSpecialKey() {
+        let simpleTelex = SimpleTelexInputMethod()
+
+        // Brackets are NOT special keys in Simple Telex
+        XCTAssertFalse(simpleTelex.isSpecialKey("["), "[ should NOT be special in Simple Telex")
+        XCTAssertFalse(simpleTelex.isSpecialKey("]"), "] should NOT be special in Simple Telex")
+
+        // But other special keys remain special
+        XCTAssertTrue(simpleTelex.isSpecialKey("s"), "s should still be special in Simple Telex")
+        XCTAssertTrue(simpleTelex.isSpecialKey("w"), "w should still be special in Simple Telex")
+    }
+
+    func testSimpleTelexUOPatternTransformation() {
+        let simpleTelex = SimpleTelexInputMethod()
+
+        // uow → ươ (horn transformation for "uo" pattern)
+        // Reference: OpenKey Engine.cpp:899-910 - insertW handles "uo" specially
+        let uowResult = simpleTelex.processCharacter("w", context: "uo")
+        XCTAssertNotNil(uowResult)
+        if case .modifier(.horn) = uowResult?.type {
+            // Expected
         } else {
-            XCTFail("Expected standalone ơ for '[' in Simple Telex")
+            XCTFail("Expected horn modifier for 'uow' in Simple Telex")
+        }
+
+        // thuow → horn transformation (for thương)
+        let thuowResult = simpleTelex.processCharacter("w", context: "thuo")
+        XCTAssertNotNil(thuowResult)
+        if case .modifier(.horn) = thuowResult?.type {
+            // Expected
+        } else {
+            XCTFail("Expected horn modifier for 'thuow' in Simple Telex")
+        }
+
+        // duow → horn transformation (for dương)
+        let duowResult = simpleTelex.processCharacter("w", context: "duo")
+        XCTAssertNotNil(duowResult)
+        if case .modifier(.horn) = duowResult?.type {
+            // Expected
+        } else {
+            XCTFail("Expected horn modifier for 'duow' in Simple Telex")
+        }
+
+        // quow → horn transformation (for qương variant)
+        let quowResult = simpleTelex.processCharacter("w", context: "quo")
+        XCTAssertNotNil(quowResult)
+        if case .modifier(.horn) = quowResult?.type {
+            // Expected
+        } else {
+            XCTFail("Expected horn modifier for 'quow' in Simple Telex")
         }
     }
 

@@ -717,22 +717,31 @@ final class EngineTests: XCTestCase {
 
     // MARK: - Simple Telex Engine Tests
 
-    func testSimpleTelexOWNoHorn() {
+    func testSimpleTelexOWHorn() {
         let simpleTelex = SimpleTelexInputMethod()
         let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
 
-        // ow → ow in Simple Telex (no horn)
+        // ow → ơ in Simple Telex (horn WORKS - pattern matching runs regardless)
         let result = simpleEngine.processString("ow")
-        XCTAssertEqual(result, "ow", "ow in Simple Telex should stay 'ow'")
+        XCTAssertEqual(result, "ơ", "ow in Simple Telex should produce 'ơ'")
     }
 
-    func testSimpleTelexUWNoHorn() {
+    func testSimpleTelexUWHorn() {
         let simpleTelex = SimpleTelexInputMethod()
         let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
 
-        // uw → uw in Simple Telex (no horn)
+        // uw → ư in Simple Telex (horn WORKS - pattern matching runs regardless)
         let result = simpleEngine.processString("uw")
-        XCTAssertEqual(result, "uw", "uw in Simple Telex should stay 'uw'")
+        XCTAssertEqual(result, "ư", "uw in Simple Telex should produce 'ư'")
+    }
+
+    func testSimpleTelexCow() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // cow → cơ in Simple Telex
+        let result = simpleEngine.processString("cow")
+        XCTAssertEqual(result, "cơ", "cow in Simple Telex should produce 'cơ'")
     }
 
     func testSimpleTelexAWBreve() {
@@ -753,13 +762,47 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(result, "w", "w in Simple Telex should stay 'w'")
     }
 
-    func testSimpleTelexBracketWorks() {
+    func testSimpleTelexBracketPassthrough() {
         let simpleTelex = SimpleTelexInputMethod()
         let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
 
-        // [ at start → ơ in Simple Telex (bracket works)
-        let result = simpleEngine.processString("[")
-        XCTAssertEqual(result, "ơ", "[ in Simple Telex should produce 'ơ'")
+        // [ at start → [ in Simple Telex (bracket passes through as literal)
+        // Reference: OpenKey Engine.cpp:1541 - bracket keys cause word break
+        let openResult = simpleEngine.processString("[")
+        XCTAssertEqual(openResult, "[", "[ in Simple Telex should pass through as literal")
+
+        // ] at start → ] in Simple Telex
+        simpleEngine.reset()
+        let closeResult = simpleEngine.processString("]")
+        XCTAssertEqual(closeResult, "]", "] in Simple Telex should pass through as literal")
+    }
+
+    func testSimpleTelexUOPatternTransformation() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // uow → ươ in Simple Telex (horn transformation for "uo" pattern)
+        // Reference: OpenKey Engine.cpp:899-910 - insertW handles "uo" specially
+        let result = simpleEngine.processString("uow")
+        XCTAssertEqual(result, "ươ", "uow in Simple Telex should produce 'ươ'")
+    }
+
+    func testSimpleTelexThuong() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // thuowng → thương in Simple Telex
+        let result = simpleEngine.processString("thuowng")
+        XCTAssertEqual(result, "thương", "thuowng in Simple Telex should produce 'thương'")
+    }
+
+    func testSimpleTelexDuong() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // duowng → dương in Simple Telex
+        let result = simpleEngine.processString("duowng")
+        XCTAssertEqual(result, "dương", "duowng in Simple Telex should produce 'dương'")
     }
 
     func testSimpleTelexAWWUndo() {
@@ -769,6 +812,24 @@ final class EngineTests: XCTestCase {
         // aww → aw in Simple Telex (undo breve)
         let result = simpleEngine.processString("aww")
         XCTAssertEqual(result, "aw", "aww in Simple Telex should undo breve to produce 'aw'")
+    }
+
+    func testSimpleTelexOWWUndo() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // oww → ow in Simple Telex (undo horn)
+        let result = simpleEngine.processString("oww")
+        XCTAssertEqual(result, "ow", "oww in Simple Telex should undo horn to produce 'ow'")
+    }
+
+    func testSimpleTelexUWWUndo() {
+        let simpleTelex = SimpleTelexInputMethod()
+        let simpleEngine = DefaultVietnameseEngine(inputMethod: simpleTelex)
+
+        // uww → uw in Simple Telex (undo horn)
+        let result = simpleEngine.processString("uww")
+        XCTAssertEqual(result, "uw", "uww in Simple Telex should undo horn to produce 'uw'")
     }
 
     func testSimpleTelexAWWWTempDisable() {
