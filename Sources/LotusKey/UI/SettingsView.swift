@@ -214,7 +214,7 @@ struct SettingsView: View {
             }
 
             // Copyright
-            Text("© 2025 Cong Tran")
+            Text("© 2025 \(L("Author Name"))")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
 

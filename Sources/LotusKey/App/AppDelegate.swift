@@ -35,6 +35,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Current language mode menu item
     private var languageModeItem: NSMenuItem?
 
+    /// Input method menu items
+    private var telexMenuItem: NSMenuItem?
+    private var simpleTelexMenuItem: NSMenuItem?
+
     // MARK: - App Lifecycle
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -117,7 +121,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Language mode toggle
         languageModeItem = NSMenuItem(
-            title: L("Vietnamese"),
+            title: L("Enable Vietnamese Typing"),
             action: #selector(toggleLanguageMode),
             keyEquivalent: ""
         )
@@ -127,12 +131,44 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
+        // Input method selection
+        telexMenuItem = NSMenuItem(
+            title: L("Telex"),
+            action: #selector(selectTelex),
+            keyEquivalent: ""
+        )
+        telexMenuItem?.target = self
+        menu.addItem(telexMenuItem!)
+
+        simpleTelexMenuItem = NSMenuItem(
+            title: L("Simple Telex"),
+            action: #selector(selectSimpleTelex),
+            keyEquivalent: ""
+        )
+        simpleTelexMenuItem?.target = self
+        menu.addItem(simpleTelexMenuItem!)
+
+        updateInputMethodMenuItems()
+
+        menu.addItem(NSMenuItem.separator())
+
         // Settings
-        menu.addItem(NSMenuItem(
+        let settingsItem = NSMenuItem(
             title: L("Settings..."),
             action: #selector(openSettings),
             keyEquivalent: ","
-        ))
+        )
+        settingsItem.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: nil)
+        menu.addItem(settingsItem)
+
+        // About
+        let aboutItem = NSMenuItem(
+            title: L("About LotusKey"),
+            action: #selector(openAbout),
+            keyEquivalent: ""
+        )
+        aboutItem.image = NSImage(systemSymbolName: "info.circle", accessibilityDescription: nil)
+        menu.addItem(aboutItem)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -264,9 +300,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func updateLanguageModeMenuItem(isVietnameseMode: Bool) {
-        languageModeItem?.title = isVietnameseMode
-            ? L("Vietnamese")
-            : L("English")
         languageModeItem?.state = isVietnameseMode ? .on : .off
         updateMenuBarIcon(isVietnameseMode: isVietnameseMode)
     }
@@ -419,6 +452,62 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // This approach uses @Environment(\.openSettings) which is the official SwiftUI API
         // for opening Settings, ensuring native styling (tabs, liquid glass design).
         NotificationCenter.default.post(name: .openSettingsRequest, object: nil)
+    }
+
+    @objc private func openAbout() {
+        let credits = NSAttributedString(
+            string: """
+            \(L("Vietnamese Input Method for macOS"))
+
+            \(L("Developed by")) \(L("Author Name"))
+            \(L("Licensed under GPL-3.0"))
+
+            https://github.com/lotus-key/lotus-key
+            """,
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 11),
+                .foregroundColor: NSColor.secondaryLabelColor,
+                .paragraphStyle: {
+                    let style = NSMutableParagraphStyle()
+                    style.alignment = .center
+                    return style
+                }(),
+            ]
+        )
+
+        let options: [NSApplication.AboutPanelOptionKey: Any] = [
+            .applicationName: "LotusKey",
+            .applicationVersion: appVersion,
+            .version: buildNumber,
+            .credits: credits,
+            .applicationIcon: NSApp.applicationIconImage as Any,
+        ]
+
+        NSApp.orderFrontStandardAboutPanel(options: options)
+    }
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    }
+
+    private var buildNumber: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+    }
+
+    @objc private func selectTelex() {
+        settings.inputMethod = "Telex"
+        updateInputMethodMenuItems()
+    }
+
+    @objc private func selectSimpleTelex() {
+        settings.inputMethod = "Simple Telex"
+        updateInputMethodMenuItems()
+    }
+
+    private func updateInputMethodMenuItems() {
+        let isTelex = settings.inputMethod == "Telex"
+        telexMenuItem?.state = isTelex ? .on : .off
+        simpleTelexMenuItem?.state = isTelex ? .off : .on
     }
 
     // MARK: - Helpers

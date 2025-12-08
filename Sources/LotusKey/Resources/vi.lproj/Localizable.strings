@@ -41,13 +41,17 @@
 "LotusKey" = "LotusKey";
 "Version %@" = "Phiên bản %@";
 "Vietnamese Input Method for macOS" = "Bộ gõ Tiếng Việt dành cho macOS";
+"Developed by" = "Phát triển bởi";
+"Author Name" = "Trần Công";
 "GitHub" = "GitHub";
 "© 2025 Cong Tran" = "© 2025 Cong Tran";
 "Licensed under GPL-3.0" = "Giấy phép GPL-3.0";
 
 /* Menu bar */
-"Vietnamese" = "Tiếng Việt";
-"English" = "Tiếng Anh";
+"Enable Vietnamese Typing" = "Bật gõ Tiếng Việt";
+"Telex" = "Telex";
+"Simple Telex" = "Telex đơn giản";
+"About LotusKey" = "Giới thiệu LotusKey";
 "Settings..." = "Bảng điều khiển...";
 "Quit LotusKey" = "Thoát";
 

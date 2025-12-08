@@ -118,3 +118,6 @@ DerivedData/
 
 # Binary
 *.app
+
+# Agents
+.factory

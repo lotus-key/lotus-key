@@ -41,13 +41,17 @@
 "LotusKey" = "LotusKey";
 "Version %@" = "Version %@";
 "Vietnamese Input Method for macOS" = "Vietnamese Input Method for macOS";
+"Developed by" = "Developed by";
+"Author Name" = "Cong Tran";
 "GitHub" = "GitHub";
 "© 2025 Cong Tran" = "© 2025 Cong Tran";
 "Licensed under GPL-3.0" = "Licensed under GPL-3.0";
 
 /* Menu bar */
-"Vietnamese" = "Vietnamese";
-"English" = "English";
+"Enable Vietnamese Typing" = "Enable Vietnamese Typing";
+"Telex" = "Telex";
+"Simple Telex" = "Simple Telex";
+"About LotusKey" = "About LotusKey";
 "Settings..." = "Settings...";
 "Quit LotusKey" = "Quit LotusKey";
 
