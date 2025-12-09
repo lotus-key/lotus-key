@@ -1,5 +1,5 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class HotkeyDetectorTests: XCTestCase {
     // MARK: - CGEventFlags Extension Tests
@@ -107,7 +107,7 @@ final class HotkeyDetectorTests: XCTestCase {
     func testHotkeyBitfieldConversion() {
         // Ctrl+Space with beep = 0x31 | 0x100 | 0x8000 = 0x8131
         let hotkey = Hotkey(bitfield: 0x8131)
-        XCTAssertEqual(hotkey.keyCode, 0x31)  // Space
+        XCTAssertEqual(hotkey.keyCode, 0x31) // Space
         XCTAssertTrue(hotkey.control)
         XCTAssertFalse(hotkey.option)
         XCTAssertFalse(hotkey.command)
@@ -122,7 +122,7 @@ final class HotkeyDetectorTests: XCTestCase {
             option: false,
             command: false,
             shift: false,
-            enableBeep: true
+            enableBeep: true,
         )
         XCTAssertEqual(hotkey.toBitfield, 0x8131)
     }
@@ -143,7 +143,7 @@ final class HotkeyDetectorTests: XCTestCase {
 
     func testSetAndGetHotkey() {
         let detector = HotkeyDetector()
-        let customHotkey = Hotkey(bitfield: 0x8431)  // Cmd+Space
+        let customHotkey = Hotkey(bitfield: 0x8431) // Cmd+Space
 
         detector.setHotkey(customHotkey, for: .switchLanguage)
         let retrieved = detector.getHotkey(for: .switchLanguage)

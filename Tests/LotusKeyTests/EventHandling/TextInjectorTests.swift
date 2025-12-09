@@ -1,5 +1,5 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class TextInjectorTests: XCTestCase {
     // MARK: - AppQuirk Tests
@@ -94,7 +94,7 @@ final class TextInjectorTests: XCTestCase {
         // Sublime Text uses ZWNJ which doesn't need extra backspace
         func simulateSublimeBackspaces(count: Int) -> Int {
             // No empty char injection for Sublime Text
-            return count
+            count
         }
 
         XCTAssertEqual(simulateSublimeBackspaces(count: 1), 1)

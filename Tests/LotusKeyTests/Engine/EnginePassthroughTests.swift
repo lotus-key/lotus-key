@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for passthrough behavior and flicker prevention
 final class EnginePassthroughTests: EngineTestCase {
-
     // MARK: - Passthrough Behavior Tests (Flicker Prevention)
 
     /// Normal consonant/vowel sequences should pass through without replacement
@@ -30,10 +29,11 @@ final class EnginePassthroughTests: EngineTestCase {
         }
 
         // All characters should pass through - no backspaces at all
-        for (i, result) in results.enumerated() {
+        for (index, result) in results.enumerated() {
             XCTAssertEqual(
-                result, .passThrough,
-                "Character '\(chars[i])' at index \(i) should pass through, got \(result)"
+                result,
+                .passThrough,
+                "Character '\(chars[index])' at index \(index) should pass through, got \(result)",
             )
         }
         XCTAssertEqual(engine.currentText, "hello")
@@ -54,9 +54,9 @@ final class EnginePassthroughTests: EngineTestCase {
     /// Tone mark transformation should trigger replace
     func testReplaceForToneMark() {
         _ = engine.processKey(keyCode: 0, character: "a", modifiers: 0)
-        let result = engine.processKey(keyCode: 0, character: "s", modifiers: 0)  // tone mark
+        let result = engine.processKey(keyCode: 0, character: "s", modifiers: 0) // tone mark
 
-        if case .replace(let backspaces, let replacement) = result {
+        if case let .replace(backspaces, replacement) = result {
             XCTAssertEqual(backspaces, 1, "Should delete 'a'")
             XCTAssertEqual(replacement, "á", "Should produce 'á'")
         } else {
@@ -67,9 +67,9 @@ final class EnginePassthroughTests: EngineTestCase {
     /// Modifier (circumflex) should trigger replace
     func testReplaceForCircumflex() {
         _ = engine.processKey(keyCode: 0, character: "a", modifiers: 0)
-        let result = engine.processKey(keyCode: 0, character: "a", modifiers: 0)  // circumflex
+        let result = engine.processKey(keyCode: 0, character: "a", modifiers: 0) // circumflex
 
-        if case .replace(let backspaces, let replacement) = result {
+        if case let .replace(backspaces, replacement) = result {
             XCTAssertEqual(backspaces, 1, "Should delete 'a'")
             XCTAssertEqual(replacement, "â", "Should produce 'â'")
         } else {
@@ -80,9 +80,9 @@ final class EnginePassthroughTests: EngineTestCase {
     /// Quick Telex should trigger replace
     func testReplaceForQuickTelex() {
         _ = engine.processKey(keyCode: 0, character: "c", modifiers: 0)
-        let result = engine.processKey(keyCode: 0, character: "c", modifiers: 0)  // Quick Telex: cc -> ch
+        let result = engine.processKey(keyCode: 0, character: "c", modifiers: 0) // Quick Telex: cc -> ch
 
-        if case .replace(let backspaces, let replacement) = result {
+        if case let .replace(backspaces, replacement) = result {
             XCTAssertEqual(backspaces, 1, "Should delete 'c'")
             XCTAssertEqual(replacement, "ch", "Should produce 'ch'")
         } else {
@@ -96,12 +96,12 @@ final class EnginePassthroughTests: EngineTestCase {
         _ = engine.processKey(keyCode: 0, character: "t", modifiers: 0)
         _ = engine.processKey(keyCode: 0, character: "h", modifiers: 0)
         _ = engine.processKey(keyCode: 0, character: "u", modifiers: 0)
-        _ = engine.processKey(keyCode: 0, character: "w", modifiers: 0)  // thư
-        _ = engine.processKey(keyCode: 0, character: "o", modifiers: 0)  // thưo
+        _ = engine.processKey(keyCode: 0, character: "w", modifiers: 0) // thư
+        _ = engine.processKey(keyCode: 0, character: "o", modifiers: 0) // thưo
 
-        let result = engine.processKey(keyCode: 0, character: "n", modifiers: 0)  // triggers grammar
+        let result = engine.processKey(keyCode: 0, character: "n", modifiers: 0) // triggers grammar
 
-        if case .replace(let backspaces, let replacement) = result {
+        if case let .replace(backspaces, replacement) = result {
             XCTAssertEqual(backspaces, 4, "Should delete 'thưo'")
             XCTAssertEqual(replacement, "thươn", "Should produce 'thươn'")
         } else {
@@ -111,9 +111,9 @@ final class EnginePassthroughTests: EngineTestCase {
 
     /// Adding consonant after tone-marked vowel should pass through (no grammar trigger)
     func testPassthroughAfterToneMark() {
-        _ = engine.processKey(keyCode: 0, character: "h", modifiers: 0)  // h
-        _ = engine.processKey(keyCode: 0, character: "a", modifiers: 0)  // ha
-        _ = engine.processKey(keyCode: 0, character: "f", modifiers: 0)  // hà (replace)
+        _ = engine.processKey(keyCode: 0, character: "h", modifiers: 0) // h
+        _ = engine.processKey(keyCode: 0, character: "a", modifiers: 0) // ha
+        _ = engine.processKey(keyCode: 0, character: "f", modifiers: 0) // hà (replace)
 
         // Add 'n' - should pass through (not a grammar trigger for this pattern)
         let result = engine.processKey(keyCode: 0, character: "n", modifiers: 0)
@@ -137,31 +137,31 @@ final class EnginePassthroughTests: EngineTestCase {
     /// Mixed input: verify correct passthrough vs replace sequence
     func testMixedPassthroughAndReplace() {
         // Type "vieets" -> should become "viết" (ê with acute = ế)
-        let v = engine.processKey(keyCode: 0, character: "v", modifiers: 0)
-        let i = engine.processKey(keyCode: 0, character: "i", modifiers: 0)
-        let e = engine.processKey(keyCode: 0, character: "e", modifiers: 0)
-        let e2 = engine.processKey(keyCode: 0, character: "e", modifiers: 0)  // circumflex
-        let t = engine.processKey(keyCode: 0, character: "t", modifiers: 0)
-        let s = engine.processKey(keyCode: 0, character: "s", modifiers: 0)  // tone
+        let resultV = engine.processKey(keyCode: 0, character: "v", modifiers: 0)
+        let resultI = engine.processKey(keyCode: 0, character: "i", modifiers: 0)
+        let resultE1 = engine.processKey(keyCode: 0, character: "e", modifiers: 0)
+        let resultE2 = engine.processKey(keyCode: 0, character: "e", modifiers: 0) // circumflex
+        let resultT = engine.processKey(keyCode: 0, character: "t", modifiers: 0)
+        let resultS = engine.processKey(keyCode: 0, character: "s", modifiers: 0) // tone
 
-        XCTAssertEqual(v, .passThrough, "'v' should pass through")
-        XCTAssertEqual(i, .passThrough, "'i' should pass through")
-        XCTAssertEqual(e, .passThrough, "'e' should pass through")
+        XCTAssertEqual(resultV, .passThrough, "'v' should pass through")
+        XCTAssertEqual(resultI, .passThrough, "'i' should pass through")
+        XCTAssertEqual(resultE1, .passThrough, "'e' should pass through")
 
         // 'e' (second) triggers circumflex -> replace
-        if case .replace(_, let replacement) = e2 {
+        if case let .replace(_, replacement) = resultE2 {
             XCTAssertEqual(replacement, "viê", "Second 'e' creates circumflex")
         } else {
-            XCTFail("Second 'e' should replace, got \(e2)")
+            XCTFail("Second 'e' should replace, got \(resultE2)")
         }
 
-        XCTAssertEqual(t, .passThrough, "'t' should pass through")
+        XCTAssertEqual(resultT, .passThrough, "'t' should pass through")
 
         // 's' triggers acute tone -> replace (ê + acute = ế)
-        if case .replace(_, let replacement) = s {
+        if case let .replace(_, replacement) = resultS {
             XCTAssertEqual(replacement, "viết", "'s' applies acute tone to ê")
         } else {
-            XCTFail("'s' should replace with tone, got \(s)")
+            XCTFail("'s' should replace with tone, got \(resultS)")
         }
     }
 
@@ -179,8 +179,8 @@ final class EnginePassthroughTests: EngineTestCase {
 
     /// Helper to count backspace events in a sequence of engine results
     private func countBackspaces(_ results: [EngineResult]) -> Int {
-        return results.reduce(0) { total, result in
-            if case .replace(let backspaces, _) = result {
+        results.reduce(0) { total, result in
+            if case let .replace(backspaces, _) = result {
                 return total + backspaces
             }
             return total
@@ -208,7 +208,7 @@ final class EnginePassthroughTests: EngineTestCase {
 
         XCTAssertEqual(engine.currentText, "nước")
         // Only 3 replace operations should happen (w for ư, w for ơ, s for tone)
-        let replaceCount = results.filter { if case .replace = $0 { return true } else { return false } }.count
+        let replaceCount = results.count(where: { if case .replace = $0 { true } else { false } })
         XCTAssertEqual(replaceCount, 3, "Should have exactly 3 replace operations")
         XCTAssertLessThanOrEqual(totalBackspaces, 12, "Should have minimal backspaces")
     }
@@ -226,10 +226,10 @@ final class EnginePassthroughTests: EngineTestCase {
 
         XCTAssertEqual(engine.currentText, "viết")
 
-        let replaceCount = results.filter { if case .replace = $0 { return true } else { return false } }.count
+        let replaceCount = results.count(where: { if case .replace = $0 { true } else { false } })
         XCTAssertEqual(replaceCount, 2, "Should have exactly 2 replace operations")
 
-        let passthroughCount = results.filter { $0 == .passThrough }.count
+        let passthroughCount = results.count(where: { $0 == .passThrough })
         XCTAssertEqual(passthroughCount, 4, "Should have 4 passthrough operations (v, i, e, t)")
     }
 
@@ -251,7 +251,7 @@ final class EnginePassthroughTests: EngineTestCase {
         }
 
         // Verify minimal replace operations
-        let replaceOps = results.filter { if case .replace = $0 { return true } else { return false } }
+        let replaceOps = results.filter { if case .replace = $0 { true } else { false } }
         XCTAssertEqual(replaceOps.count, 2, "Should only have 2 replace operations for 'viết nam'")
     }
 
@@ -278,7 +278,7 @@ final class EnginePassthroughTests: EngineTestCase {
         // w: horn on u (replace)
         // n: grammar correction uo->ươ (replace)
         // g: passthrough
-        let replaceOps = results.filter { if case .replace = $0 { return true } else { return false } }
+        let replaceOps = results.filter { if case .replace = $0 { true } else { false } }
         XCTAssertEqual(replaceOps.count, 2, "Should have 2 replace operations (w for horn, n for grammar)")
     }
 }

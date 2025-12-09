@@ -76,7 +76,7 @@ public enum VietnameseTable {
 
         // Handle đ/Đ separately (no tone marks)
         // Support both .stroke (new) and .hornOrBreve (legacy) for backwards compatibility
-        if base == "d" && (typed.state.contains(.stroke) || typed.state.contains(.hornOrBreve)) {
+        if base == "d", typed.state.contains(.stroke) || typed.state.contains(.hornOrBreve) {
             return isUpper ? "Đ" : "đ"
         }
 
@@ -194,17 +194,17 @@ public enum VietnameseTable {
     private static func indexToMark(_ index: Int) -> CharacterState {
         switch index {
         case 1:
-            return .acute
+            .acute
         case 2:
-            return .grave
+            .grave
         case 3:
-            return .hook
+            .hook
         case 4:
-            return .tilde
+            .tilde
         case 5:
-            return .dotBelow
+            .dotBelow
         default:
-            return []
+            []
         }
     }
 }

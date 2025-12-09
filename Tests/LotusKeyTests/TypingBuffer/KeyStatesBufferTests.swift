@@ -1,11 +1,11 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - KeyStates Buffer Tests
 
 struct KeyStatesBufferTests {
     @Test("Buffer records original keystrokes")
-    func testRecordOriginalKeystrokes() {
+    func recordOriginalKeystrokes() {
         var buffer = TypingBuffer()
 
         buffer.recordOriginalKey("a")
@@ -16,7 +16,7 @@ struct KeyStatesBufferTests {
     }
 
     @Test("Buffer clears keystrokes on clear")
-    func testClearKeystrokes() {
+    func clearKeystrokes() {
         var buffer = TypingBuffer()
 
         buffer.recordOriginalKey("t")
@@ -28,11 +28,11 @@ struct KeyStatesBufferTests {
         buffer.clear()
 
         #expect(buffer.hasOriginalKeystrokes == false)
-        #expect(buffer.originalKeystrokes == "")
+        #expect(buffer.originalKeystrokes.isEmpty)
     }
 
     @Test("Buffer removes keystroke on removeLast")
-    func testRemoveLastKeystroke() {
+    func removeLastKeystroke() {
         var buffer = TypingBuffer()
 
         buffer.recordOriginalKey("a")
@@ -47,7 +47,7 @@ struct KeyStatesBufferTests {
     }
 
     @Test("Original keystrokes preserved across transformations")
-    func testKeystrokesPreservedAcrossTransformations() {
+    func keystrokesPreservedAcrossTransformations() {
         var buffer = TypingBuffer()
 
         // Simulate typing "aa" which transforms to "â"

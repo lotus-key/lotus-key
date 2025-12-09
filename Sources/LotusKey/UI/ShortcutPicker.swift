@@ -52,7 +52,7 @@ private func characterForKeyCode(_ keyCode: UInt16) -> String? {
         }
         var deadKeyState: UInt32 = 0
         var chars = [UniChar](repeating: 0, count: 4)
-        var length: Int = 0
+        var length = 0
         let result = UCKeyTranslate(
             layoutPtr,
             keyCode,
@@ -63,7 +63,7 @@ private func characterForKeyCode(_ keyCode: UInt16) -> String? {
             &deadKeyState,
             chars.count,
             &length,
-            &chars
+            &chars,
         )
         guard result == noErr, length > 0 else { return nil }
         return String(utf16CodeUnits: chars, count: length)
@@ -94,7 +94,7 @@ private final class ShortcutRecorder: ObservableObject {
 
     func stopRecording() {
         isRecording = false
-        if let monitor = monitor {
+        if let monitor {
             NSEvent.removeMonitor(monitor)
             self.monitor = nil
         }
@@ -118,10 +118,10 @@ private final class ShortcutRecorder: ObservableObject {
         // Require at least one modifier for most keys (except function keys)
         let functionKeys: Set<Int> = [
             kVK_F1, kVK_F2, kVK_F3, kVK_F4, kVK_F5, kVK_F6,
-            kVK_F7, kVK_F8, kVK_F9, kVK_F10, kVK_F11, kVK_F12
+            kVK_F7, kVK_F8, kVK_F9, kVK_F10, kVK_F11, kVK_F12,
         ]
         let isFunctionKey = functionKeys.contains(Int(keyCode))
-        if modifiers.isEmpty && !isFunctionKey {
+        if modifiers.isEmpty, !isFunctionKey {
             displayText = L("Add modifier key")
             return
         }
@@ -136,17 +136,16 @@ private final class ShortcutRecorder: ObservableObject {
         displayText = parts.joined()
 
         // Build bitfield
-        var bitfield: UInt32 = UInt32(keyCode)
+        var bitfield = UInt32(keyCode)
         if modifiers.contains(.control) { bitfield |= 0x100 }
         if modifiers.contains(.option) { bitfield |= 0x200 }
         if modifiers.contains(.command) { bitfield |= 0x400 }
         if modifiers.contains(.shift) { bitfield |= 0x800 }
-        bitfield |= 0x8000  // Enable beep
+        bitfield |= 0x8000 // Enable beep
 
         recordedBitfield = bitfield
         stopRecording()
     }
-
 }
 
 /// Converts bitfield to display string
@@ -175,20 +174,26 @@ struct ShortcutPicker: View {
             Text(L("Switch Language"))
             Spacer()
             if recorder.isRecording {
-                Button(action: { recorder.cancel() }) {
-                    Text(recorder.displayText.isEmpty ? L("Press shortcut...") : recorder.displayText)
-                        .frame(minWidth: 80)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                }
+                Button(
+                    action: { recorder.cancel() },
+                    label: {
+                        Text(recorder.displayText.isEmpty ? L("Press shortcut...") : recorder.displayText)
+                            .frame(minWidth: 80)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                    },
+                )
                 .buttonStyle(.borderedProminent)
             } else {
-                Button(action: { recorder.startRecording() }) {
-                    Text(displayString)
-                        .frame(minWidth: 80)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                }
+                Button(
+                    action: { recorder.startRecording() },
+                    label: {
+                        Text(displayString)
+                            .frame(minWidth: 80)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                    },
+                )
                 .buttonStyle(.bordered)
             }
         }

@@ -6,13 +6,13 @@ let package = Package(
     name: "LotusKey",
     defaultLocalization: "en",
     platforms: [
-        .macOS(.v15)
+        .macOS(.v15),
     ],
     products: [
         .executable(
             name: "LotusKey",
-            targets: ["LotusKey"]
-        )
+            targets: ["LotusKey"],
+        ),
     ],
     dependencies: [],
     targets: [
@@ -21,18 +21,18 @@ let package = Package(
             dependencies: [],
             path: "Sources/LotusKey",
             resources: [
-                .process("Resources")
-            ]
+                .process("Resources"),
+            ],
         ),
         .testTarget(
             name: "LotusKeyTests",
             dependencies: ["LotusKey"],
-            path: "Tests/LotusKeyTests"
+            path: "Tests/LotusKeyTests",
         ),
         .testTarget(
             name: "LotusKeyUITests",
             dependencies: ["LotusKey"],
-            path: "Tests/LotusKeyUITests"
-        )
-    ]
+            path: "Tests/LotusKeyUITests",
+        ),
+    ],
 )

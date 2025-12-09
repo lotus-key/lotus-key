@@ -1,13 +1,14 @@
+// swiftlint:disable file_length
 import Foundation
 
 /// Result of processing a keyboard event
 public enum EngineResult: Sendable, Equatable {
     /// No action needed, pass through the original key
     case passThrough
-    /// Suppress the key, engine handled it internally
-    case suppress
     /// Replace with new characters (backspace count, new string)
     case replace(backspaceCount: Int, replacement: String)
+    /// Suppress the key, engine handled it internally
+    case suppress
 }
 
 /// Protocol defining the Vietnamese input processing engine
@@ -45,6 +46,7 @@ public protocol VietnameseEngine: Sendable {
     var isEmpty: Bool { get }
 }
 
+// swiftlint:disable type_body_length
 /// Default implementation of Vietnamese input processing engine
 public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendable {
     // MARK: - Properties
@@ -63,7 +65,7 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
     private var tempDisableTransformation: Bool = false
 
     /// The typing buffer holding current word
-    private var buffer: TypingBuffer = TypingBuffer()
+    private var buffer = TypingBuffer()
 
     /// Track previous output length for backspace calculation
     private var previousOutputLength: Int = 0
@@ -78,10 +80,10 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
     private var spaceCount: Int = 0
 
     /// Input method state for undo tracking
-    private var inputMethodState: InputMethodState = InputMethodState()
+    private var inputMethodState = InputMethodState()
 
     /// Quick Telex handler for consonant shortcuts (cc=ch, gg=gi, etc.)
-    public var quickTelex: QuickTelex = QuickTelex()
+    public var quickTelex = QuickTelex()
 
     /// Spell checker instance
     private let spellChecker: SpellChecker = DefaultSpellChecker()
@@ -96,10 +98,10 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
 
     public init(
         inputMethod: any InputMethod = TelexInputMethod(),
-        characterTable: any CharacterTable = UnicodeCharacterTable()
+        characterTable: any CharacterTable = UnicodeCharacterTable(),
     ) {
-        self._inputMethod = inputMethod
-        self._characterTable = characterTable
+        _inputMethod = inputMethod
+        _characterTable = characterTable
     }
 
     // MARK: - Main Processing
@@ -163,9 +165,11 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
         }
 
         // 1. Check Quick Telex first (before input method)
-        if quickTelex.isEnabled,
-           let lastChar = buffer.last?.baseCharacter,
-           let expansion = quickTelex.processShortcut(char, previousCharacter: lastChar) {
+        if
+            quickTelex.isEnabled,
+            let lastChar = buffer.last?.baseCharacter,
+            let expansion = quickTelex.processShortcut(char, previousCharacter: lastChar)
+        {
             return applyQuickTelexExpansion(expansion, originalChar: char)
         }
 
@@ -184,14 +188,16 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
 
             // Track this transformation for potential undo (if it was successful and has a category)
             // Only track non-undo transformations
-            if case .undo(_) = transformation.type {
+            if case .undo = transformation.type {
                 // Don't track undo itself
-            } else if case .replace(_, _) = result,
-                      let category = transformation.category {
+            } else if
+                case .replace = result,
+                let category = transformation.category
+            {
                 inputMethodState.lastTransformation = LastTransformation(
                     type: category,
                     triggerKey: char,
-                    originalChars: originalCharsForUndo
+                    originalChars: originalCharsForUndo,
                 )
             }
 
@@ -224,7 +230,7 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
     /// Check spelling after any change and update tempDisableTransformation flag
     private func checkSpellingAfterChange() {
         // Skip if spell checking is disabled or temporarily off
-        guard spellCheckEnabled && !tempOffSpellChecking else {
+        guard spellCheckEnabled, !tempOffSpellChecking else {
             tempDisableTransformation = false
             return
         }
@@ -240,14 +246,14 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
         case .valid, .unknown:
             // Valid or incomplete - allow transformation
             tempDisableTransformation = false
-        case .invalid(_):
+        case .invalid:
             // Invalid spelling - disable further transformations
             tempDisableTransformation = true
         }
     }
 
     /// Apply Quick Telex expansion (e.g., cc → ch, gg → gi)
-    private func applyQuickTelexExpansion(_ expansion: String, originalChar: Character) -> EngineResult {
+    private func applyQuickTelexExpansion(_ expansion: String, originalChar _: Character) -> EngineResult {
         let oldLength = previousOutputLength
 
         // Remove the last character (the first of the doubled pair)
@@ -271,26 +277,26 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
         var wasTransformed = false
 
         switch transformation.type {
-        case .tone(let toneMark):
+        case let .tone(toneMark):
             wasTransformed = applyToneMark(toneMark, originalChar: originalChar)
 
-        case .modifier(let modifierMark):
+        case let .modifier(modifierMark):
             wasTransformed = applyModifier(modifierMark, originalChar: originalChar)
             // After applying modifier, check if tone needs repositioning
             if wasTransformed {
                 _ = buffer.refreshTonePosition()
             }
 
-        case .replace(let replacement):
+        case let .replace(replacement):
             applyReplacement(replacement)
             wasTransformed = true
 
-        case .undo(let originalChars):
+        case let .undo(originalChars):
             // Restore original characters and add the trigger key
             applyUndo(originalChars: originalChars, triggerKey: originalChar)
             wasTransformed = true
 
-        case .standalone(let char):
+        case let .standalone(char):
             // Add standalone character (e.g., [ → ơ, ] → ư)
             // For Vietnamese characters (ơ, ư), we need to compose them properly
             let isUpper = originalChar.isUppercase
@@ -313,7 +319,7 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
 
     /// Apply undo: restore original characters
     /// The originalChars already includes the key sequence (e.g., "aa" for circumflex undo)
-    private func applyUndo(originalChars: String, triggerKey: Character) {
+    private func applyUndo(originalChars: String, triggerKey _: Character) {
         // Save original keystrokes before clearing (they were recorded in processCharacter)
         // This preserves the full keystroke history for restore-on-invalid feature
         let savedKeystrokes = buffer.allOriginalKeys
@@ -510,7 +516,7 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
     /// Find last consonant matching a specific character
     private func findLastConsonant(matching char: Character) -> Int? {
         for i in stride(from: buffer.count - 1, through: 0, by: -1) {
-            if buffer[i].baseCharacter == char && !buffer[i].isVowel {
+            if buffer[i].baseCharacter == char, !buffer[i].isVowel {
                 return i
             }
         }
@@ -588,9 +594,10 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
             let oIndex = i - 1
             let uIndex = i - 2
 
-            guard let oBase = chars[oIndex].baseCharacter,
-                  let uBase = chars[uIndex].baseCharacter,
-                  oBase == "o", uBase == "u" else { continue }
+            guard
+                let oBase = chars[oIndex].baseCharacter,
+                let uBase = chars[uIndex].baseCharacter,
+                oBase == "o", uBase == "u" else { continue }
 
             let oHasHorn = chars[oIndex].state.contains(.hornOrBreve)
             let uHasHorn = chars[uIndex].state.contains(.hornOrBreve)
@@ -612,8 +619,8 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
 
     /// Check if a character is a grammar trigger consonant
     private func isGrammarTriggerConsonant(_ char: Character?) -> Bool {
-        guard let c = char else { return false }
-        return Self.grammarTriggerConsonants.contains(c)
+        guard let character = char else { return false }
+        return Self.grammarTriggerConsonants.contains(character)
     }
 
     // MARK: - Backspace Handling
@@ -761,7 +768,7 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
 
         // Save current word to history before clearing (for potential restore on backspace)
         // Only save if buffer has content AND this is the first space after the word
-        if !buffer.isEmpty && spaceCount == 0 {
+        if !buffer.isEmpty, spaceCount == 0 {
             saveToHistory()
         }
 
@@ -798,9 +805,11 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
     /// - Returns: EngineResult if restoration occurred, nil otherwise
     private func checkRestoreIfWrongSpellingCore(suffixChar: Character?) -> EngineResult? {
         // Skip if feature is disabled or spell checking is off/bypassed
-        guard restoreIfWrongSpelling,
-              spellCheckEnabled,
-              !tempOffSpellChecking else {
+        guard
+            restoreIfWrongSpelling,
+            spellCheckEnabled,
+            !tempOffSpellChecking
+        else {
             return nil
         }
 
@@ -825,7 +834,7 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
 
     // MARK: - Result Generation
 
-    private func generateResult(previousLength: Int, wasTransformed: Bool = false) -> EngineResult {
+    private func generateResult(previousLength _: Int, wasTransformed: Bool = false) -> EngineResult {
         let newOutput = buffer.toUnicodeString()
         let newLength = newOutput.count
 
@@ -867,9 +876,9 @@ public final class DefaultVietnameseEngine: VietnameseEngine, @unchecked Sendabl
 
 // MARK: - Testing Helpers
 
-extension DefaultVietnameseEngine {
+public extension DefaultVietnameseEngine {
     /// Process a string of characters (for testing)
-    public func processString(_ string: String) -> String {
+    func processString(_ string: String) -> String {
         reset()
         var result = ""
 
@@ -877,7 +886,7 @@ extension DefaultVietnameseEngine {
             let engineResult = processKey(
                 keyCode: 0,
                 character: char,
-                modifiers: 0
+                modifiers: 0,
             )
 
             switch engineResult {
@@ -885,9 +894,9 @@ extension DefaultVietnameseEngine {
                 result.append(char)
             case .suppress:
                 break
-            case .replace(let backspaces, let replacement):
+            case let .replace(backspaces, replacement):
                 // Remove backspaces from result
-                if backspaces > 0 && result.count >= backspaces {
+                if backspaces > 0, result.count >= backspaces {
                     result.removeLast(backspaces)
                 }
                 result.append(replacement)
@@ -898,12 +907,14 @@ extension DefaultVietnameseEngine {
     }
 
     /// Get internal buffer for testing
-    public var testBuffer: TypingBuffer {
+    var testBuffer: TypingBuffer {
         buffer
     }
 
     /// Check if current buffer has valid Vietnamese spelling
-    public var isValidSpelling: Bool {
+    var isValidSpelling: Bool {
         buffer.isValidVietnameseSyllable()
     }
 }
+
+// swiftlint:enable type_body_length file_length

@@ -1,3 +1,4 @@
+// swiftlint:disable:this file_name
 import Foundation
 
 /// Localization manager that manually loads strings from the correct lproj
@@ -6,9 +7,8 @@ import Foundation
 /// - AppleLanguages must be set before ANY Bundle is accessed (very early in startup)
 /// - Manual loading gives us precise control over which localization is used
 public enum LocalizationManager {
-
     /// Cache of loaded strings - thread-safe via nonisolated(unsafe) since we only write once at startup
-    nonisolated(unsafe) private static var cachedStrings: [String: String]?
+    private nonisolated(unsafe) static var cachedStrings: [String: String]?
 
     /// Current language code (en or vi)
     private static var currentLanguage: String {
@@ -30,14 +30,22 @@ public enum LocalizationManager {
         let lang = currentLanguage
 
         // Try to load from the current language's lproj
-        if let url = Bundle.module.url(forResource: "Localizable", withExtension: "strings", subdirectory: "\(lang).lproj"),
-           let strings = NSDictionary(contentsOf: url) as? [String: String] {
+        if
+            let url = Bundle.module.url(
+                forResource: "Localizable",
+                withExtension: "strings",
+                subdirectory: "\(lang).lproj",
+            ),
+            let strings = NSDictionary(contentsOf: url) as? [String: String]
+        {
             return strings
         }
 
         // Fallback to English
-        if let url = Bundle.module.url(forResource: "Localizable", withExtension: "strings", subdirectory: "en.lproj"),
-           let strings = NSDictionary(contentsOf: url) as? [String: String] {
+        if
+            let url = Bundle.module.url(forResource: "Localizable", withExtension: "strings", subdirectory: "en.lproj"),
+            let strings = NSDictionary(contentsOf: url) as? [String: String]
+        {
             return strings
         }
 

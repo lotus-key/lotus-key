@@ -8,10 +8,10 @@ public enum AppLifecycleError: LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .registrationFailed(let error):
-            return "Failed to enable launch at login: \(error.localizedDescription)"
-        case .unregistrationFailed(let error):
-            return "Failed to disable launch at login: \(error.localizedDescription)"
+        case let .registrationFailed(error):
+            "Failed to enable launch at login: \(error.localizedDescription)"
+        case let .unregistrationFailed(error):
+            "Failed to disable launch at login: \(error.localizedDescription)"
         }
     }
 }

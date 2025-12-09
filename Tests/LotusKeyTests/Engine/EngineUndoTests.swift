@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for undo mechanism (double key to undo transformations)
 final class EngineUndoTests: EngineTestCase {
-
     // MARK: - Undo Mechanism Tests
 
     func testUndoCircumflex() {
@@ -80,7 +79,11 @@ final class EngineUndoTests: EngineTestCase {
         // The space resets tempDisableKey
         // The next "aa" produces "â" (circumflex works again after reset)
         let result = engine.processString("aaaa aa")
-        XCTAssertEqual(result, "aaaa â", "tempDisableKey should reset after word break, allowing transformation in new word")
+        XCTAssertEqual(
+            result,
+            "aaaa â",
+            "tempDisableKey should reset after word break, allowing transformation in new word",
+        )
     }
 
     func testCircumflexUndoPreservesPrefix() {

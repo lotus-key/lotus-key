@@ -1,52 +1,46 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class ApplicationDetectorTests: XCTestCase {
     // MARK: - App Quirk Detection Tests
 
-    /// Test that bundle ID prefixes are correctly mapped to quirks
-    func testBundleIDToQuirkMapping() {
-        // Simulate the quirk detection logic from ApplicationDetector
-        func detectQuirk(bundleID: String) -> AppQuirk {
-            // Sublime Text
-            let sublimeTextPrefixes = ["com.sublimetext.2", "com.sublimetext.3", "com.sublimetext.4"]
-            for prefix in sublimeTextPrefixes {
-                if bundleID.hasPrefix(prefix) {
-                    return .sublimeText
-                }
-            }
-
-            // Chromium browsers
-            let chromiumPrefixes = [
-                "com.google.Chrome",
-                "com.brave.Browser",
-                "com.microsoft.Edge",
-                "com.vivaldi.Vivaldi",
-                "com.operasoftware.Opera",
-                "org.chromium.Chromium"
-            ]
-            for prefix in chromiumPrefixes {
-                if bundleID.hasPrefix(prefix) {
-                    return .chromiumBrowser
-                }
-            }
-
-            // Apple apps (Unicode Compound)
-            let appleAppPrefixes = [
-                "com.apple.Safari",
-                "com.apple.Notes",
-                "com.apple.TextEdit",
-                "com.apple.mail"
-            ]
-            for prefix in appleAppPrefixes {
-                if bundleID.hasPrefix(prefix) {
-                    return .unicodeCompound
-                }
-            }
-
-            return .standard
+    /// Helper function to detect quirk from bundle ID
+    private func detectQuirk(bundleID: String) -> AppQuirk {
+        // Sublime Text
+        let sublimeTextPrefixes = ["com.sublimetext.2", "com.sublimetext.3", "com.sublimetext.4"]
+        if sublimeTextPrefixes.contains(where: { bundleID.hasPrefix($0) }) {
+            return .sublimeText
         }
 
+        // Chromium browsers
+        let chromiumPrefixes = [
+            "com.google.Chrome",
+            "com.brave.Browser",
+            "com.microsoft.Edge",
+            "com.vivaldi.Vivaldi",
+            "com.operasoftware.Opera",
+            "org.chromium.Chromium",
+        ]
+        if chromiumPrefixes.contains(where: { bundleID.hasPrefix($0) }) {
+            return .chromiumBrowser
+        }
+
+        // Apple apps (Unicode Compound)
+        let appleAppPrefixes = [
+            "com.apple.Safari",
+            "com.apple.Notes",
+            "com.apple.TextEdit",
+            "com.apple.mail",
+        ]
+        if appleAppPrefixes.contains(where: { bundleID.hasPrefix($0) }) {
+            return .unicodeCompound
+        }
+
+        return .standard
+    }
+
+    /// Test that bundle ID prefixes are correctly mapped to quirks
+    func testBundleIDToQuirkMapping() {
         // Test Sublime Text
         XCTAssertEqual(detectQuirk(bundleID: "com.sublimetext.3"), .sublimeText)
         XCTAssertEqual(detectQuirk(bundleID: "com.sublimetext.4"), .sublimeText)
@@ -81,20 +75,20 @@ final class ApplicationDetectorTests: XCTestCase {
         // OpenKey _niceSpaceApp (Sublime Text - uses ZWNJ)
         let openKeyNiceSpaceApps = [
             "com.sublimetext.3",
-            "com.sublimetext.2"
+            "com.sublimetext.2",
         ]
 
         // OpenKey _unicodeCompoundApp (uses Unicode Compound handling)
         // Note: This list includes BOTH Chrome and Apple apps in OpenKey
         let openKeyUnicodeCompoundApps = [
-            "com.apple.",          // All Apple apps
+            "com.apple.", // All Apple apps
             "com.google.Chrome",
             "com.brave.Browser",
             "com.operasoftware.Opera",
             "com.vivaldi.Vivaldi",
             "com.electron.",
             "org.chromium.Chromium",
-            "com.microsoft.Edge"
+            "com.microsoft.Edge",
         ]
 
         // Verify we handle all OpenKey apps
@@ -117,9 +111,11 @@ final class ApplicationDetectorTests: XCTestCase {
             }
 
             // Check Chromium browsers
-            if bundleID.hasPrefix("com.google.Chrome") ||
-               bundleID.hasPrefix("com.brave.Browser") ||
-               bundleID.hasPrefix("com.microsoft.Edge") {
+            if
+                bundleID.hasPrefix("com.google.Chrome") ||
+                bundleID.hasPrefix("com.brave.Browser") ||
+                bundleID.hasPrefix("com.microsoft.Edge")
+            {
                 return .chromiumBrowser
             }
 

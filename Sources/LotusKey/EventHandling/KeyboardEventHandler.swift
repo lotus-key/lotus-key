@@ -25,20 +25,26 @@ public protocol KeyboardEventHandling: AnyObject, Sendable {
 /// Error types for keyboard event handling
 public enum KeyboardEventError: Error, LocalizedError {
     case accessibilityNotEnabled
+    case failedToCreateEventSource
     case failedToCreateEventTap
     case failedToCreateRunLoopSource
-    case failedToCreateEventSource
 
     public var errorDescription: String? {
         switch self {
         case .accessibilityNotEnabled:
-            return "Accessibility permissions not enabled. Please enable in System Settings > Privacy & Security > Accessibility"
-        case .failedToCreateEventTap:
-            return "Failed to create keyboard event tap"
-        case .failedToCreateRunLoopSource:
-            return "Failed to create run loop source for event tap"
+            """
+            Accessibility permissions not enabled. \
+            Please enable in System Settings > Privacy & Security > Accessibility
+            """
+
         case .failedToCreateEventSource:
-            return "Failed to create private event source"
+            "Failed to create private event source"
+
+        case .failedToCreateEventTap:
+            "Failed to create keyboard event tap"
+
+        case .failedToCreateRunLoopSource:
+            "Failed to create run loop source for event tap"
         }
     }
 }
@@ -123,7 +129,7 @@ public final class KeyboardEventHandler: KeyboardEventHandling, @unchecked Senda
         applicationDetector: ApplicationDetecting,
         hotkeyDetector: HotkeyDetecting,
         inputSourceDetector: InputSourceDetecting,
-        layoutConverter: KeyboardLayoutConverting
+        layoutConverter: KeyboardLayoutConverting,
     ) {
         self.textInjector = textInjector
         self.applicationDetector = applicationDetector
@@ -154,12 +160,12 @@ public final class KeyboardEventHandler: KeyboardEventHandling, @unchecked Senda
         // Create event tap with expanded event mask
         let eventMask: CGEventMask =
             (1 << CGEventType.keyDown.rawValue)
-            | (1 << CGEventType.keyUp.rawValue)
-            | (1 << CGEventType.flagsChanged.rawValue)
-            | (1 << CGEventType.leftMouseDown.rawValue)
-            | (1 << CGEventType.rightMouseDown.rawValue)
-            | (1 << CGEventType.leftMouseDragged.rawValue)
-            | (1 << CGEventType.rightMouseDragged.rawValue)
+                | (1 << CGEventType.keyUp.rawValue)
+                | (1 << CGEventType.flagsChanged.rawValue)
+                | (1 << CGEventType.leftMouseDown.rawValue)
+                | (1 << CGEventType.rightMouseDown.rawValue)
+                | (1 << CGEventType.leftMouseDragged.rawValue)
+                | (1 << CGEventType.rightMouseDragged.rawValue)
 
         guard
             let tap = CGEvent.tapCreate(
@@ -168,7 +174,7 @@ public final class KeyboardEventHandler: KeyboardEventHandling, @unchecked Senda
                 options: .defaultTap,
                 eventsOfInterest: eventMask,
                 callback: keyboardCallback,
-                userInfo: Unmanaged.passUnretained(self).toOpaque()
+                userInfo: Unmanaged.passUnretained(self).toOpaque(),
             )
         else {
             throw KeyboardEventError.failedToCreateEventTap
@@ -244,25 +250,26 @@ public final class KeyboardEventHandler: KeyboardEventHandling, @unchecked Senda
         // Modifier released (lastFlags > flags) - check for hotkeys and temp toggles
         if lastFlags.rawValue > flags.rawValue {
             // Check hotkey on flags changed (for modifier-only hotkeys)
-            if let detector = hotkeyDetector,
+            if
+                let detector = hotkeyDetector,
                 currentProxy != nil,
                 detector.checkFlagsChanged(event: event, lastFlags: lastFlags)
             {
                 lastFlags = []
                 hasJustUsedHotkey = true
                 toggleVietnameseMode()
-                return nil  // Consume event
+                return nil // Consume event
             }
 
             // Check for temporary spell-check toggle via Control key release
             // Only toggle if no hotkey was just used
-            if !hasJustUsedHotkey && lastFlags.contains(.maskControl) {
+            if !hasJustUsedHotkey, lastFlags.contains(.maskControl) {
                 tempOffSpellCheck.toggle()
             }
 
             // Check for temporary engine toggle via Command key release
             // Only toggle if no hotkey was just used
-            if !hasJustUsedHotkey && lastFlags.contains(.maskCommand) {
+            if !hasJustUsedHotkey, lastFlags.contains(.maskCommand) {
                 tempOffEngine.toggle()
             }
 
@@ -276,7 +283,8 @@ public final class KeyboardEventHandler: KeyboardEventHandling, @unchecked Senda
 
     fileprivate func handleKeyDown(_ event: CGEvent, proxy: CGEventTapProxy) -> CGEvent? {
         // Check if other language input source is active
-        if bypassOtherLanguage,
+        if
+            bypassOtherLanguage,
             let detector = inputSourceDetector,
             !detector.isEnglishInputSource()
         {
@@ -284,13 +292,14 @@ public final class KeyboardEventHandler: KeyboardEventHandling, @unchecked Senda
         }
 
         // Check for language switch hotkey
-        if let detector = hotkeyDetector,
+        if
+            let detector = hotkeyDetector,
             detector.checkHotkey(event: event, type: .switchLanguage)
         {
             lastFlags = []
             hasJustUsedHotkey = true
             toggleVietnameseMode()
-            return nil  // Consume the hotkey event
+            return nil // Consume the hotkey event
         }
 
         // Reset hasJustUsedHotkey if this is a normal key press
@@ -334,7 +343,7 @@ public final class KeyboardEventHandler: KeyboardEventHandling, @unchecked Senda
             return event
         case .suppress:
             return nil
-        case .replace(let backspaceCount, let replacement):
+        case let .replace(backspaceCount, replacement):
             // Use text injector if available, otherwise fallback to basic injection
             if let injector = textInjector {
                 if backspaceCount > 0 {
@@ -360,18 +369,20 @@ public final class KeyboardEventHandler: KeyboardEventHandling, @unchecked Senda
         event.keyboardGetUnicodeString(
             maxStringLength: 4,
             actualStringLength: &actualStringLength,
-            unicodeString: &unicodeString
+            unicodeString: &unicodeString,
         )
 
-        guard actualStringLength > 0 else { return nil }
-        return Character(UnicodeScalar(unicodeString[0])!)
+        guard
+            actualStringLength > 0,
+            let scalar = UnicodeScalar(unicodeString[0]) else { return nil }
+        return Character(scalar)
     }
 
     private func getCapsStatus(_ flags: CGEventFlags) -> Int {
         if flags.contains(.maskShift) {
-            return 1  // Shift key
+            return 1 // Shift key
         } else if flags.contains(.maskAlphaShift) {
-            return 2  // Caps Lock
+            return 2 // Caps Lock
         }
         return 0
     }
@@ -379,7 +390,7 @@ public final class KeyboardEventHandler: KeyboardEventHandling, @unchecked Senda
     private func hasOtherControlKey(_ flags: CGEventFlags) -> Bool {
         // Check for any modifier except Shift (matches OpenKey's OTHER_CONTROL_KEY macro)
         // Includes: Command, Control, Option/Alt, Fn (SecondaryFn), NumPad, Help
-        return flags.contains(.maskCommand)
+        flags.contains(.maskCommand)
             || flags.contains(.maskControl)
             || flags.contains(.maskAlternate)
             || flags.contains(.maskSecondaryFn)
@@ -402,12 +413,13 @@ public final class KeyboardEventHandler: KeyboardEventHandling, @unchecked Senda
     // MARK: - Basic Text Injection (Fallback)
 
     private func sendBackspaces(count: Int, proxy: CGEventTapProxy) {
-        guard eventSource != nil,
+        guard
+            eventSource != nil,
             let keyDown = backspaceKeyDown,
             let keyUp = backspaceKeyUp
         else { return }
 
-        for _ in 0..<count {
+        for _ in 0 ..< count {
             keyDown.tapPostEvent(proxy)
             keyUp.tapPostEvent(proxy)
         }
@@ -425,7 +437,8 @@ public final class KeyboardEventHandler: KeyboardEventHandling, @unchecked Senda
                 chars[i] = unit
             }
 
-            guard let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: true),
+            guard
+                let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: true),
                 let keyUp = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: false)
             else { continue }
 
@@ -444,9 +457,9 @@ private func keyboardCallback(
     proxy: CGEventTapProxy,
     type: CGEventType,
     event: CGEvent,
-    refcon: UnsafeMutableRawPointer?
+    refcon: UnsafeMutableRawPointer?,
 ) -> Unmanaged<CGEvent>? {
-    guard let refcon = refcon else {
+    guard let refcon else {
         return Unmanaged.passRetained(event)
     }
 
@@ -473,6 +486,7 @@ private func keyboardCallback(
     case .leftMouseDown, .rightMouseDown, .leftMouseDragged, .rightMouseDragged:
         handler.handleMouseEvent()
         return Unmanaged.passRetained(event)
+
     default:
         break
     }

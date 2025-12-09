@@ -1,5 +1,5 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class KeyboardEventHandlerTests: XCTestCase {
     // MARK: - FlagsChanged Logic Tests
@@ -83,7 +83,7 @@ final class KeyboardEventHandlerTests: XCTestCase {
 
                 if lastFlags > currentFlags {
                     // Only toggle if hotkey wasn't just used
-                    if !hasJustUsedHotkey && lastFlags & 0x100000 != 0 {
+                    if !hasJustUsedHotkey, lastFlags & 0x100000 != 0 {
                         tempOffEngine.toggle()
                     }
 
@@ -155,7 +155,7 @@ final class KeyboardEventHandlerTests: XCTestCase {
     func testEventSourceIDComparison() {
         // Simulate own-event check logic
         func isOwnEvent(eventSourceID: Int64, mySourceID: Int32) -> Bool {
-            return eventSourceID == Int64(mySourceID)
+            eventSourceID == Int64(mySourceID)
         }
 
         // Same source - should be own event

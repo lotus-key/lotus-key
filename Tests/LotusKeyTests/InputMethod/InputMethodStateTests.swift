@@ -1,5 +1,5 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class InputMethodStateTests: XCTestCase {
     // MARK: - Initialization Tests

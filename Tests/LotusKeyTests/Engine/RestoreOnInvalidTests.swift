@@ -1,11 +1,11 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Restore on Invalid Tests
 
 struct RestoreOnInvalidTests {
     @Test("Engine tracks keystrokes for restore")
-    func testEngineTracksKeystrokes() {
+    func engineTracksKeystrokes() {
         let engine = DefaultVietnameseEngine()
         engine.spellCheckEnabled = true
         engine.restoreIfWrongSpelling = true
@@ -18,7 +18,7 @@ struct RestoreOnInvalidTests {
     }
 
     @Test("Restore disabled when feature is off")
-    func testRestoreDisabledWhenOff() {
+    func restoreDisabledWhenOff() {
         let engine = DefaultVietnameseEngine()
         engine.spellCheckEnabled = true
         engine.restoreIfWrongSpelling = false
@@ -31,7 +31,7 @@ struct RestoreOnInvalidTests {
     }
 
     @Test("Restore disabled when spell check is off")
-    func testRestoreDisabledWhenSpellCheckOff() {
+    func restoreDisabledWhenSpellCheckOff() {
         let engine = DefaultVietnameseEngine()
         engine.spellCheckEnabled = false
         engine.restoreIfWrongSpelling = true

@@ -1,5 +1,5 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Edge Case Tests: qu- Cluster
 
@@ -7,7 +7,7 @@ struct QuClusterTests {
     let spellChecker = DefaultSpellChecker()
 
     @Test("Parse 'quốc' → qu + o + c")
-    func testQuoc() {
+    func quoc() {
         let parts = SyllableParser.parse("quốc")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "qu")
@@ -18,7 +18,7 @@ struct QuClusterTests {
     }
 
     @Test("Parse 'quyền' → qu + ye + n")
-    func testQuyen() {
+    func quyen() {
         let parts = SyllableParser.parse("quyền")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "qu")
@@ -28,7 +28,7 @@ struct QuClusterTests {
     }
 
     @Test("Parse 'quý' → qu + y")
-    func testQuy() {
+    func quy() {
         let parts = SyllableParser.parse("quý")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "qu")
@@ -37,13 +37,13 @@ struct QuClusterTests {
     }
 
     @Test("Spell check 'quốc' is valid")
-    func testQuocValid() {
+    func quocValid() {
         let result = spellChecker.check("quốc")
         #expect(result == .valid)
     }
 
     @Test("Spell check 'quyền' is valid")
-    func testQuyenValid() {
+    func quyenValid() {
         let result = spellChecker.check("quyền")
         #expect(result == .valid)
     }

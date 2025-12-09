@@ -1,5 +1,5 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Edge Case Tests: đ (d-stroke) Handling
 
@@ -7,7 +7,7 @@ struct DStrokeTests {
     let spellChecker = DefaultSpellChecker()
 
     @Test("Parse 'đi' → d + i")
-    func testDi() {
+    func di() {
         let parts = SyllableParser.parse("đi")
         #expect(parts != nil)
         // đ decomposes to 'd'
@@ -16,7 +16,7 @@ struct DStrokeTests {
     }
 
     @Test("Parse 'đường' → d + uo + ng")
-    func testDuong() {
+    func duong() {
         let parts = SyllableParser.parse("đường")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "d")
@@ -25,7 +25,7 @@ struct DStrokeTests {
     }
 
     @Test("Parse 'đẹp' → d + e + p")
-    func testDep() {
+    func dep() {
         let parts = SyllableParser.parse("đẹp")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "d")
@@ -35,13 +35,13 @@ struct DStrokeTests {
     }
 
     @Test("Spell check 'đi' is valid")
-    func testDiValid() {
+    func diValid() {
         let result = spellChecker.check("đi")
         #expect(result == .valid)
     }
 
     @Test("Spell check 'đẹp' is valid")
-    func testDepValid() {
+    func depValid() {
         let result = spellChecker.check("đẹp")
         #expect(result == .valid)
     }

@@ -1,8 +1,7 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class TypingBufferMarkOperationTests: TypingBufferTestCase {
-
     // MARK: - Mark Operations
 
     func testApplyMark() {

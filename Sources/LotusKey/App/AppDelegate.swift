@@ -2,6 +2,7 @@ import AppKit
 import Combine
 
 @MainActor
+// swiftlint:disable:next type_body_length
 final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Properties
 
@@ -50,7 +51,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - App Lifecycle
 
-    func applicationDidFinishLaunching(_ notification: Notification) {
+    func applicationDidFinishLaunching(_: Notification) {
         applyLifecycleSettings()
         setupMenuBar()
         setupEventHandler()
@@ -62,16 +63,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.publisher(for: .settingsWindowClosed)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                guard let self = self else { return }
+                guard let self else { return }
                 // Restore accessory mode if user prefers hidden dock icon
-                if !self.settings.showDockIcon {
+                if !settings.showDockIcon {
                     AppLifecycleManager.shared.setDockIconVisible(false)
                 }
             }
             .store(in: &cancellables)
     }
 
-    func applicationWillTerminate(_ notification: Notification) {
+    func applicationWillTerminate(_: Notification) {
         // Cleanup resources
         eventHandler?.stop()
         applicationDetector?.stopMonitoring()
@@ -80,18 +81,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+    func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
         // Menu bar app should continue running even when all windows are closed
-        print("[LotusKey] applicationShouldTerminateAfterLastWindowClosed called - returning false")
+        #if DEBUG
+            debugPrint("[LotusKey] applicationShouldTerminateAfterLastWindowClosed called - returning false")
+        #endif
         return false
     }
 
-    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        print("[LotusKey] applicationShouldTerminate called")
-        // Check if this is an unexpected termination
-        if eventHandler == nil {
-            print("[LotusKey] WARNING: Termination requested before event handler initialized")
-        }
+    func applicationShouldTerminate(_: NSApplication) -> NSApplication.TerminateReply {
+        #if DEBUG
+            debugPrint("[LotusKey] applicationShouldTerminate called")
+            // Check if this is an unexpected termination
+            if eventHandler == nil {
+                debugPrint("[LotusKey] WARNING: Termination requested before event handler initialized")
+            }
+        #endif
         return .terminateNow
     }
 
@@ -104,25 +109,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Note: SMAppService.mainApp requires the app to be properly code-signed
         // and may crash in development builds. We skip the sync in debug builds.
         #if !DEBUG
-        // Sync launch at login setting with actual system state
-        // User might have changed it in System Settings directly
-        let actuallyEnabled = AppLifecycleManager.shared.isLaunchAtLoginEnabled
-        if settings.launchAtLogin != actuallyEnabled {
-            // Update stored setting to match system state (without triggering another registration)
-            let defaults = UserDefaults.standard
-            defaults.set(actuallyEnabled, forKey: SettingsKey.launchAtLogin.rawValue)
-        }
+            // Sync launch at login setting with actual system state
+            // User might have changed it in System Settings directly
+            let actuallyEnabled = AppLifecycleManager.shared.isLaunchAtLoginEnabled
+            if settings.launchAtLogin != actuallyEnabled {
+                // Update stored setting to match system state (without triggering another registration)
+                let defaults = UserDefaults.standard
+                defaults.set(actuallyEnabled, forKey: SettingsKey.launchAtLogin.rawValue)
+            }
 
-        // If launch at login requires approval, we could show a hint to the user
-        // but for now we just log it
-        if AppLifecycleManager.shared.launchAtLoginRequiresApproval {
-            print("Launch at login requires approval in System Settings > Login Items")
-        }
+            // If launch at login requires approval, we could show a hint to the user
+            // but for now we just log it
+            if AppLifecycleManager.shared.launchAtLoginRequiresApproval {
+                debugPrint("Launch at login requires approval in System Settings > Login Items")
+            }
         #endif
     }
 
     // MARK: - Menu Bar Setup
 
+    // swiftlint:disable:next function_body_length
     private func setupMenuBar() {
         // Use fixed width matching macOS native input source icons
         statusItem = NSStatusBar.system.statusItem(withLength: 28)
@@ -135,11 +141,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         languageModeItem = NSMenuItem(
             title: L("Enable Vietnamese Typing"),
             action: #selector(toggleLanguageMode),
-            keyEquivalent: ""
+            keyEquivalent: "",
         )
         languageModeItem?.target = self
         languageModeItem?.state = .on
-        menu.addItem(languageModeItem!)
+        if let item = languageModeItem {
+            menu.addItem(item)
+        }
 
         menu.addItem(NSMenuItem.separator())
 
@@ -147,18 +155,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         telexMenuItem = NSMenuItem(
             title: L("Telex"),
             action: #selector(selectTelex),
-            keyEquivalent: ""
+            keyEquivalent: "",
         )
         telexMenuItem?.target = self
-        menu.addItem(telexMenuItem!)
+        if let item = telexMenuItem {
+            menu.addItem(item)
+        }
 
         simpleTelexMenuItem = NSMenuItem(
             title: L("Simple Telex"),
             action: #selector(selectSimpleTelex),
-            keyEquivalent: ""
+            keyEquivalent: "",
         )
         simpleTelexMenuItem?.target = self
-        menu.addItem(simpleTelexMenuItem!)
+        if let item = simpleTelexMenuItem {
+            menu.addItem(item)
+        }
 
         updateInputMethodMenuItems()
 
@@ -168,7 +180,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let settingsItem = NSMenuItem(
             title: L("Settings..."),
             action: #selector(openSettings),
-            keyEquivalent: ","
+            keyEquivalent: ",",
         )
         settingsItem.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: nil)
         menu.addItem(settingsItem)
@@ -177,7 +189,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let aboutItem = NSMenuItem(
             title: L("About LotusKey"),
             action: #selector(openAbout),
-            keyEquivalent: ""
+            keyEquivalent: "",
         )
         aboutItem.image = NSImage(systemSymbolName: "info.circle", accessibilityDescription: nil)
         menu.addItem(aboutItem)
@@ -188,7 +200,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(
             title: L("Quit LotusKey"),
             action: #selector(NSApplication.terminate(_:)),
-            keyEquivalent: "q"
+            keyEquivalent: "q",
         ))
 
         statusItem?.menu = menu
@@ -232,7 +244,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 x: (canvasRect.width - iconSize.width) / 2,
                 y: (canvasRect.height - iconSize.height) / 2,
                 width: iconSize.width,
-                height: iconSize.height
+                height: iconSize.height,
             )
 
             if isVietnameseMode {
@@ -254,7 +266,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let bgPath = NSBezierPath(
             roundedRect: rect,
             xRadius: MenuBarIconStyle.cornerRadius,
-            yRadius: MenuBarIconStyle.cornerRadius
+            yRadius: MenuBarIconStyle.cornerRadius,
         )
         NSColor.black.setFill()
         bgPath.fill()
@@ -269,7 +281,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let textSize = text.size(withAttributes: attributes)
         let textPoint = NSPoint(
             x: rect.midX - textSize.width / 2,
-            y: rect.midY - textSize.height / 2
+            y: rect.midY - textSize.height / 2,
         )
 
         // Cut text shape out of the background
@@ -283,14 +295,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Inset for stroke (half of stroke width on each side)
         let insetRect = rect.insetBy(
             dx: MenuBarIconStyle.strokeWidth / 2,
-            dy: MenuBarIconStyle.strokeWidth / 2
+            dy: MenuBarIconStyle.strokeWidth / 2,
         )
 
         // Draw rounded rectangle outline (stroke only, not filled)
         let outlinePath = NSBezierPath(
             roundedRect: insetRect,
             xRadius: MenuBarIconStyle.cornerRadius,
-            yRadius: MenuBarIconStyle.cornerRadius
+            yRadius: MenuBarIconStyle.cornerRadius,
         )
         outlinePath.lineWidth = MenuBarIconStyle.strokeWidth
         NSColor.black.setStroke()
@@ -306,7 +318,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let textSize = text.size(withAttributes: attributes)
         let textPoint = NSPoint(
             x: rect.midX - textSize.width / 2,
-            y: rect.midY - textSize.height / 2
+            y: rect.midY - textSize.height / 2,
         )
         text.draw(at: textPoint, withAttributes: attributes)
     }
@@ -330,6 +342,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         initializeEventHandler()
     }
 
+    // swiftlint:disable:next function_body_length
     private func initializeEventHandler() {
         // Create engine
         let engine = DefaultVietnameseEngine()
@@ -349,25 +362,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Create event handler
         let handler = KeyboardEventHandler(engine: engine)
-        self.eventHandler = handler
+        eventHandler = handler
 
         // Start handler first to create the event source
         do {
             try handler.start()
         } catch {
-            print("Failed to start event handler: \(error.localizedDescription)")
+            #if DEBUG
+                debugPrint("Failed to start event handler: \(error.localizedDescription)")
+            #endif
             showError("Failed to start LotusKey: \(error.localizedDescription)")
             return
         }
 
         // Create TextInjector with shared event source (important for own-event filtering)
-        guard let eventSource = handler.eventSource,
-              let injector = TextInjector(eventSource: eventSource) else {
-            print("Failed to create TextInjector with shared event source")
+        guard
+            let eventSource = handler.eventSource,
+            let injector = TextInjector(eventSource: eventSource)
+        else {
+            #if DEBUG
+                debugPrint("Failed to create TextInjector with shared event source")
+            #endif
             handler.stop()
             return
         }
-        self.textInjector = injector
+        textInjector = injector
 
         // Apply advanced settings to TextInjector
         injector.fixBrowserAutocomplete = settings.fixBrowserAutocomplete
@@ -375,10 +394,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         injector.sendKeyStepByStep = settings.sendKeyStepByStep
 
         let appDetector = ApplicationDetector()
-        self.applicationDetector = appDetector
+        applicationDetector = appDetector
 
         let hotkey = HotkeyDetector()
-        self.hotkeyDetector = hotkey
+        hotkeyDetector = hotkey
 
         // Load saved hotkey from settings
         let savedHotkey = Hotkey(bitfield: settings.switchLanguageHotkey)
@@ -386,10 +405,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         lastSyncedHotkey = settings.switchLanguageHotkey
 
         let inputSource = InputSourceDetector()
-        self.inputSourceDetector = inputSource
+        inputSourceDetector = inputSource
 
         let layout = KeyboardLayoutConverter()
-        self.layoutConverter = layout
+        layoutConverter = layout
 
         // Configure handler with dependencies
         handler.configure(
@@ -397,7 +416,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             applicationDetector: appDetector,
             hotkeyDetector: hotkey,
             inputSourceDetector: inputSource,
-            layoutConverter: layout
+            layoutConverter: layout,
         )
 
         // Start monitoring applications
@@ -438,14 +457,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hotkeyObserver = NotificationCenter.default.addObserver(
             forName: UserDefaults.didChangeNotification,
             object: nil,
-            queue: .main
+            queue: .main,
         ) { [weak self] _ in
             Task { @MainActor in
                 self?.syncHotkeyFromUserDefaults()
             }
         }
 
-        print("LotusKey event handler started successfully")
+        #if DEBUG
+            debugPrint("LotusKey event handler started successfully")
+        #endif
     }
 
     // MARK: - Settings Handling
@@ -463,7 +484,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func handleSettingsChange(_ key: SettingsKey) {
-        guard let engine = engine, eventHandler != nil else { return }
+        guard let engine, eventHandler != nil else { return }
 
         switch key {
         case .inputMethod:
@@ -472,31 +493,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 engine.setInputMethod(TelexInputMethod())
             }
+
         case .spellCheckEnabled:
             engine.spellCheckEnabled = settings.spellCheckEnabled
+
         case .quickTelexEnabled:
             engine.quickTelex.isEnabled = settings.quickTelexEnabled
+
         case .restoreIfWrongSpelling:
             engine.restoreIfWrongSpelling = settings.restoreIfWrongSpelling
+
         case .fixBrowserAutocomplete:
             textInjector?.fixBrowserAutocomplete = settings.fixBrowserAutocomplete
+
         case .fixChromiumBrowser:
             textInjector?.fixChromiumBrowser = settings.fixChromiumBrowser
+
         case .sendKeyStepByStep:
             textInjector?.sendKeyStepByStep = settings.sendKeyStepByStep
+
         case .smartSwitchEnabled:
             // When enabled, save current mode for current app
-            if settings.smartSwitchEnabled,
-               let handler = eventHandler,
-               let smartSwitch = smartSwitch,
-               let bundleId = applicationDetector?.currentBundleIdentifier {
+            if
+                settings.smartSwitchEnabled,
+                let handler = eventHandler,
+                let smartSwitch,
+                let bundleId = applicationDetector?.currentBundleIdentifier
+            {
                 smartSwitch.setVietnameseEnabled(handler.isVietnameseMode, for: bundleId)
             }
+
         case .switchLanguageHotkey:
             // Update hotkey detector with new shortcut
             let newHotkey = Hotkey(bitfield: settings.switchLanguageHotkey)
             hotkeyDetector?.setHotkey(newHotkey, for: .switchLanguage)
             lastSyncedHotkey = settings.switchLanguageHotkey
+
         default:
             break
         }
@@ -513,10 +545,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Always update app quirks
         updateAppQuirks()
 
-        guard settings.smartSwitchEnabled,
-              let handler = eventHandler,
-              let smartSwitch = smartSwitch,
-              let newBundleId = newBundleId else {
+        guard
+            settings.smartSwitchEnabled,
+            let handler = eventHandler,
+            let smartSwitch,
+            let newBundleId
+        else {
             previousAppBundleId = newBundleId
             return
         }
@@ -532,7 +566,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let savedMode = smartSwitch.shouldEnableVietnamese(for: newBundleId)
             if handler.isVietnameseMode != savedMode {
                 handler.isVietnameseMode = savedMode
-                engine?.reset()  // Reset engine when mode changes
+                engine?.reset() // Reset engine when mode changes
             }
             updateLanguageModeMenuItem(isVietnameseMode: savedMode)
         } else {
@@ -548,9 +582,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         updateLanguageModeMenuItem(isVietnameseMode: isVietnamese)
 
         // Save preference for current app if smart switch is enabled
-        guard settings.smartSwitchEnabled,
-              let smartSwitch = smartSwitch,
-              let currentBundleId = applicationDetector?.currentBundleIdentifier else {
+        guard
+            settings.smartSwitchEnabled,
+            let smartSwitch,
+            let currentBundleId = applicationDetector?.currentBundleIdentifier
+        else {
             return
         }
 
@@ -590,7 +626,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     style.alignment = .center
                     return style
                 }(),
-            ]
+            ],
         )
 
         let options: [NSApplication.AboutPanelOptionKey: Any] = [

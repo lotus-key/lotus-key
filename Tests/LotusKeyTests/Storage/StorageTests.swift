@@ -1,31 +1,39 @@
 import Combine
-import XCTest
 @testable import LotusKey
+import XCTest
 
 @MainActor
 final class StorageTests: XCTestCase {
+    // swiftlint:disable implicitly_unwrapped_optional
     private var settings: SettingsStore!
     private var testDefaults: UserDefaults!
     private var testSuiteName: String!
     private var cancellables: Set<AnyCancellable>!
+    // swiftlint:enable implicitly_unwrapped_optional
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
         // Create isolated UserDefaults for testing
         testSuiteName = "com.lotuskey.tests.\(UUID().uuidString)"
-        testDefaults = UserDefaults(suiteName: testSuiteName)!
-        settings = SettingsStore(defaults: testDefaults)
+        guard let defaults = UserDefaults(suiteName: testSuiteName) else {
+            XCTFail("Failed to create test UserDefaults")
+            return
+        }
+        testDefaults = defaults
+        settings = SettingsStore(defaults: defaults)
         cancellables = []
     }
 
-    override func tearDown() {
+    override func tearDownWithError() throws {
         cancellables = nil
         settings = nil
         // Clean up test defaults
-        UserDefaults.standard.removePersistentDomain(forName: testSuiteName)
+        if let suiteName = testSuiteName {
+            UserDefaults.standard.removePersistentDomain(forName: suiteName)
+        }
         testDefaults = nil
         testSuiteName = nil
-        super.tearDown()
+        try super.tearDownWithError()
     }
 
     // MARK: - Advanced Settings Default Values
@@ -189,7 +197,7 @@ final class StorageTests: XCTestCase {
         XCTAssertEqual(settings.switchLanguageHotkey, 0x8131)
 
         // When - set to Cmd+Space with beep
-        let cmdSpace: UInt32 = 0x8431  // 0x31 | 0x400 | 0x8000
+        let cmdSpace: UInt32 = 0x8431 // 0x31 | 0x400 | 0x8000
         settings.switchLanguageHotkey = cmdSpace
 
         // Then
@@ -208,20 +216,24 @@ final class StorageTests: XCTestCase {
             }
             .store(in: &cancellables)
 
-        settings.switchLanguageHotkey = 0x8431  // Cmd+Space
+        settings.switchLanguageHotkey = 0x8431 // Cmd+Space
 
         waitForExpectations(timeout: 1.0)
     }
 
     func testResetToDefaultsResetsSwitchLanguageHotkey() {
         // Given - change from default
-        settings.switchLanguageHotkey = 0x8431  // Cmd+Space
+        settings.switchLanguageHotkey = 0x8431 // Cmd+Space
 
         // When
         settings.resetToDefaults()
 
         // Then
-        XCTAssertEqual(settings.switchLanguageHotkey, 0x8131, "switchLanguageHotkey should reset to Ctrl+Space (0x8131)")
+        XCTAssertEqual(
+            settings.switchLanguageHotkey,
+            0x8131,
+            "switchLanguageHotkey should reset to Ctrl+Space (0x8131)",
+        )
     }
 
     func testSwitchLanguageHotkeyKeyRawValue() {

@@ -21,7 +21,11 @@ public struct TelexInputMethod: InputMethod {
 
     // MARK: - Processing with State (supports undo)
 
-    public func processCharacter(_ character: Character, context: String, state: inout InputMethodState) -> InputTransformation? {
+    public func processCharacter(
+        _ character: Character,
+        context: String,
+        state: inout InputMethodState,
+    ) -> InputTransformation? {
         let char = character.lowercased().first ?? character
 
         // Check if key is temporarily disabled (after undo)
@@ -53,7 +57,6 @@ public struct TelexInputMethod: InputMethod {
             return InputTransformation(type: .tone(.dot), category: .tone(.dot))
         case "z":
             return InputTransformation(type: .tone(.none), category: .tone(.none))
-
         // Modifier marks (circumflex: aa, ee, oo)
         case "a" where context.lowercased().hasSuffix("a"):
             return InputTransformation(type: .modifier(.circumflex), category: .circumflex)
@@ -61,15 +64,12 @@ public struct TelexInputMethod: InputMethod {
             return InputTransformation(type: .modifier(.circumflex), category: .circumflex)
         case "o" where context.lowercased().hasSuffix("o"):
             return InputTransformation(type: .modifier(.circumflex), category: .circumflex)
-
         // W key handling (breve/horn)
         case "w":
             return handleWKey(context: context, state: &state)
-
         // Stroke (dd)
         case "d" where context.lowercased().hasSuffix("d"):
             return InputTransformation(type: .modifier(.stroke), category: .stroke)
-
         default:
             return nil
         }
@@ -98,7 +98,7 @@ public struct TelexInputMethod: InputMethod {
     }
 
     /// Handle standalone w → ư transformation
-    internal func handleStandaloneW(context: String, state: inout InputMethodState) -> InputTransformation? {
+    func handleStandaloneW(context: String, state _: inout InputMethodState) -> InputTransformation? {
         // Empty context → transform to ư
         guard let lastChar = context.last?.lowercased().first else {
             return InputTransformation(type: .standalone("ư"), category: .standaloneHorn)
@@ -121,7 +121,7 @@ public struct TelexInputMethod: InputMethod {
     // MARK: - Bracket Key Shortcuts
 
     /// Handle [ → ơ and ] → ư shortcuts
-    internal func handleBracketKey(_ char: Character, context: String, state: inout InputMethodState) -> InputTransformation? {
+    func handleBracketKey(_ char: Character, context: String, state _: inout InputMethodState) -> InputTransformation? {
         let replacement: Character = char == "[" ? "ơ" : "ư"
 
         // Empty context → transform
@@ -130,7 +130,7 @@ public struct TelexInputMethod: InputMethod {
         }
 
         // Special case: u[ → uơ
-        if char == "[" && lastChar == "u" {
+        if char == "[", lastChar == "u" {
             return InputTransformation(type: .standalone("ơ"), category: .standaloneHorn)
         }
 
@@ -151,7 +151,11 @@ public struct TelexInputMethod: InputMethod {
     // MARK: - Undo Detection
 
     /// Check if current character would undo the last transformation
-    private func checkForUndo(_ char: Character, context: String, state: inout InputMethodState) -> InputTransformation? {
+    private func checkForUndo(
+        _ char: Character,
+        context _: String,
+        state: inout InputMethodState,
+    ) -> InputTransformation? {
         guard let last = state.lastTransformation else {
             return nil
         }
@@ -196,7 +200,7 @@ public struct TelexInputMethod: InputMethod {
                 return InputTransformation(type: .undo(originalChars: last.originalChars))
             }
 
-        case .tone(let toneMark):
+        case let .tone(toneMark):
             // ass → as, aff → af (undo tone)
             let toneKey = toneKeyFor(toneMark)
             if char == toneKey {
@@ -221,12 +225,12 @@ public struct TelexInputMethod: InputMethod {
     /// Get the Telex key for a tone mark
     private func toneKeyFor(_ mark: ToneMark) -> Character {
         switch mark {
-        case .acute: return "s"
-        case .grave: return "f"
-        case .hook: return "r"
-        case .tilde: return "x"
-        case .dot: return "j"
-        case .none: return "z"
+        case .acute: "s"
+        case .grave: "f"
+        case .hook: "r"
+        case .tilde: "x"
+        case .dot: "j"
+        case .none: "z"
         }
     }
 }

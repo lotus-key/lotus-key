@@ -1,8 +1,7 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class CharacterStateTests: XCTestCase {
-
     // MARK: - Basic Operations
 
     func testEmptyState() {
@@ -122,14 +121,14 @@ final class CharacterStateTests: XCTestCase {
 
     func testBitLayout() {
         // Verify exact bit positions match original OpenKey
-        XCTAssertEqual(CharacterState.caps.rawValue, 0x10000)         // bit 16
-        XCTAssertEqual(CharacterState.circumflex.rawValue, 0x20000)   // bit 17
-        XCTAssertEqual(CharacterState.hornOrBreve.rawValue, 0x40000)  // bit 18
-        XCTAssertEqual(CharacterState.acute.rawValue, 0x80000)        // bit 19
-        XCTAssertEqual(CharacterState.grave.rawValue, 0x100000)       // bit 20
-        XCTAssertEqual(CharacterState.hook.rawValue, 0x200000)        // bit 21
-        XCTAssertEqual(CharacterState.tilde.rawValue, 0x400000)       // bit 22
-        XCTAssertEqual(CharacterState.dotBelow.rawValue, 0x800000)    // bit 23
+        XCTAssertEqual(CharacterState.caps.rawValue, 0x10000) // bit 16
+        XCTAssertEqual(CharacterState.circumflex.rawValue, 0x20000) // bit 17
+        XCTAssertEqual(CharacterState.hornOrBreve.rawValue, 0x40000) // bit 18
+        XCTAssertEqual(CharacterState.acute.rawValue, 0x80000) // bit 19
+        XCTAssertEqual(CharacterState.grave.rawValue, 0x100000) // bit 20
+        XCTAssertEqual(CharacterState.hook.rawValue, 0x200000) // bit 21
+        XCTAssertEqual(CharacterState.tilde.rawValue, 0x400000) // bit 22
+        XCTAssertEqual(CharacterState.dotBelow.rawValue, 0x800000) // bit 23
     }
 
     // MARK: - Modifier Property

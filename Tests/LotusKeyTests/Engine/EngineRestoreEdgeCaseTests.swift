@@ -1,11 +1,11 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Edge Case Tests: Engine Restore on Invalid
 
 struct EngineRestoreEdgeCaseTests {
     @Test("Engine restore on invalid at word boundary")
-    func testRestoreAtWordBoundary() {
+    func restoreAtWordBoundary() {
         let engine = DefaultVietnameseEngine()
         engine.spellCheckEnabled = true
         engine.restoreIfWrongSpelling = true
@@ -13,14 +13,14 @@ struct EngineRestoreEdgeCaseTests {
         // Type an invalid combination and press space
         // The engine should restore original keystrokes
         // This tests the actual restore-on-invalid feature
-        _ = engine.processString("bacf")  // "bàc" is invalid (grave with sharp c)
+        _ = engine.processString("bacf") // "bàc" is invalid (grave with sharp c)
 
         // The buffer should track original keystrokes
         #expect(engine.testBuffer.hasOriginalKeystrokes)
     }
 
     @Test("Engine tracks all keystrokes including transformations")
-    func testTrackAllKeystrokes() {
+    func trackAllKeystrokes() {
         let engine = DefaultVietnameseEngine()
         engine.spellCheckEnabled = true
 
@@ -34,7 +34,7 @@ struct EngineRestoreEdgeCaseTests {
     }
 
     @Test("Spell check boundary with valid word")
-    func testValidWordNoRestore() {
+    func validWordNoRestore() {
         let engine = DefaultVietnameseEngine()
         engine.spellCheckEnabled = true
         engine.restoreIfWrongSpelling = true

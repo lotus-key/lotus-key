@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for Telex-specific features including bracket keys, standalone W, and Simple Telex
 final class EngineTelexTests: EngineTestCase {
-
     // MARK: - Bracket Key Integration Tests
 
     func testBracketKeyAtStart() {
@@ -13,7 +12,7 @@ final class EngineTelexTests: EngineTestCase {
         let transformation = telex.processCharacter("[", context: "", state: &state)
         XCTAssertNotNil(transformation, "TelexInputMethod should return transformation for '['")
 
-        if let t = transformation, case .standalone(let char) = t.type {
+        if let trans = transformation, case let .standalone(char) = trans.type {
             XCTAssertEqual(char, "ơ", "Standalone should be 'ơ'")
         } else {
             XCTFail("Expected standalone transformation, got: \(String(describing: transformation?.type))")

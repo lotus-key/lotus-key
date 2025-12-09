@@ -41,12 +41,12 @@ public protocol TextInjecting: AnyObject, Sendable {
 
 /// Application-specific quirks for text injection
 public enum AppQuirk: Sendable, Equatable {
+    /// Chromium-based browsers - uses Shift+Arrow for backspace
+    case chromiumBrowser
     /// Standard behavior (default)
     case standard
     /// Sublime Text - uses ZWNJ (0x200C) for empty character
     case sublimeText
-    /// Chromium-based browsers - uses Shift+Arrow for backspace
-    case chromiumBrowser
     /// Special Unicode Compound handling for Apple apps
     case unicodeCompound
 }
@@ -89,30 +89,32 @@ public final class TextInjector: TextInjecting, @unchecked Sendable {
         guard let source = CGEventSource(stateID: .privateState) else {
             return nil
         }
-        self.eventSource = source
+        eventSource = source
 
-        guard let keyDown = CGEvent(keyboardEventSource: source, virtualKey: Self.backspaceKeyCode, keyDown: true),
+        guard
+            let keyDown = CGEvent(keyboardEventSource: source, virtualKey: Self.backspaceKeyCode, keyDown: true),
             let keyUp = CGEvent(keyboardEventSource: source, virtualKey: Self.backspaceKeyCode, keyDown: false)
         else {
             return nil
         }
 
-        self.backspaceKeyDown = keyDown
-        self.backspaceKeyUp = keyUp
+        backspaceKeyDown = keyDown
+        backspaceKeyUp = keyUp
     }
 
     /// Initialize with an existing event source (for sharing with KeyboardEventHandler)
     public init?(eventSource: CGEventSource) {
         self.eventSource = eventSource
 
-        guard let keyDown = CGEvent(keyboardEventSource: eventSource, virtualKey: Self.backspaceKeyCode, keyDown: true),
+        guard
+            let keyDown = CGEvent(keyboardEventSource: eventSource, virtualKey: Self.backspaceKeyCode, keyDown: true),
             let keyUp = CGEvent(keyboardEventSource: eventSource, virtualKey: Self.backspaceKeyCode, keyDown: false)
         else {
             return nil
         }
 
-        self.backspaceKeyDown = keyDown
-        self.backspaceKeyUp = keyUp
+        backspaceKeyDown = keyDown
+        backspaceKeyUp = keyUp
     }
 
     // MARK: - Configuration
@@ -140,7 +142,7 @@ public final class TextInjector: TextInjecting, @unchecked Sendable {
         //   count=1: Shift+Arrow, then 0 backspaces (new text replaces selection)
         //   count=2: Shift+Arrow, then 2 backspaces
         //   count=3: Shift+Arrow, then 3 backspaces
-        if currentQuirk == .chromiumBrowser && fixChromiumBrowser {
+        if currentQuirk == .chromiumBrowser, fixChromiumBrowser {
             // Select 1 character with Shift+LeftArrow
             injectShiftLeftArrow(count: 1, proxy: proxy)
 
@@ -150,7 +152,7 @@ public final class TextInjector: TextInjecting, @unchecked Sendable {
                 remainingCount = 0
             }
             // Otherwise remainingCount stays the same - we send all backspaces
-        } else if fixBrowserAutocomplete && currentQuirk != .sublimeText {
+        } else if fixBrowserAutocomplete, currentQuirk != .sublimeText {
             // For non-Chromium apps: inject empty character first to fix autocomplete
             // Note: Sublime Text uses ZWNJ which doesn't need extra backspace
             injectEmptyCharacter(proxy: proxy)
@@ -159,7 +161,7 @@ public final class TextInjector: TextInjecting, @unchecked Sendable {
         }
 
         // Standard backspace injection for remaining count
-        for _ in 0..<remainingCount {
+        for _ in 0 ..< remainingCount {
             injectSingleBackspace(proxy: proxy)
         }
     }
@@ -181,7 +183,8 @@ public final class TextInjector: TextInjecting, @unchecked Sendable {
     public func injectEmptyCharacter(proxy: CGEventTapProxy) {
         let emptyChar: UniChar = (currentQuirk == .sublimeText) ? Self.zwnj : Self.nnbsp
 
-        guard let keyDown = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: true),
+        guard
+            let keyDown = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: true),
             let keyUp = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: false)
         else { return }
 
@@ -198,16 +201,18 @@ public final class TextInjector: TextInjecting, @unchecked Sendable {
 
         guard
             let keyDown = CGEvent(
-                keyboardEventSource: eventSource, virtualKey: Self.leftArrowKeyCode, keyDown: true),
+                keyboardEventSource: eventSource, virtualKey: Self.leftArrowKeyCode, keyDown: true,
+            ),
             let keyUp = CGEvent(
-                keyboardEventSource: eventSource, virtualKey: Self.leftArrowKeyCode, keyDown: false)
+                keyboardEventSource: eventSource, virtualKey: Self.leftArrowKeyCode, keyDown: false,
+            )
         else { return }
 
         // Add Shift modifier
         keyDown.flags = .maskShift
         keyUp.flags = .maskShift
 
-        for _ in 0..<count {
+        for _ in 0 ..< count {
             keyDown.tapPostEvent(proxy)
             keyUp.tapPostEvent(proxy)
         }
@@ -226,7 +231,8 @@ public final class TextInjector: TextInjecting, @unchecked Sendable {
         let utf16 = Array(char.utf16)
         guard !utf16.isEmpty else { return }
 
-        guard let keyDown = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: true),
+        guard
+            let keyDown = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: true),
             let keyUp = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: false)
         else { return }
 
@@ -245,9 +251,10 @@ public final class TextInjector: TextInjecting, @unchecked Sendable {
         var offset = 0
         while offset < utf16.count {
             let batchSize = min(Self.maxBatchSize, utf16.count - offset)
-            var batch = Array(utf16[offset..<(offset + batchSize)]).map { UniChar($0) }
+            var batch = Array(utf16[offset ..< (offset + batchSize)]).map { UniChar($0) }
 
-            guard let keyDown = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: true),
+            guard
+                let keyDown = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: true),
                 let keyUp = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: false)
             else {
                 offset += batchSize

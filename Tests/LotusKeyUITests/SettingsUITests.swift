@@ -1,6 +1,7 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
+// swiftlint:disable:next balanced_xctest_lifecycle
 final class SettingsUITests: XCTestCase {
     // NOTE: UI tests require running in Xcode with a proper application target.
     // These tests are stubs that document the expected UI test scenarios.
@@ -10,10 +11,6 @@ final class SettingsUITests: XCTestCase {
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
-    }
-
-    override func tearDown() {
-        super.tearDown()
     }
 
     // MARK: - Settings Window Tests (Stubs)

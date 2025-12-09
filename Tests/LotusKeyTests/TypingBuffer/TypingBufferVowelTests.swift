@@ -1,8 +1,7 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class TypingBufferVowelTests: TypingBufferTestCase {
-
     // MARK: - Vowel Analysis
 
     func testFindVowelPositions() {

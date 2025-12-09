@@ -1,5 +1,5 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Edge Case Tests: gi- Special Cases
 
@@ -7,18 +7,18 @@ struct GiSpecialCaseTests {
     let spellChecker = DefaultSpellChecker()
 
     @Test("Parse 'gi' + vowel only: 'già' → gi + a")
-    func testGiVowelOnly() {
+    func giVowelOnly() {
         // "già" should parse as: gi (consonant) + a (vowel)
         let parts = SyllableParser.parse("già")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "gi")
         #expect(parts?.vowelNucleus == "a")
-        #expect(parts?.finalConsonant == "")
+        #expect(parts?.finalConsonant.isEmpty == true)
         #expect(parts?.tone == .grave)
     }
 
     @Test("Parse 'giếng' - current implementation parses as gi + e + ng")
-    func testGiIeConsonant() {
+    func giIeConsonant() {
         // NOTE: Ideally "giếng" should parse as: g + iê + ng (where "i" joins the vowel)
         // However, current implementation parses it as: gi + ê + ng
         // This is a known limitation documented in design.md
@@ -33,7 +33,7 @@ struct GiSpecialCaseTests {
     }
 
     @Test("Parse 'giết' - current implementation parses as gi + e + t")
-    func testGiet() {
+    func giet() {
         // NOTE: Similar to "giếng" - ideally g + iê + t, currently gi + ê + t
         let parts = SyllableParser.parse("giết")
         #expect(parts != nil)
@@ -44,7 +44,7 @@ struct GiSpecialCaseTests {
     }
 
     @Test("Parse 'giếc' - current implementation parses as gi + e + c")
-    func testGiec() {
+    func giec() {
         // NOTE: Similar to above - known limitation
         let parts = SyllableParser.parse("giếc")
         #expect(parts != nil)
@@ -54,26 +54,26 @@ struct GiSpecialCaseTests {
     }
 
     @Test("Spell check 'già' is valid")
-    func testGiaValid() {
+    func giaValid() {
         let result = spellChecker.check("già")
         #expect(result == .valid)
     }
 
     @Test("Spell check 'giếng' is valid")
-    func testGiengValid() {
+    func giengValid() {
         // The word should be valid even with current parsing approach
         let result = spellChecker.check("giếng")
         #expect(result == .valid)
     }
 
     @Test("Spell check 'giết' is valid")
-    func testGietValid() {
+    func gietValid() {
         let result = spellChecker.check("giết")
         #expect(result == .valid)
     }
 
     @Test("Parse 'giờ' → gi + o (with horn)")
-    func testGio() {
+    func gio() {
         let parts = SyllableParser.parse("giờ")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "gi")
@@ -83,7 +83,7 @@ struct GiSpecialCaseTests {
     }
 
     @Test("Parse 'giữa' → gi + ua (with horn on u)")
-    func testGiua() {
+    func giua() {
         // "giữa" parses as gi + ưa
         let parts = SyllableParser.parse("giữa")
         #expect(parts != nil)

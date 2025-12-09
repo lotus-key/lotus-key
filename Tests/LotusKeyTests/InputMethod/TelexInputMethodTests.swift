@@ -1,5 +1,5 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class TelexInputMethodTests: XCTestCase {
     // MARK: - Tone Mark Tests
@@ -8,12 +8,12 @@ final class TelexInputMethodTests: XCTestCase {
         let telex = TelexInputMethod()
 
         // Test tone mark keys
-        XCTAssertNotNil(telex.processCharacter("s", context: "a"))  // sắc
-        XCTAssertNotNil(telex.processCharacter("f", context: "a"))  // huyền
-        XCTAssertNotNil(telex.processCharacter("r", context: "a"))  // hỏi
-        XCTAssertNotNil(telex.processCharacter("x", context: "a"))  // ngã
-        XCTAssertNotNil(telex.processCharacter("j", context: "a"))  // nặng
-        XCTAssertNotNil(telex.processCharacter("z", context: "a"))  // remove tone
+        XCTAssertNotNil(telex.processCharacter("s", context: "a")) // sắc
+        XCTAssertNotNil(telex.processCharacter("f", context: "a")) // huyền
+        XCTAssertNotNil(telex.processCharacter("r", context: "a")) // hỏi
+        XCTAssertNotNil(telex.processCharacter("x", context: "a")) // ngã
+        XCTAssertNotNil(telex.processCharacter("j", context: "a")) // nặng
+        XCTAssertNotNil(telex.processCharacter("z", context: "a")) // remove tone
     }
 
     // MARK: - Modifier Mark Tests
@@ -104,7 +104,7 @@ final class TelexInputMethodTests: XCTestCase {
         // [ at start → ơ
         let bracketOpenResult = telex.processCharacter("[", context: "")
         XCTAssertNotNil(bracketOpenResult)
-        if case .standalone(let char) = bracketOpenResult?.type {
+        if case let .standalone(char) = bracketOpenResult?.type {
             XCTAssertEqual(char, "ơ")
         } else {
             XCTFail("Expected standalone ơ for '[' at start")
@@ -113,7 +113,7 @@ final class TelexInputMethodTests: XCTestCase {
         // ] at start → ư
         let bracketCloseResult = telex.processCharacter("]", context: "")
         XCTAssertNotNil(bracketCloseResult)
-        if case .standalone(let char) = bracketCloseResult?.type {
+        if case let .standalone(char) = bracketCloseResult?.type {
             XCTAssertEqual(char, "ư")
         } else {
             XCTFail("Expected standalone ư for ']' at start")
@@ -126,7 +126,7 @@ final class TelexInputMethodTests: XCTestCase {
         // b[ → bơ
         let result = telex.processCharacter("[", context: "b")
         XCTAssertNotNil(result)
-        if case .standalone(let char) = result?.type {
+        if case let .standalone(char) = result?.type {
             XCTAssertEqual(char, "ơ")
         } else {
             XCTFail("Expected standalone ơ for 'b['")
@@ -147,7 +147,7 @@ final class TelexInputMethodTests: XCTestCase {
         // u[ → uơ (special case!)
         let result = telex.processCharacter("[", context: "u")
         XCTAssertNotNil(result)
-        if case .standalone(let char) = result?.type {
+        if case let .standalone(char) = result?.type {
             XCTAssertEqual(char, "ơ")
         } else {
             XCTFail("Expected standalone ơ for 'u[' special case")
@@ -172,7 +172,7 @@ final class TelexInputMethodTests: XCTestCase {
         // tr[ → trơ (after double consonant)
         let result = telex.processCharacter("[", context: "tr")
         XCTAssertNotNil(result)
-        if case .standalone(let char) = result?.type {
+        if case let .standalone(char) = result?.type {
             XCTAssertEqual(char, "ơ")
         } else {
             XCTFail("Expected standalone ơ for 'tr['")
@@ -187,7 +187,7 @@ final class TelexInputMethodTests: XCTestCase {
         // w at start → ư (in Telex)
         let result = telex.processCharacter("w", context: "")
         XCTAssertNotNil(result)
-        if case .standalone(let char) = result?.type {
+        if case let .standalone(char) = result?.type {
             XCTAssertEqual(char, "ư")
         } else {
             XCTFail("Expected standalone ư for 'w' at start in Telex")
@@ -200,7 +200,7 @@ final class TelexInputMethodTests: XCTestCase {
         // bw → bư (in Telex)
         let result = telex.processCharacter("w", context: "b")
         XCTAssertNotNil(result)
-        if case .standalone(let char) = result?.type {
+        if case let .standalone(char) = result?.type {
             XCTAssertEqual(char, "ư")
         } else {
             XCTFail("Expected standalone ư for 'bw' in Telex")
@@ -233,15 +233,15 @@ final class TelexInputMethodTests: XCTestCase {
 
         // Try pressing [ again - should trigger undo
         let undoResult = telex.processCharacter("[", context: "ơ", state: &state)
-        
+
         // Should return an undo transformation that restores original character
         XCTAssertNotNil(undoResult, "standaloneHorn undo should return transformation")
-        if case .undo(let originalChars) = undoResult?.type {
+        if case let .undo(originalChars) = undoResult?.type {
             XCTAssertEqual(originalChars, "[", "Undo should restore to original character '['")
         } else {
             XCTFail("Expected undo transformation, got: \(String(describing: undoResult?.type))")
         }
-        
+
         // State should be cleared after undo
         XCTAssertNil(state.lastTransformation, "lastTransformation should be nil after undo")
         XCTAssertTrue(state.isDisabled("["), "Trigger key should be temporarily disabled after undo")

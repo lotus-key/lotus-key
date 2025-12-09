@@ -1,8 +1,7 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class TypingBufferSpellValidationTests: TypingBufferTestCase {
-
     // MARK: - Spell Validation
 
     func testValidVietnameseSyllable() {

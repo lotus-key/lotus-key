@@ -1,6 +1,6 @@
 import AppKit
-import XCTest
 @testable import LotusKey
+import XCTest
 
 @MainActor
 final class AppLifecycleManagerTests: XCTestCase {

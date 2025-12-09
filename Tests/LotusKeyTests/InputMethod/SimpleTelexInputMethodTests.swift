@@ -1,5 +1,5 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class SimpleTelexInputMethodTests: XCTestCase {
     // MARK: - Tone Mark Tests

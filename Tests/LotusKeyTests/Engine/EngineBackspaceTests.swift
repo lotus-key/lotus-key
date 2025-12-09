@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for backspace handling in the Vietnamese engine
 final class EngineBackspaceTests: EngineTestCase {
-
     // MARK: - Backspace Handling
 
     func testBackspaceEmptyBuffer() {
@@ -66,7 +65,7 @@ final class EngineBackspaceTests: EngineTestCase {
     func testRepeatedBackspaceOnEmptyBuffer() {
         // Multiple backspaces on empty buffer should all pass through
         // This tests the bug fix: no duplicate characters should appear
-        for _ in 0..<5 {
+        for _ in 0 ..< 5 {
             let result = engine.processKey(keyCode: 51, character: nil, modifiers: 0)
             XCTAssertEqual(result, .passThrough)
             XCTAssertTrue(engine.isEmpty)
@@ -89,7 +88,7 @@ final class EngineBackspaceTests: EngineTestCase {
     }
 
     func testBackspaceEmptyBufferNoHistory() {
-        engine.reset()  // Clears everything including history
+        engine.reset() // Clears everything including history
         XCTAssertTrue(engine.isEmpty)
 
         // Backspace should pass through

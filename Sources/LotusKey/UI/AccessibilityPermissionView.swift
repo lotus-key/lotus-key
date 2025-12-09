@@ -28,15 +28,15 @@ struct AccessibilityPermissionView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     PermissionReasonRow(
                         icon: "keyboard",
-                        text: L("Intercept keyboard events for Vietnamese input")
+                        text: L("Intercept keyboard events for Vietnamese input"),
                     )
                     PermissionReasonRow(
                         icon: "character.cursor.ibeam",
-                        text: L("Send text to applications")
+                        text: L("Send text to applications"),
                     )
                     PermissionReasonRow(
                         icon: "arrow.left.arrow.right",
-                        text: L("Switch between Vietnamese and English modes")
+                        text: L("Switch between Vietnamese and English modes"),
                     )
                 }
             }
@@ -128,12 +128,12 @@ final class AccessibilityPermissionViewModel {
     }
 
     func setWindowController(_ controller: AccessibilityPermissionWindowController) {
-        self.windowController = controller
+        windowController = controller
     }
 
     func checkPermission() {
         isPermissionGranted = AXIsProcessTrusted()
-        if isPermissionGranted && !hasCalledPermissionGranted {
+        if isPermissionGranted, !hasCalledPermissionGranted {
             hasCalledPermissionGranted = true
             windowController?.handlePermissionGranted()
         }
@@ -141,7 +141,10 @@ final class AccessibilityPermissionViewModel {
 
     func openSystemSettings() {
         // Open Accessibility settings in System Settings
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
+        else {
+            return
+        }
         NSWorkspace.shared.open(url)
     }
 
@@ -178,7 +181,9 @@ final class AccessibilityPermissionWindowController {
 
     /// Called by view model when permission is granted
     func handlePermissionGranted() {
-        print("[LotusKey] Permission granted")
+        #if DEBUG
+            debugPrint("[LotusKey] Permission granted")
+        #endif
 
         // Stop monitoring first
         viewModel?.stopMonitoring()
@@ -188,15 +193,23 @@ final class AccessibilityPermissionWindowController {
         onGrantedCallback = nil
 
         // Call the callback
-        print("[LotusKey] Calling onGranted callback...")
+        #if DEBUG
+            debugPrint("[LotusKey] Calling onGranted callback...")
+        #endif
         callback?()
-        print("[LotusKey] onGranted callback completed")
+        #if DEBUG
+            debugPrint("[LotusKey] onGranted callback completed")
+        #endif
 
         // Just hide the window - don't close or cleanup to avoid memory issues
         // The window will stay hidden but alive, preventing crashes from dangling references
-        print("[LotusKey] Hiding permission window...")
+        #if DEBUG
+            debugPrint("[LotusKey] Hiding permission window...")
+        #endif
         window?.orderOut(nil)
-        print("[LotusKey] Permission window hidden, app should continue running")
+        #if DEBUG
+            debugPrint("[LotusKey] Permission window hidden, app should continue running")
+        #endif
     }
 
     /// Called by view model when user dismisses
@@ -220,7 +233,7 @@ final class AccessibilityPermissionWindowController {
         }
 
         // Store callback
-        self.onGrantedCallback = onGranted
+        onGrantedCallback = onGranted
 
         let viewModel = AccessibilityPermissionViewModel()
         viewModel.setWindowController(self)
@@ -237,7 +250,7 @@ final class AccessibilityPermissionWindowController {
             contentRect: NSRect(origin: .zero, size: fittingSize),
             styleMask: [.titled, .closable],
             backing: .buffered,
-            defer: false
+            defer: false,
         )
         window.contentView = hostingView
         window.title = L("LotusKey - Permission Required")
@@ -251,7 +264,7 @@ final class AccessibilityPermissionWindowController {
 
     /// Check if permission is granted without showing UI
     static func checkPermission() -> Bool {
-        return AXIsProcessTrusted()
+        AXIsProcessTrusted()
     }
 
     /// Request permission with prompt (shows system dialog)

@@ -1,8 +1,7 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class TypingBufferUnicodeTests: TypingBufferTestCase {
-
     // MARK: - Unicode Output
 
     func testToUnicodeStringBasic() {

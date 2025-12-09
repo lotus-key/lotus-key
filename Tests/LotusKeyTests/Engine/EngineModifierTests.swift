@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for modifier mark transformations (circumflex, horn, breve, stroke)
 final class EngineModifierTests: EngineTestCase {
-
     // MARK: - Modifier Mark Tests
 
     func testCircumflexModifier() {
@@ -11,7 +10,7 @@ final class EngineModifierTests: EngineTestCase {
         _ = engine.processKey(keyCode: 0, character: "a", modifiers: 0)
         let result = engine.processKey(keyCode: 0, character: "a", modifiers: 0)
 
-        if case .replace(_, let replacement) = result {
+        if case let .replace(_, replacement) = result {
             XCTAssertEqual(replacement, "â")
         } else {
             XCTAssertEqual(engine.currentText, "aa")
@@ -35,7 +34,7 @@ final class EngineModifierTests: EngineTestCase {
         _ = engine.processKey(keyCode: 0, character: "d", modifiers: 0)
         let result = engine.processKey(keyCode: 0, character: "d", modifiers: 0)
 
-        if case .replace(_, let replacement) = result {
+        if case let .replace(_, replacement) = result {
             XCTAssertEqual(replacement, "đ")
         } else {
             XCTAssertEqual(engine.currentText, "dd")

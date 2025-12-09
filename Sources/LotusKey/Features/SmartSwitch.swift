@@ -70,10 +70,12 @@ public final class SmartSwitch: SmartSwitching, @unchecked Sendable {
         observer = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification,
             object: nil,
-            queue: .main
+            queue: .main,
         ) { [weak self] notification in
-            guard let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
-                  let bundleId = app.bundleIdentifier else {
+            guard
+                let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+                let bundleId = app.bundleIdentifier
+            else {
                 return
             }
             self?.onApplicationChange?(bundleId)
@@ -81,15 +83,17 @@ public final class SmartSwitch: SmartSwitching, @unchecked Sendable {
     }
 
     public func stopMonitoring() {
-        if let observer = observer {
+        if let observer {
             NSWorkspace.shared.notificationCenter.removeObserver(observer)
             self.observer = nil
         }
     }
 
     private func loadPreferences() {
-        if let data = UserDefaults.standard.data(forKey: storageKey),
-           let decoded = try? JSONDecoder().decode([String: Bool].self, from: data) {
+        if
+            let data = UserDefaults.standard.data(forKey: storageKey),
+            let decoded = try? JSONDecoder().decode([String: Bool].self, from: data)
+        {
             lock.lock()
             preferences = decoded
             lock.unlock()
@@ -105,7 +109,9 @@ public final class SmartSwitch: SmartSwitching, @unchecked Sendable {
             let encoded = try JSONEncoder().encode(currentPrefs)
             UserDefaults.standard.set(encoded, forKey: storageKey)
         } catch {
-            print("[SmartSwitch] Failed to encode preferences: \(error.localizedDescription)")
+            #if DEBUG
+                debugPrint("[SmartSwitch] Failed to encode preferences: \(error.localizedDescription)")
+            #endif
         }
     }
 }

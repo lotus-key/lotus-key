@@ -18,7 +18,8 @@ public protocol InputMethod: Sendable {
     ///   - context: The current input context (previous characters)
     ///   - state: The current input method state (for undo tracking)
     /// - Returns: The transformation to apply, if any
-    func processCharacter(_ character: Character, context: String, state: inout InputMethodState) -> InputTransformation?
+    func processCharacter(_ character: Character, context: String, state: inout InputMethodState)
+        -> InputTransformation?
 
     /// Check if a character is a special key for this input method
     /// - Parameter character: The character to check
@@ -28,9 +29,13 @@ public protocol InputMethod: Sendable {
 
 /// Default implementation for backward compatibility
 public extension InputMethod {
-    func processCharacter(_ character: Character, context: String, state: inout InputMethodState) -> InputTransformation? {
+    func processCharacter(
+        _ character: Character,
+        context: String,
+        state _: inout InputMethodState,
+    ) -> InputTransformation? {
         // Default: delegate to simple version without state
-        return processCharacter(character, context: context)
+        processCharacter(character, context: context)
     }
 }
 
@@ -65,20 +70,20 @@ public struct InputTransformation: Sendable {
 
 /// Vietnamese tone marks
 public enum ToneMark: Sendable, Equatable {
-    case acute      // sắc (á)
-    case grave      // huyền (à)
-    case hook       // hỏi (ả)
-    case tilde      // ngã (ã)
-    case dot        // nặng (ạ)
-    case none       // remove tone
+    case acute // sắc (á)
+    case dot // nặng (ạ)
+    case grave // huyền (à)
+    case hook // hỏi (ả)
+    case none // remove tone
+    case tilde // ngã (ã)
 }
 
 /// Vietnamese modifier marks
 public enum ModifierMark: Sendable {
+    case breve // trăng (ă)
     case circumflex // mũ (â, ê, ô)
-    case breve      // trăng (ă)
-    case horn       // móc (ơ, ư)
-    case stroke     // gạch (đ)
+    case horn // móc (ơ, ư)
+    case stroke // gạch (đ)
 }
 
 // MARK: - Input Method State
@@ -92,8 +97,8 @@ public struct InputMethodState: Sendable {
     public var tempDisabledKey: Character?
 
     public init() {
-        self.lastTransformation = nil
-        self.tempDisabledKey = nil
+        lastTransformation = nil
+        tempDisabledKey = nil
     }
 
     /// Disable a key temporarily (after undo)
@@ -139,10 +144,10 @@ public struct LastTransformation: Sendable {
 
 /// Category of transformation for undo matching
 public enum TransformationCategory: Sendable, Equatable {
-    case circumflex      // aa→â, ee→ê, oo→ô
-    case horn            // ow→ơ, uw→ư
-    case breve           // aw→ă
-    case stroke          // dd→đ
-    case tone(ToneMark)  // s→sắc, f→huyền, etc.
-    case standaloneHorn  // [→ơ, ]→ư, standalone w→ư
+    case breve // aw→ă
+    case circumflex // aa→â, ee→ê, oo→ô
+    case horn // ow→ơ, uw→ư
+    case standaloneHorn // [→ơ, ]→ư, standalone w→ư
+    case stroke // dd→đ
+    case tone(ToneMark) // s→sắc, f→huyền, etc.
 }

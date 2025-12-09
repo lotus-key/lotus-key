@@ -3,35 +3,32 @@ import Foundation
 
 /// Keys for UserDefaults storage
 public enum SettingsKey: String {
-    case inputMethod = "LotusKeyInputMethod"
-    case spellCheckEnabled = "LotusKeySpellCheckEnabled"
-    case smartSwitchEnabled = "LotusKeySmartSwitchEnabled"
-    case quickTelexEnabled = "LotusKeyQuickTelexEnabled"
-    case launchAtLogin = "LotusKeyLaunchAtLogin"
-    case showDockIcon = "LotusKeyShowDockIcon"
+    case appLanguage = "LotusKeyAppLanguage"
     case autoCapitalize = "LotusKeyAutoCapitalize"
-    case restoreIfWrongSpelling = "LotusKeyRestoreIfWrongSpelling"
-    // Advanced settings
     case fixBrowserAutocomplete = "LotusKeyFixBrowserAutocomplete"
     case fixChromiumBrowser = "LotusKeyFixChromiumBrowser"
+    case inputMethod = "LotusKeyInputMethod"
+    case launchAtLogin = "LotusKeyLaunchAtLogin"
+    case quickTelexEnabled = "LotusKeyQuickTelexEnabled"
+    case restoreIfWrongSpelling = "LotusKeyRestoreIfWrongSpelling"
     case sendKeyStepByStep = "LotusKeySendKeyStepByStep"
-    // i18n
-    case appLanguage = "LotusKeyAppLanguage"
-    // Shortcut
+    case showDockIcon = "LotusKeyShowDockIcon"
+    case smartSwitchEnabled = "LotusKeySmartSwitchEnabled"
+    case spellCheckEnabled = "LotusKeySpellCheckEnabled"
     case switchLanguageHotkey = "LotusKeySwitchLanguageHotkey"
 }
 
 /// App language selection for i18n
 public enum AppLanguage: String, CaseIterable {
-    case system = "system"
     case english = "en"
+    case system
     case vietnamese = "vi"
 
     public var displayName: String {
         switch self {
-        case .system: return L("Follow System")
-        case .english: return "English"
-        case .vietnamese: return "Tiếng Việt"
+        case .english: "English"
+        case .system: L("Follow System")
+        case .vietnamese: "Tiếng Việt"
         }
     }
 }
@@ -207,15 +204,19 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
             // Register/unregister login item on main thread
             // Note: SMAppService requires proper code signing, skip in debug builds
             #if !DEBUG
-            Task { @MainActor in
-                do {
-                    try AppLifecycleManager.shared.setLaunchAtLogin(newValue)
-                } catch {
-                    print("Failed to update launch at login: \(error.localizedDescription)")
+                Task { @MainActor in
+                    do {
+                        try AppLifecycleManager.shared.setLaunchAtLogin(newValue)
+                    } catch {
+                        #if DEBUG
+                            debugPrint(
+                                "[SettingsStore] Failed to update launch at login: \(error.localizedDescription)",
+                            )
+                        #endif
+                    }
                 }
-            }
             #else
-            print("Launch at login is disabled in debug builds (requires code signing)")
+                debugPrint("[SettingsStore] Launch at login is disabled in debug builds (requires code signing)")
             #endif
         }
     }
@@ -307,7 +308,7 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
             lock.lock()
             defer { lock.unlock() }
             let value = defaults.integer(forKey: SettingsKey.switchLanguageHotkey.rawValue)
-            return value > 0 ? UInt32(value) : 0x8131  // Default: Ctrl+Space with beep
+            return value > 0 ? UInt32(value) : 0x8131 // Default: Ctrl+Space with beep
         }
         set {
             lock.lock()

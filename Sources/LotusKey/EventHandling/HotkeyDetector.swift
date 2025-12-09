@@ -31,12 +31,12 @@ public protocol HotkeyDetecting: AnyObject, Sendable {
 
 /// Types of hotkeys supported
 public enum HotkeyType: Sendable {
-    /// Toggle between Vietnamese and English mode
-    case switchLanguage
     /// Convert clipboard content
     case convertClipboard
     /// Open settings
     case openSettings
+    /// Toggle between Vietnamese and English mode
+    case switchLanguage
 }
 
 /// Hotkey configuration
@@ -61,7 +61,7 @@ public struct Hotkey: Sendable, Equatable {
         option: Bool = false,
         command: Bool = false,
         shift: Bool = false,
-        enableBeep: Bool = true
+        enableBeep: Bool = true,
     ) {
         self.keyCode = keyCode
         self.control = control
@@ -74,17 +74,17 @@ public struct Hotkey: Sendable, Equatable {
     /// Create a hotkey from OpenKey-compatible bitfield format
     /// Format: Bits 0-7: Key code, Bit 8: Control, Bit 9: Option, Bit 10: Command, Bit 11: Shift, Bit 15: Beep
     public init(bitfield: UInt32) {
-        self.keyCode = UInt16(bitfield & 0xFF)
-        self.control = (bitfield & 0x100) != 0
-        self.option = (bitfield & 0x200) != 0
-        self.command = (bitfield & 0x400) != 0
-        self.shift = (bitfield & 0x800) != 0
-        self.enableBeep = (bitfield & 0x8000) != 0
+        keyCode = UInt16(bitfield & 0xFF)
+        control = (bitfield & 0x100) != 0
+        option = (bitfield & 0x200) != 0
+        command = (bitfield & 0x400) != 0
+        shift = (bitfield & 0x800) != 0
+        enableBeep = (bitfield & 0x8000) != 0
     }
 
     /// Convert to OpenKey-compatible bitfield format
     public var toBitfield: UInt32 {
-        var result: UInt32 = UInt32(keyCode)
+        var result = UInt32(keyCode)
         if control { result |= 0x100 }
         if option { result |= 0x200 }
         if command { result |= 0x400 }
@@ -113,14 +113,14 @@ public struct Hotkey: Sendable, Equatable {
     }
 
     /// Default language switch hotkey: Ctrl+Space
-    public static let defaultSwitchLanguage = Hotkey(
-        keyCode: 0x31,  // Space key
+    public static let defaultSwitchLanguage = Self(
+        keyCode: 0x31, // Space key
         control: true,
-        enableBeep: true
+        enableBeep: true,
     )
 
     /// Alternative language switch hotkey: Option+Z (OpenKey default)
-    public static let openKeyDefault = Hotkey(bitfield: 0x7A000206)
+    public static let openKeyDefault = Self(bitfield: 0x7A00_0206)
 }
 
 /// Detects hotkey combinations
@@ -129,7 +129,7 @@ public final class HotkeyDetector: HotkeyDetecting, @unchecked Sendable {
 
     private let lock = NSLock()
     private var hotkeys: [HotkeyType: Hotkey] = [
-        .switchLanguage: .defaultSwitchLanguage
+        .switchLanguage: .defaultSwitchLanguage,
     ]
 
     // MARK: - Initialization
@@ -160,13 +160,13 @@ public final class HotkeyDetector: HotkeyDetecting, @unchecked Sendable {
         return hotkey.matches(event: event)
     }
 
-    public func checkFlagsChanged(event: CGEvent, lastFlags: CGEventFlags) -> Bool {
+    public func checkFlagsChanged(event: CGEvent, lastFlags _: CGEventFlags) -> Bool {
         // Check for modifier-only hotkeys (e.g., modifier release triggers action)
         // OpenKey pattern: hotkey is checked when lastFlags > currentFlags (release)
         // The actual check is done in KeyboardEventHandler.handleFlagsChanged
         // This method is reserved for future modifier-only hotkey support
         // (e.g., double-tap Control, Caps Lock toggle)
-        _ = event.flags  // Suppress unused warning, reserved for future use
+        _ = event.flags // Suppress unused warning, reserved for future use
 
         return false
     }
@@ -174,34 +174,34 @@ public final class HotkeyDetector: HotkeyDetecting, @unchecked Sendable {
 
 // MARK: - CGEventFlags Extension
 
-extension CGEventFlags {
+public extension CGEventFlags {
     /// Check if Control modifier is pressed
-    public var hasControl: Bool { contains(.maskControl) }
+    var hasControl: Bool { contains(.maskControl) }
 
     /// Check if Option/Alt modifier is pressed
-    public var hasOption: Bool { contains(.maskAlternate) }
+    var hasOption: Bool { contains(.maskAlternate) }
 
     /// Check if Command modifier is pressed
-    public var hasCommand: Bool { contains(.maskCommand) }
+    var hasCommand: Bool { contains(.maskCommand) }
 
     /// Check if Shift modifier is pressed
-    public var hasShift: Bool { contains(.maskShift) }
+    var hasShift: Bool { contains(.maskShift) }
 
     /// Check if Caps Lock is active
-    public var hasCapsLock: Bool { contains(.maskAlphaShift) }
+    var hasCapsLock: Bool { contains(.maskAlphaShift) }
 
     /// Check if Fn (Secondary Function) modifier is pressed
-    public var hasSecondaryFn: Bool { contains(.maskSecondaryFn) }
+    var hasSecondaryFn: Bool { contains(.maskSecondaryFn) }
 
     /// Check if NumPad key is pressed
-    public var hasNumericPad: Bool { contains(.maskNumericPad) }
+    var hasNumericPad: Bool { contains(.maskNumericPad) }
 
     /// Check if Help key is pressed
-    public var hasHelp: Bool { contains(.maskHelp) }
+    var hasHelp: Bool { contains(.maskHelp) }
 
     /// Check if any control key (except Shift) is pressed
     /// Matches OpenKey's OTHER_CONTROL_KEY macro
-    public var hasOtherControlKey: Bool {
+    var hasOtherControlKey: Bool {
         hasControl || hasOption || hasCommand || hasSecondaryFn || hasNumericPad || hasHelp
     }
 }

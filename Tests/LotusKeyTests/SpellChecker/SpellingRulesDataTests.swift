@@ -1,29 +1,29 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Data Table Tests
 
 struct SpellingRulesDataTests {
     @Test("Initial consonants count")
-    func testInitialConsonantsCount() {
+    func initialConsonantsCount() {
         // Should have 26 patterns as per OpenKey
         #expect(VietnameseSpellingRules.initialConsonants.count == 26)
     }
 
     @Test("Final consonants count")
-    func testFinalConsonantsCount() {
+    func finalConsonantsCount() {
         // Should have 8 patterns as per OpenKey
         #expect(VietnameseSpellingRules.finalConsonants.count == 8)
     }
 
     @Test("Sharp ending consonants count")
-    func testSharpEndingConsonantsCount() {
+    func sharpEndingConsonantsCount() {
         // c, ch, p, t
         #expect(VietnameseSpellingRules.sharpEndConsonants.count == 4)
     }
 
     @Test("Base vowels count")
-    func testBaseVowelsCount() {
+    func baseVowelsCount() {
         // a, e, i, o, u, y
         #expect(VietnameseSpellingRules.baseVowels.count == 6)
     }

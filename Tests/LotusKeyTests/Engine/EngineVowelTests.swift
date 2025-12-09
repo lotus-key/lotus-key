@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for vowel handling including qu-/gi- clusters and triple vowels
 final class EngineVowelTests: EngineTestCase {
-
     // MARK: - qu-/gi- Consonant Handling
 
     func testQuConsonantMarkPosition() {
@@ -38,13 +37,13 @@ final class EngineVowelTests: EngineTestCase {
         buffer.append("t")
         buffer.append("u")
         var typedO = TypedCharacter(character: "o")
-        typedO.state.insert(.circumflex)  // ô
+        typedO.state.insert(.circumflex) // ô
         buffer.append(typedO)
         buffer.append("i")
 
         // Mark should go on 'ô' (the modified vowel)
         let markPos = buffer.findMarkPosition()
-        XCTAssertEqual(markPos, 2)  // Position of 'ô'
+        XCTAssertEqual(markPos, 2) // Position of 'ô'
     }
 
     func testTripleVowelOai() {
@@ -55,7 +54,7 @@ final class EngineVowelTests: EngineTestCase {
         buffer.append("i")
 
         let markPos = buffer.findMarkPosition()
-        XCTAssertEqual(markPos, 1)  // Position of 'a' (middle)
+        XCTAssertEqual(markPos, 1) // Position of 'a' (middle)
     }
 
     // MARK: - iê/yê/uô/ươ + Ending Consonant Integration Tests
@@ -85,6 +84,7 @@ final class EngineVowelTests: EngineTestCase {
     }
 
     // MARK: - ưu Vowel Pattern Tests
+
     // Bug fix: "uu" pattern (base form of ưu) was missing from spell checker validation
 
     func testCuuWithTone() {
@@ -116,7 +116,7 @@ final class EngineVowelTests: EngineTestCase {
         var buffer = TypingBuffer()
         buffer.append("c")
         var typedU = TypedCharacter(character: "u")
-        typedU.state.insert(.hornOrBreve)  // ư
+        typedU.state.insert(.hornOrBreve) // ư
         buffer.append(typedU)
         buffer.append("u")
 
@@ -124,4 +124,3 @@ final class EngineVowelTests: EngineTestCase {
         XCTAssertEqual(markPos, 1, "Mark should be on position 1 (ư)")
     }
 }
-

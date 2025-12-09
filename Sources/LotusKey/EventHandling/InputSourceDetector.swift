@@ -55,13 +55,7 @@ public final class InputSourceDetector: InputSourceDetecting, @unchecked Sendabl
         }
 
         // Check if language starts with any English prefix
-        for prefix in Self.englishPrefixes {
-            if language.hasPrefix(prefix) {
-                return true
-            }
-        }
-
-        return false
+        return Self.englishPrefixes.contains { language.hasPrefix($0) }
     }
 
     public func isCJKInputSource() -> Bool {
@@ -70,21 +64,15 @@ public final class InputSourceDetector: InputSourceDetecting, @unchecked Sendabl
         }
 
         // Check if language starts with any CJK prefix
-        for prefix in Self.cjkPrefixes {
-            if language.hasPrefix(prefix) {
-                return true
-            }
-        }
-
-        return false
+        return Self.cjkPrefixes.contains { language.hasPrefix($0) }
     }
 }
 
 // MARK: - Additional Input Source Information
 
-extension InputSourceDetector {
+public extension InputSourceDetector {
     /// Get the input source identifier (e.g., "com.apple.keylayout.US")
-    public func getCurrentInputSourceIdentifier() -> String? {
+    func getCurrentInputSourceIdentifier() -> String? {
         guard let source = TISCopyCurrentKeyboardInputSource()?.takeRetainedValue() else {
             return nil
         }
@@ -97,7 +85,7 @@ extension InputSourceDetector {
     }
 
     /// Get the input source localized name
-    public func getCurrentInputSourceName() -> String? {
+    func getCurrentInputSourceName() -> String? {
         guard let source = TISCopyCurrentKeyboardInputSource()?.takeRetainedValue() else {
             return nil
         }
@@ -110,7 +98,7 @@ extension InputSourceDetector {
     }
 
     /// Check if the current input source is a keyboard layout (not an IME)
-    public func isKeyboardLayout() -> Bool {
+    func isKeyboardLayout() -> Bool {
         guard let source = TISCopyCurrentKeyboardInputSource()?.takeRetainedValue() else {
             return true
         }

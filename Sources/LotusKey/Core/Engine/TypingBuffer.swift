@@ -93,7 +93,7 @@ public struct TypingBuffer: Sendable {
 
     /// Get base characters as array for analysis
     private var baseChars: [Character] {
-        characters.compactMap { $0.baseCharacter }
+        characters.compactMap(\.baseCharacter)
     }
 
     /// Find all vowel positions in the buffer (accounting for qu-/gi- clusters)
@@ -101,16 +101,16 @@ public struct TypingBuffer: Sendable {
         let chars = baseChars
         var positions: [Int] = []
 
-        for i in 0..<chars.count {
+        for i in 0 ..< chars.count {
             let char = chars[i]
 
             // Skip 'u' if part of 'qu' cluster
-            if char == "u" && VietnameseConstants.isUPartOfQu(buffer: chars, uIndex: i) {
+            if char == "u", VietnameseConstants.isUPartOfQu(buffer: chars, uIndex: i) {
                 continue
             }
 
             // Skip 'i' if part of 'gi' cluster
-            if char == "i" && VietnameseConstants.isIPartOfGi(buffer: chars, iIndex: i) {
+            if char == "i", VietnameseConstants.isIPartOfGi(buffer: chars, iIndex: i) {
                 continue
             }
 
@@ -133,7 +133,7 @@ public struct TypingBuffer: Sendable {
         // Build ending consonant string
         var ending = ""
         let startIndex = lastVowelIndex + 1
-        for i in startIndex..<chars.count {
+        for i in startIndex ..< chars.count {
             ending.append(chars[i])
         }
 
@@ -194,14 +194,26 @@ public struct TypingBuffer: Sendable {
 
         // Handle triple vowel combinations (3+ vowels)
         if vowelPositions.count >= 3 {
-            if let pos = handleTripleVowelMarkPosition(pattern: pattern, positions: vowelPositions, hasEnding: hasEnding) {
+            if
+                let pos = handleTripleVowelMarkPosition(
+                    pattern: pattern,
+                    positions: vowelPositions,
+                    hasEnding: hasEnding,
+                )
+            {
                 return pos
             }
         }
 
         // Handle double vowel combinations
         if vowelPositions.count >= 2 {
-            if let pos = handleDoubleVowelMarkPosition(pattern: pattern, positions: vowelPositions, hasEnding: hasEnding) {
+            if
+                let pos = handleDoubleVowelMarkPosition(
+                    pattern: pattern,
+                    positions: vowelPositions,
+                    hasEnding: hasEnding,
+                )
+            {
                 return pos
             }
         }
@@ -216,7 +228,7 @@ public struct TypingBuffer: Sendable {
 
         // iê, yê with ending consonant: mark on ê (second vowel)
         // Example: "tiến", "yến" → mark on 'ê'
-        if (pattern == "ie" || pattern == "ye") && hasEnding {
+        if pattern == "ie" || pattern == "ye", hasEnding {
             // Check if 'e' has circumflex modifier
             if characters[positions[1]].state.contains(.circumflex) {
                 return positions[1]
@@ -226,7 +238,7 @@ public struct TypingBuffer: Sendable {
 
         // uô with ending consonant: mark on ô (second vowel)
         // Example: "cuốn", "muốn" → mark on 'ô'
-        if pattern == "uo" && hasEnding {
+        if pattern == "uo", hasEnding {
             if characters[positions[1]].state.contains(.circumflex) {
                 return positions[1]
             }
@@ -238,8 +250,8 @@ public struct TypingBuffer: Sendable {
         if pattern == "uo" {
             let uHasHorn = characters[positions[0]].state.contains(.hornOrBreve)
             let oHasHorn = characters[positions[1]].state.contains(.hornOrBreve)
-            if uHasHorn && oHasHorn {
-                return positions[1]  // Mark on ơ
+            if uHasHorn, oHasHorn {
+                return positions[1] // Mark on ơ
             }
         }
 
@@ -281,7 +293,7 @@ public struct TypingBuffer: Sendable {
 
         // ưa: mark on first (ư)
         // Example: "mưa", "lừa"
-        if pattern == "ua" && characters[positions[0]].state.contains(.hornOrBreve) {
+        if pattern == "ua", characters[positions[0]].state.contains(.hornOrBreve) {
             return positions[0]
         }
 
@@ -290,7 +302,7 @@ public struct TypingBuffer: Sendable {
     }
 
     /// Handle mark position for triple vowel combinations
-    private func handleTripleVowelMarkPosition(pattern: String, positions: [Int], hasEnding: Bool) -> Int? {
+    private func handleTripleVowelMarkPosition(pattern: String, positions: [Int], hasEnding _: Bool) -> Int? {
         // Triple vowel patterns - mark usually goes on middle vowel
 
         // Check for modified vowel first - it takes priority
@@ -432,12 +444,10 @@ public struct TypingBuffer: Sendable {
 
         // Check tone validity with ending consonant
         if let ending = findEndingConsonant() {
-            for pos in vowelPositions {
-                if characters[pos].state.hasToneMark {
-                    let tone = characters[pos].state
-                    if !VietnameseConstants.isValidToneWithEnding(tone: tone, ending: ending.pattern) {
-                        return false
-                    }
+            for pos in vowelPositions where characters[pos].state.hasToneMark {
+                let tone = characters[pos].state
+                if !VietnameseConstants.isValidToneWithEnding(tone: tone, ending: ending.pattern) {
+                    return false
                 }
             }
         }
@@ -490,7 +500,7 @@ public struct TypingBuffer: Sendable {
 
 extension TypingBuffer: CustomStringConvertible {
     public var description: String {
-        let chars = characters.compactMap { $0.baseCharacter }.map { String($0) }.joined()
+        let chars = characters.compactMap(\.baseCharacter).map { String($0) }.joined()
         return "TypingBuffer(\(count)/\(Self.maxCapacity): \"\(chars)\")"
     }
 }

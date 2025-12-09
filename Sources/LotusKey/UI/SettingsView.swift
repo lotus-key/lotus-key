@@ -67,7 +67,7 @@ struct SettingsView: View {
                 Toggle(isOn: $quickTelexEnabled) {
                     HelpLabel(
                         L("Quick Telex"),
-                        help: L("cc → ch, gg → gi\nkk → kh, ngg → ngh\nqq → qu")
+                        help: L("cc → ch, gg → gi\nkk → kh, ngg → ngh\nqq → qu"),
                     )
                 }
 
@@ -79,7 +79,7 @@ struct SettingsView: View {
             Section {
                 ShortcutPicker(hotkeyBitfield: Binding(
                     get: { UInt32(switchLanguageHotkey) },
-                    set: { switchLanguageHotkey = Int($0) }
+                    set: { switchLanguageHotkey = Int($0) },
                 ))
             } header: {
                 Label(L("Shortcut"), systemImage: "command")
@@ -91,7 +91,7 @@ struct SettingsView: View {
                 Toggle(isOn: $restoreIfWrongSpelling) {
                     HelpLabel(
                         L("Restore Invalid Words"),
-                        help: L("Reverts text if spelling is invalid.\nHold ⌃ Control to bypass.")
+                        help: L("Reverts text if spelling is invalid.\nHold ⌃ Control to bypass."),
                     )
                 }
                 .disabled(!spellCheckEnabled)
@@ -103,7 +103,7 @@ struct SettingsView: View {
                 Toggle(isOn: $smartSwitchEnabled) {
                     HelpLabel(
                         L("Smart Language Switch"),
-                        help: L("Remembers Vietnamese or English preference for each application.")
+                        help: L("Remembers Vietnamese or English preference for each application."),
                     )
                 }
 
@@ -116,7 +116,7 @@ struct SettingsView: View {
                     set: { newValue in
                         appLanguageRaw = newValue.rawValue
                         showRestartAlert = true
-                    }
+                    },
                 )) {
                     ForEach(AppLanguage.allCases, id: \.self) { lang in
                         Text(lang.displayName).tag(lang)
@@ -130,14 +130,14 @@ struct SettingsView: View {
                 Toggle(isOn: $fixBrowserAutocomplete) {
                     HelpLabel(
                         L("Fix Browser Autocomplete"),
-                        help: L("Fixes input issues in browser address bars and search fields.")
+                        help: L("Fixes input issues in browser address bars and search fields."),
                     )
                 }
 
                 Toggle(isOn: $fixChromiumBrowser) {
                     HelpLabel(
                         L("Fix Chromium Browsers"),
-                        help: L("Chrome, Edge, Arc, Brave, and other Chromium-based browsers.")
+                        help: L("Chrome, Edge, Arc, Brave, and other Chromium-based browsers."),
                     )
                 }
                 .disabled(!fixBrowserAutocomplete)
@@ -145,7 +145,7 @@ struct SettingsView: View {
                 Toggle(isOn: $sendKeyStepByStep) {
                     HelpLabel(
                         L("Step-by-Step Mode"),
-                        help: L("Sends keys one at a time.\nSlower but more compatible.")
+                        help: L("Sends keys one at a time.\nSlower but more compatible."),
                     )
                 }
             } header: {
@@ -178,7 +178,9 @@ struct SettingsView: View {
         do {
             try task.run()
         } catch {
-            print("Failed to schedule restart: \(error)")
+            #if DEBUG
+                debugPrint("Failed to schedule restart: \(error)")
+            #endif
         }
 
         // Terminate the app

@@ -27,7 +27,11 @@ public struct SimpleTelexInputMethod: InputMethod {
 
     // MARK: - Processing with State (supports undo)
 
-    public func processCharacter(_ character: Character, context: String, state: inout InputMethodState) -> InputTransformation? {
+    public func processCharacter(
+        _ character: Character,
+        context: String,
+        state: inout InputMethodState,
+    ) -> InputTransformation? {
         let char = character.lowercased().first ?? character
 
         // Block bracket keys - pass through as literal (word break)
@@ -111,7 +115,7 @@ public struct SimpleTelexInputMethod: InputMethod {
     /// Reference: OpenKey Engine.cpp:1155-1187
     /// - Pattern matching runs first regardless of Simple Telex mode
     /// - Simple Telex only blocks fallback standalone w → ư
-    private func handleSimpleTelexWKey(context: String, state: inout InputMethodState) -> InputTransformation? {
+    private func handleSimpleTelexWKey(context: String, state _: inout InputMethodState) -> InputTransformation? {
         let lower = context.lowercased()
 
         // Case 1: w after o → horn (ow → ơ)

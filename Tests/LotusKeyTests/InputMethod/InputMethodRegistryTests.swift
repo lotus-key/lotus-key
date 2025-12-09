@@ -1,5 +1,5 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class InputMethodRegistryTests: XCTestCase {
     // MARK: - Available IDs Tests
@@ -43,7 +43,7 @@ final class InputMethodRegistryTests: XCTestCase {
         let allMethods = InputMethodRegistry.allMethods
         XCTAssertEqual(allMethods.count, 2)
 
-        let names = allMethods.map { $0.method.name }
+        let names = allMethods.map(\.method.name)
         XCTAssertTrue(names.contains("Telex"))
         XCTAssertTrue(names.contains("Simple Telex"))
     }

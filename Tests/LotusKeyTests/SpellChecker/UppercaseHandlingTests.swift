@@ -1,5 +1,5 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Edge Case Tests: Uppercase Handling
 
@@ -7,7 +7,7 @@ struct UppercaseHandlingTests {
     let spellChecker = DefaultSpellChecker()
 
     @Test("Uppercase syllables are validated correctly")
-    func testUppercaseSyllables() {
+    func uppercaseSyllables() {
         // Uppercase should work the same as lowercase
         let result1 = spellChecker.check("BAN")
         let result2 = spellChecker.check("ban")
@@ -15,7 +15,7 @@ struct UppercaseHandlingTests {
     }
 
     @Test("Mixed case syllables")
-    func testMixedCase() {
+    func mixedCase() {
         let result = spellChecker.check("Bán")
         #expect(result == .valid)
 
@@ -24,7 +24,7 @@ struct UppercaseHandlingTests {
     }
 
     @Test("Parse uppercase Vietnamese")
-    func testParseUppercase() {
+    func parseUppercase() {
         let parts = SyllableParser.parse("TIẾNG")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "t")

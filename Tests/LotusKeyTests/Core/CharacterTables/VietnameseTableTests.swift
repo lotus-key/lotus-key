@@ -1,8 +1,7 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class VietnameseTableTests: XCTestCase {
-
     // MARK: - Basic Vowels Without Marks
 
     func testBasicVowelsNoMark() {
@@ -182,14 +181,14 @@ final class VietnameseTableTests: XCTestCase {
     func testUnicodeCharacterTableDecode() {
         let table = UnicodeCharacterTable()
         XCTAssertEqual(table.decode("a"), "a")
-        XCTAssertEqual(table.decode("abc"), "a")  // Returns first character
-        XCTAssertNil(table.decode(""))  // Empty string returns nil
+        XCTAssertEqual(table.decode("abc"), "a") // Returns first character
+        XCTAssertNil(table.decode("")) // Empty string returns nil
     }
 
     func testUnicodeCharacterTableSupports() {
         let table = UnicodeCharacterTable()
         XCTAssertTrue(table.supports("a"))
         XCTAssertTrue(table.supports("á"))
-        XCTAssertTrue(table.supports("😀"))  // Supports any character
+        XCTAssertTrue(table.supports("😀")) // Supports any character
     }
 }

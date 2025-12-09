@@ -50,8 +50,10 @@ private struct SettingsOpenerView: View {
         // Find and hide the opener window
         DispatchQueue.main.async {
             for window in NSApp.windows {
-                if window.identifier?.rawValue == "SettingsOpener" ||
-                   window.title == "SettingsOpener" {
+                if
+                    window.identifier?.rawValue == "SettingsOpener" ||
+                    window.title == "SettingsOpener"
+                {
                     window.orderOut(nil)
                     return
                 }
@@ -66,9 +68,11 @@ private struct SettingsOpenerView: View {
             if window.identifier?.rawValue == "SettingsOpener" { continue }
 
             // Check for SwiftUI Settings window identifier
-            if window.identifier?.rawValue.contains("Settings") == true ||
-               window.title.lowercased().contains("settings") ||
-               window.title.lowercased().contains("preferences") {
+            if
+                window.identifier?.rawValue.contains("Settings") == true ||
+                window.title.lowercased().contains("settings") ||
+                window.title.lowercased().contains("preferences")
+            {
                 window.makeKeyAndOrderFront(nil)
                 window.orderFrontRegardless()
                 return

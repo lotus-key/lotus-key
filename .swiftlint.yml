@@ -1,89 +1,203 @@
-# SwiftLint configuration for LotusKey
-# Following project.md conventions
+# SwiftLint Configuration for LotusKey
+# Updated: December 2025 with best practices
+# Reference: https://github.com/realm/SwiftLint
 
-# Paths to include
+# ==============================================================================
+# PATHS
+# ==============================================================================
+
 included:
   - Sources
   - Tests
 
-# Paths to exclude
 excluded:
   - .build
   - DerivedData
   - Packages
+  - .swiftpm
+  - OpenKey  # Reference code, not part of main project
 
-# Rules configuration
+# ==============================================================================
+# GLOBAL SETTINGS
+# ==============================================================================
+
+# Ensure at least one file is lintable
+allow_zero_lintable_files: false
+
+# Reporter format for output
+reporter: xcode
+
+# ==============================================================================
+# RULE CONFIGURATION
+# ==============================================================================
+
+# Rules to disable from the default set
 disabled_rules:
-  - trailing_whitespace
-  - line_length  # Handled by file_length and type_body_length
-  - switch_case_on_newline  # Too noisy for large switch statements
-  - number_separator  # Not critical for small numbers
+  - trailing_whitespace      # Too noisy in practice
+  - switch_case_on_newline   # Not critical for readability
+  - number_separator         # Not critical for small numbers
 
+# Opt-in rules to enable (not enabled by default)
 opt_in_rules:
+  # ============================================================================
+  # PERFORMANCE & BEST PRACTICES
+  # ============================================================================
   - array_init
-  - closure_end_indentation
-  - closure_spacing
-  - collection_alignment
   - contains_over_filter_count
   - contains_over_filter_is_empty
   - contains_over_first_not_nil
   - contains_over_range_nil_comparison
-  - discouraged_object_literal
   - empty_count
-  - enum_case_associated_values_count
-  - explicit_init
-  - extension_access_modifier
-  - fallthrough
-  - fatal_error_message
-  - file_name
+  - empty_collection_literal
+  - empty_string
   - first_where
   - flatmap_over_map_reduce
+  - last_where
+  - reduce_into
+  - sorted_first_last
+  - final_test_case
+  
+  # ============================================================================
+  # CODE QUALITY & SAFETY
+  # ============================================================================
+  - fatal_error_message
   - force_unwrapping
   - identical_operands
   - implicitly_unwrapped_optional
-  - joined_default_parameter
-  - last_where
   - legacy_multiple
+  - redundant_nil_coalescing
+  - redundant_type_annotation
+  - toggle_bool
+  - unowned_variable_capture
+  - yoda_condition
+  - unneeded_synthesized_initializer
+  - direct_return
+  - shorthand_optional_binding
+  
+  # ============================================================================
+  # SWIFT MODERN IDIOMS
+  # ============================================================================
+  - prefer_condition_list       # Use condition lists over && in guards
+  - prefer_self_in_static_references
+  - prefer_key_path
+  
+  # ============================================================================
+  # CLOSURES & FUNCTIONS
+  # ============================================================================
+  - closure_end_indentation
+  - closure_spacing
+  - explicit_init
+  - unneeded_parentheses_in_closure_argument
+  - anonymous_argument_in_multiline_closure
+  - trailing_closure
+  
+  # ============================================================================
+  # FORMATTING & LAYOUT
+  # ============================================================================
+  - collection_alignment
   - literal_expression_end_indentation
-  - lower_acl_than_parent
-  - modifier_order
   - multiline_arguments
   - multiline_function_chains
   - multiline_literal_brackets
   - multiline_parameters
-  - nimble_operator
-  - nslocalizedstring_key
   - operator_usage_whitespace
-  - overridden_super_call
-  - override_in_extension
-  - pattern_matching_keywords
-  - prefer_self_type_over_type_of_self
-  - prefer_zero_over_explicit_init
-  - private_action
-  - private_outlet
-  - prohibited_super_call
-  - quick_discouraged_call
-  - quick_discouraged_focused_test
-  - quick_discouraged_pending_test
-  - reduce_into
-  - redundant_nil_coalescing
-  - redundant_type_annotation
-  - required_enum_case
-  - single_test_class
-  - sorted_first_last
-  - static_operator
-  - strong_iboutlet
-  - toggle_bool
-  - unavailable_function
-  - unneeded_parentheses_in_closure_argument
-  - unowned_variable_capture
-  - untyped_error_in_catch
   - vertical_parameter_alignment_on_call
   - vertical_whitespace_closing_braces
   - vertical_whitespace_opening_braces
-  - yoda_condition
+  - period_spacing
+  
+  # ============================================================================
+  # NAMING & STRUCTURE
+  # ============================================================================
+  - extension_access_modifier
+  - file_name
+  - modifier_order
+  - sorted_imports              # Keep imports sorted and grouped
+  - sorted_enum_cases
+  
+  # ============================================================================
+  # PATTERN MATCHING
+  # ============================================================================
+  - fallthrough
+  - pattern_matching_keywords
+  - optional_enum_case_matching
+  
+  # ============================================================================
+  # SELF & TYPE REFERENCES
+  # ============================================================================
+  - prefer_self_type_over_type_of_self
+  - prefer_zero_over_explicit_init
+  - redundant_self_in_closure   # Detect redundant self in closures
+  - self_binding
+  
+  # ============================================================================
+  # OVERRIDES
+  # ============================================================================
+  - overridden_super_call
+  - override_in_extension
+  - prohibited_super_call
+  - unneeded_override
+  
+  # ============================================================================
+  # ACCESS CONTROL
+  # ============================================================================
+  - lower_acl_than_parent
+  - static_over_final_class
+  
+  # ============================================================================
+  # ERROR HANDLING
+  # ============================================================================
+  - untyped_error_in_catch
+  
+  # ============================================================================
+  # TESTING
+  # ============================================================================
+  - quick_discouraged_focused_test
+  - quick_discouraged_pending_test
+  - single_test_class
+  - empty_xctest_method
+  - balanced_xctest_lifecycle
+  
+  # ============================================================================
+  # UIKIT/SWIFTUI SPECIFIC
+  # ============================================================================
+  - discouraged_object_literal
+  - private_action
+  - private_outlet
+  - strong_iboutlet
+  - private_swiftui_state
+  
+  # ============================================================================
+  # ENUMS
+  # ============================================================================
+  - enum_case_associated_values_count
+  
+  # ============================================================================
+  # CONCURRENCY
+  # ============================================================================
+  - async_without_await
+  - unhandled_throwing_task
 
-# Rule configurations
+# Analyzer rules (requires --analyze command)
+# These are powerful but require full compilation
+analyzer_rules:
+  - unused_declaration
+  - unused_import
+
+# ==============================================================================
+# RULE-SPECIFIC CONFIGURATIONS
+# ==============================================================================
+
+# Line Length
+line_length:
+  warning: 120
+  error: 200
+  ignores_comments: true
+  ignores_urls: true
+  ignores_function_declarations: true
+  ignores_interpolated_strings: true
+
+# Identifier Naming
 identifier_name:
   min_length:
     warning: 2
@@ -94,9 +208,19 @@ identifier_name:
   excluded:
     - id
     - i
+    - j
+    - k
     - x
     - y
+    - ok
+    - to
+    - L  # Common localization shorthand function
+  allowed_symbols:
+    - "_"
+  validates_start_with_lowercase:
+    severity: warning
 
+# Type Naming
 type_name:
   min_length:
     warning: 3
@@ -104,32 +228,38 @@ type_name:
   max_length:
     warning: 50
     error: 60
+  excluded:
+    - ID
 
+# File Length
 file_length:
   warning: 500
   error: 1000
   ignore_comment_only_lines: true
-  excluded:
-    - Tests
 
+# Type Body Length
 type_body_length:
   warning: 300
   error: 500
-  excluded:
-    - Tests
 
+# Function Body Length
 function_body_length:
   warning: 50
   error: 100
 
+# Function Parameter Count
 function_parameter_count:
   warning: 6
   error: 8
+  ignores_default_parameters: true
 
+# Cyclomatic Complexity
 cyclomatic_complexity:
   warning: 15
   error: 25
+  ignores_case_statements: true
 
+# Nesting
 nesting:
   type_level:
     warning: 2
@@ -138,36 +268,116 @@ nesting:
     warning: 3
     error: 5
 
+# Vertical Whitespace
 vertical_whitespace:
   max_empty_lines: 2
 
+# Trailing Comma
 trailing_comma:
   mandatory_comma: true
 
-# Custom rules
+# Large Tuples
+large_tuple:
+  warning: 3
+  error: 4
+
+# Enum Case Associated Values Count
+enum_case_associated_values_count:
+  warning: 5
+  error: 6
+
+# Multiline Arguments
+multiline_arguments:
+  first_argument_location: next_line
+  only_enforce_after_first_closure_on_first_line: true
+
+# Multiline Parameters
+multiline_parameters:
+  max_number_of_single_line_parameters: 3
+
+# Sorted Imports
+sorted_imports:
+  severity: warning
+
+# Modifier Order
+modifier_order:
+  preferred_modifier_order:
+    - acl
+    - setterACL
+    - override
+    - dynamic
+    - mutators
+    - lazy
+    - final
+    - required
+    - convenience
+    - typeMethods
+    - owned
+
+# Redundant Self in Closure
+redundant_self_in_closure:
+  severity: warning
+
+# Prefer Condition List
+prefer_condition_list:
+  severity: warning
+
+# Implicit Optional Initialization
+implicit_optional_initialization:
+  severity: warning
+
+# Unused Declaration (analyzer rule)
+unused_declaration:
+  severity: warning
+  include_public_and_open: false
+
+# Force Unwrapping
+force_unwrapping:
+  severity: warning
+
+# Force Cast
+force_cast:
+  severity: warning
+
+# Force Try
+force_try:
+  severity: warning
+
+# Self Binding
+self_binding:
+  bind_identifier: self
+
+# Shorthand Optional Binding
+shorthand_optional_binding:
+  severity: warning
+
+# Prefer Self in Static References
+prefer_self_in_static_references:
+  severity: warning
+
+# Final Test Case - exclude base test classes that are intentionally subclassed
+final_test_case:
+  test_parent_classes:
+    - XCTestCase
+
+# ==============================================================================
+# CUSTOM RULES
+# ==============================================================================
+
 custom_rules:
-  # Prefer let over var when possible (reminder, not enforced)
-  prefer_let_reminder:
-    name: "Prefer let"
-    regex: '^\s*var\s+\w+\s*:\s*\w+\s*$'
-    message: "Consider using 'let' if this variable is not mutated"
+  # Avoid print statements in production code
+  no_print_in_production:
+    name: "No Print Statements"
+    regex: '^\s*print\s*\('
+    message: "Avoid print() in production code. Use a proper logging system."
     severity: warning
+    excluded:
+      - ".*Test\\.swift"
+      - ".*Tests\\.swift"
 
-  # Avoid force unwrapping in production code
-  no_force_unwrap:
-    name: "Force Unwrap"
-    regex: '\w+!'
-    match_kinds:
-      - identifier
-    message: "Avoid force unwrapping. Use optional binding or nil coalescing."
+  # Prefer early return with guard
+  prefer_guard_for_early_return:
+    name: "Prefer Guard"
+    regex: 'if\s+\w+\s*(==|!=)\s*nil\s*\{\s*return'
+    message: "Consider using 'guard' for early returns with nil checks."
     severity: warning
-
-  # Avoid Any type
-  avoid_any_type:
-    name: "Avoid Any"
-    regex: '\bAny\b'
-    message: "Prefer specific types over Any for type safety."
-    severity: warning
-
-# Reporter type
-reporter: "xcode"

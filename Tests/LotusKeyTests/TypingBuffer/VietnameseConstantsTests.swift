@@ -1,8 +1,7 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class VietnameseConstantsTests: XCTestCase {
-
     // MARK: - VietnameseConstants Tests
 
     func testVietnameseConstantsIsVowel() {
@@ -13,7 +12,7 @@ final class VietnameseConstantsTests: XCTestCase {
         XCTAssertTrue(VietnameseConstants.isVowel("o"))
         XCTAssertTrue(VietnameseConstants.isVowel("u"))
         XCTAssertTrue(VietnameseConstants.isVowel("y"))
-        XCTAssertTrue(VietnameseConstants.isVowel("A"))  // uppercase
+        XCTAssertTrue(VietnameseConstants.isVowel("A")) // uppercase
         XCTAssertFalse(VietnameseConstants.isVowel("b"))
         XCTAssertFalse(VietnameseConstants.isVowel("x"))
     }
@@ -23,7 +22,7 @@ final class VietnameseConstantsTests: XCTestCase {
         XCTAssertTrue(VietnameseConstants.isConsonant("b"))
         XCTAssertTrue(VietnameseConstants.isConsonant("c"))
         XCTAssertTrue(VietnameseConstants.isConsonant("d"))
-        XCTAssertTrue(VietnameseConstants.isConsonant("B"))  // uppercase
+        XCTAssertTrue(VietnameseConstants.isConsonant("B")) // uppercase
         XCTAssertFalse(VietnameseConstants.isConsonant("a"))
         XCTAssertFalse(VietnameseConstants.isConsonant("e"))
     }

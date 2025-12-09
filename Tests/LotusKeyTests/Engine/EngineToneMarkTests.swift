@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for tone mark transformations
 final class EngineToneMarkTests: EngineTestCase {
-
     // MARK: - Tone Mark Tests
 
     func testToneMarkAcute() {
@@ -12,7 +11,7 @@ final class EngineToneMarkTests: EngineTestCase {
         let result = engine.processKey(keyCode: 0, character: "s", modifiers: 0)
 
         // Should replace "a" with "á"
-        if case .replace(_, let replacement) = result {
+        if case let .replace(_, replacement) = result {
             XCTAssertEqual(replacement, "á")
         } else {
             // Engine might pass through if Telex implementation is pending
@@ -24,7 +23,7 @@ final class EngineToneMarkTests: EngineTestCase {
         _ = engine.processKey(keyCode: 0, character: "e", modifiers: 0)
         let result = engine.processKey(keyCode: 0, character: "f", modifiers: 0)
 
-        if case .replace(_, let replacement) = result {
+        if case let .replace(_, replacement) = result {
             XCTAssertEqual(replacement, "è")
         } else {
             XCTAssertEqual(engine.currentText, "ef")

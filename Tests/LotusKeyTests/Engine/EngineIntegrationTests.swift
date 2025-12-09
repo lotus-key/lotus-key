@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Integration tests for full Telex sequences and common Vietnamese words
 final class EngineIntegrationTests: EngineTestCase {
-
     // MARK: - Integration Tests (Full Telex Sequences)
 
     func testProcessStringViet() {

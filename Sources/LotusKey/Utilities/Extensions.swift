@@ -1,3 +1,4 @@
+// swiftlint:disable:this file_name
 import AppKit
 import Foundation
 
@@ -6,18 +7,22 @@ import Foundation
 public extension String {
     /// Returns the string with Vietnamese diacritics removed
     var withoutDiacritics: String {
-        self.folding(options: .diacriticInsensitive, locale: .init(identifier: "vi"))
+        folding(options: .diacriticInsensitive, locale: .init(identifier: "vi"))
     }
 
     /// Returns true if the string contains Vietnamese characters
     var containsVietnamese: Bool {
-        let vietnameseCharacters = CharacterSet(charactersIn: "àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐ")
-        return self.unicodeScalars.contains { vietnameseCharacters.contains($0) }
+        // swiftlint:disable:next line_length
+        let vietnameseCharacters =
+            CharacterSet(
+                charactersIn: "àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐ",
+            )
+        return unicodeScalars.contains { vietnameseCharacters.contains($0) }
     }
 
     /// Returns the last character as a Character, or nil if empty
     var lastCharacter: Character? {
-        self.last
+        last
     }
 }
 
@@ -82,11 +87,13 @@ public extension CGEvent {
         keyboardGetUnicodeString(
             maxStringLength: 4,
             actualStringLength: &actualLength,
-            unicodeString: &chars
+            unicodeString: &chars,
         )
 
-        guard actualLength > 0 else { return nil }
-        return Character(UnicodeScalar(chars[0])!)
+        guard
+            actualLength > 0,
+            let scalar = UnicodeScalar(chars[0]) else { return nil }
+        return Character(scalar)
     }
 }
 
@@ -100,7 +107,7 @@ public extension UserDefaults {
     }
 
     /// Typed setter for Codable types
-    func setObject<T: Codable>(_ value: T, forKey key: String) {
+    func setObject(_ value: some Codable, forKey key: String) {
         if let data = try? JSONEncoder().encode(value) {
             set(data, forKey: key)
         }

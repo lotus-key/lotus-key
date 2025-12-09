@@ -1,0 +1,149 @@
+# SwiftFormat Configuration for LotusKey
+# Updated: December 2025 with best practices
+# Reference: https://github.com/nicklockwood/SwiftFormat
+
+# ==============================================================================
+# FILE HANDLING
+# ==============================================================================
+
+--exclude .build,DerivedData,Packages,.swiftpm,OpenKey
+
+# ==============================================================================
+# FORMATTING OPTIONS
+# ==============================================================================
+
+# Indentation
+--indent 4
+--smart-tabs enabled
+--indent-case false
+--ifdef indent
+
+# Line Length (match SwiftLint: warning 120, error 200)
+--max-width 120
+
+# Line Breaks
+--linebreaks lf
+--trim-whitespace always
+
+# Braces & Parens
+--allman false
+--closing-paren balanced
+--empty-braces no-space
+
+# Wrapping
+--wrap-arguments before-first
+--wrap-parameters before-first
+--wrap-collections before-first
+--wrap-conditions before-first
+--wrap-ternary before-operators
+--allow-partial-wrapping true
+
+# Trailing
+--trailing-commas always
+--semicolons inline-only
+
+# Spacing
+--ranges spaced
+--type-delimiter space-after
+
+# ==============================================================================
+# SELF & TYPE REFERENCES
+# ==============================================================================
+
+# Prefer explicit self for clarity (common preference in Swift projects)
+--self remove
+--self-required expect,XCTAssert,XCTAssertEqual,XCTAssertNotEqual,XCTAssertNil,XCTAssertNotNil,XCTAssertTrue,XCTAssertFalse
+
+# ==============================================================================
+# IMPORTS
+# ==============================================================================
+
+--import-grouping testable-last
+
+# ==============================================================================
+# DECLARATIONS
+# ==============================================================================
+
+# Modifier order (match SwiftLint modifier_order)
+--modifier-order public,open,package,internal,fileprivate,private,final,dynamic,optional,required,convenience,override,lazy,weak,unowned,static,class,mutating,nonmutating,prefix,postfix
+
+# Extension access control
+--extension-acl on-extension
+
+# ==============================================================================
+# OPTIONALS & TYPES
+# ==============================================================================
+
+--short-optionals except-properties
+--some-any true
+--void-type Void
+
+# Property types (infer for locals, explicit for properties - safer)
+--property-types infer-locals-only
+
+# ==============================================================================
+# PATTERNS
+# ==============================================================================
+
+--pattern-let hoist
+
+# ==============================================================================
+# COMMENTS & HEADERS
+# ==============================================================================
+
+# Preserve existing file headers
+--header ignore
+
+# Mark comments
+--mark-types always
+--mark-extensions always
+--line-after-marks true
+
+# ==============================================================================
+# RULES CONFIGURATION
+# ==============================================================================
+
+# Enable useful opt-in rules
+--enable \
+    blankLineAfterSwitchCase,\
+    isEmpty,\
+    wrapEnumCases,\
+    wrapMultilineStatementBraces
+
+# Disable rules that conflict with project style or are too aggressive
+--disable \
+    redundantSelf,\
+    trailingClosures,\
+    wrapMultilineFunctionChains,\
+    sortImports,\
+    organizeDeclarations,\
+    docComments,\
+    acronyms,\
+    markTypes,\
+    wrapConditionalBodies
+
+# ==============================================================================
+# SWIFT VERSION FEATURES
+# ==============================================================================
+
+# Use Swift 6.2 features (read from .swift-version)
+# --swiftversion 6.2
+
+# Acronyms to auto-capitalize (disabled by default, but configured if enabled)
+--acronyms ID,URL,UUID,API,HTML,JSON,XML,HTTP,HTTPS,SDK,UI,URL
+
+# ==============================================================================
+# NOTES
+# ==============================================================================
+
+# This configuration is designed to:
+# 1. Be consistent with .swiftlint.yml settings
+# 2. Focus on formatting (whitespace, line breaks, wrapping)
+# 3. Not conflict with SwiftLint style rules
+# 4. Support Swift 6.2 features
+#
+# Usage:
+#   swiftformat .                    # Format all files
+#   swiftformat . --lint             # Check without modifying
+#   swiftformat . --verbose          # Show detailed output
+#   swiftformat Sources/             # Format specific directory

@@ -1,8 +1,7 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class TypingBufferConsonantTests: TypingBufferTestCase {
-
     // MARK: - Ending Consonant Detection
 
     func testFindEndingConsonant() {

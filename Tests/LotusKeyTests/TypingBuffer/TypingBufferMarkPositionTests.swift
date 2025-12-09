@@ -1,8 +1,7 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class TypingBufferMarkPositionTests: TypingBufferTestCase {
-
     // MARK: - Mark Positioning (Modern Orthography)
 
     func testMarkPositionSingleVowel() {

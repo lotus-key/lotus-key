@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for grammar auto-adjust (ưo → ươ, uơ → ươ)
 final class EngineGrammarTests: EngineTestCase {
-
     // MARK: - Grammar Auto-Adjust Tests (OpenKey checkGrammar equivalent)
 
     // Test cases for "ưo → ươ" (u has horn, o doesn't)
@@ -141,9 +140,9 @@ final class EngineGrammarTests: EngineTestCase {
         _ = engine.processKey(keyCode: 0, character: "t", modifiers: 0)
         _ = engine.processKey(keyCode: 0, character: "h", modifiers: 0)
         _ = engine.processKey(keyCode: 0, character: "u", modifiers: 0)
-        _ = engine.processKey(keyCode: 0, character: "w", modifiers: 0)  // thư
-        _ = engine.processKey(keyCode: 0, character: "o", modifiers: 0)  // thưo
-        _ = engine.processKey(keyCode: 0, character: "n", modifiers: 0)  // thươn (auto-adjusted)
+        _ = engine.processKey(keyCode: 0, character: "w", modifiers: 0) // thư
+        _ = engine.processKey(keyCode: 0, character: "o", modifiers: 0) // thưo
+        _ = engine.processKey(keyCode: 0, character: "n", modifiers: 0) // thươn (auto-adjusted)
         XCTAssertEqual(engine.currentText, "thươn")
 
         // Backspace removes 'n'

@@ -1,8 +1,7 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class TypingBufferBasicTests: TypingBufferTestCase {
-
     // MARK: - Basic Operations
 
     func testEmptyBuffer() {
@@ -55,8 +54,9 @@ final class TypingBufferBasicTests: TypingBufferTestCase {
 
     func testMaxCapacity() {
         var buffer = TypingBuffer()
-        for i in 0..<TypingBuffer.maxCapacity {
-            let char = Character(UnicodeScalar(97 + (i % 26))!)
+        for i in 0 ..< TypingBuffer.maxCapacity {
+            guard let scalar = UnicodeScalar(97 + (i % 26)) else { continue }
+            let char = Character(scalar)
             buffer.append(char)
         }
         XCTAssertTrue(buffer.isFull)

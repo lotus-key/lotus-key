@@ -1,14 +1,13 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class TypedCharacterTests: XCTestCase {
-
     // MARK: - TypedCharacter Tests
 
     func testTypedCharacterInitWithBaseCodeAndState() {
         // Test init(baseCode:state:)
         let state: CharacterState = [.caps, .acute]
-        let typed = TypedCharacter(baseCode: 97, state: state)  // 'a' = 97
+        let typed = TypedCharacter(baseCode: 97, state: state) // 'a' = 97
         XCTAssertEqual(typed.baseCode, 97)
         XCTAssertEqual(typed.state, state)
         XCTAssertEqual(typed.baseCharacter, "a")
@@ -21,7 +20,7 @@ final class TypedCharacterTests: XCTestCase {
         let rawValue = original.rawValue
 
         // Verify raw value packing
-        XCTAssertEqual(rawValue & 0xFFFF, 97)  // Base code in lower 16 bits
+        XCTAssertEqual(rawValue & 0xFFFF, 97) // Base code in lower 16 bits
 
         // Verify round-trip
         let unpacked = TypedCharacter(rawValue: rawValue)

@@ -35,7 +35,7 @@ public struct UnicodeCharacterTable: CharacterTable {
         encoded.first
     }
 
-    public func supports(_ character: Character) -> Bool {
+    public func supports(_: Character) -> Bool {
         true
     }
 }

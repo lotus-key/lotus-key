@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for buffer restoration after backspace removes space
 final class EngineBufferRestorationTests: EngineTestCase {
-
     func testBufferRestorationAfterSpaceBackspace() {
         // Type "dda" → "đa"
         _ = engine.processKey(keyCode: 0, character: "d", modifiers: 0)
@@ -21,7 +20,7 @@ final class EngineBufferRestorationTests: EngineTestCase {
         let result = engine.processKey(keyCode: 0, character: "f", modifiers: 0)
         XCTAssertEqual(engine.currentText, "đà")
 
-        if case .replace(let backspaces, let replacement) = result {
+        if case let .replace(backspaces, replacement) = result {
             XCTAssertEqual(backspaces, 2)
             XCTAssertEqual(replacement, "đà")
         } else {
@@ -67,7 +66,7 @@ final class EngineBufferRestorationTests: EngineTestCase {
         let result = engine.processKey(keyCode: 0, character: "s", modifiers: 0)
         XCTAssertEqual(engine.currentText, "hoá")
 
-        if case .replace(_, let replacement) = result {
+        if case let .replace(_, replacement) = result {
             XCTAssertEqual(replacement, "hoá")
         } else {
             XCTFail("Should return .replace")
@@ -88,7 +87,7 @@ final class EngineBufferRestorationTests: EngineTestCase {
         let result = engine.processKey(keyCode: 0, character: "o", modifiers: 0)
         XCTAssertEqual(engine.currentText, "cô")
 
-        if case .replace(_, let replacement) = result {
+        if case let .replace(_, replacement) = result {
             XCTAssertEqual(replacement, "cô")
         } else {
             XCTFail("Should return .replace for circumflex")
@@ -109,7 +108,7 @@ final class EngineBufferRestorationTests: EngineTestCase {
         let result = engine.processKey(keyCode: 0, character: "w", modifiers: 0)
         XCTAssertEqual(engine.currentText, "tư")
 
-        if case .replace(_, let replacement) = result {
+        if case let .replace(_, replacement) = result {
             XCTAssertEqual(replacement, "tư")
         } else {
             XCTFail("Should return .replace for horn")

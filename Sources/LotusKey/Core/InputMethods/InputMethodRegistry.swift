@@ -22,11 +22,11 @@ public enum InputMethodRegistry {
     public static func get(_ id: String) -> (any InputMethod)? {
         switch id.lowercased() {
         case "telex":
-            return telex
+            telex
         case "simple-telex", "simpletelex", "simple_telex":
-            return simpleTelex
+            simpleTelex
         default:
-            return nil
+            nil
         }
     }
 

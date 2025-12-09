@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for Quick Telex shortcuts (cc=ch, gg=gi, nn=ng, tt=th)
 final class EngineQuickTelexTests: EngineTestCase {
-
     // MARK: - Quick Telex Integration Tests
 
     func testQuickTelexCC() {

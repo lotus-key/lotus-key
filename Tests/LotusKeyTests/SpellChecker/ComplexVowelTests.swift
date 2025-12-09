@@ -1,5 +1,5 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Edge Case Tests: Complex Vowel Combinations
 
@@ -7,16 +7,16 @@ struct ComplexVowelTests {
     let spellChecker = DefaultSpellChecker()
 
     @Test("Parse 'khuya' → kh + uya")
-    func testKhuya() {
+    func khuya() {
         let parts = SyllableParser.parse("khuya")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "kh")
         #expect(parts?.vowelNucleus == "uya")
-        #expect(parts?.finalConsonant == "")
+        #expect(parts?.finalConsonant.isEmpty == true)
     }
 
     @Test("Parse 'khuấy' → kh + uay")
-    func testKhuay() {
+    func khuay() {
         let parts = SyllableParser.parse("khuấy")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "kh")
@@ -25,7 +25,7 @@ struct ComplexVowelTests {
     }
 
     @Test("Parse 'ngoài' → ng + oai")
-    func testNgoai() {
+    func ngoai() {
         let parts = SyllableParser.parse("ngoài")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "ng")
@@ -34,7 +34,7 @@ struct ComplexVowelTests {
     }
 
     @Test("Parse 'xoáy' → x + oay")
-    func testXoay() {
+    func xoay() {
         let parts = SyllableParser.parse("xoáy")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "x")
@@ -43,7 +43,7 @@ struct ComplexVowelTests {
     }
 
     @Test("Parse 'thoong' (loan word) → th + oo + ng")
-    func testThoong() {
+    func thoong() {
         let parts = SyllableParser.parse("thoong")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "th")
@@ -52,28 +52,28 @@ struct ComplexVowelTests {
     }
 
     @Test("Spell check 'khuya' is valid")
-    func testKhuyaValid() {
+    func khuyaValid() {
         let result = spellChecker.check("khuya")
         #expect(result == .valid)
     }
 
     @Test("Spell check 'ngoài' is valid")
-    func testNgoaiValid() {
+    func ngoaiValid() {
         let result = spellChecker.check("ngoài")
         #expect(result == .valid)
     }
 
     @Test("Parse 'ươi' (standalone triphthong)")
-    func testUoi() {
+    func uoi() {
         let parts = SyllableParser.parse("ươi")
         #expect(parts != nil)
-        #expect(parts?.initialConsonant == "")
+        #expect(parts?.initialConsonant.isEmpty == true)
         #expect(parts?.vowelNucleus == "uoi")
         // Both u and o should have horn modifiers
     }
 
     @Test("Parse 'được' → d + uo + c")
-    func testDuoc() {
+    func duoc() {
         let parts = SyllableParser.parse("được")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "d")
@@ -83,7 +83,7 @@ struct ComplexVowelTests {
     }
 
     @Test("Parse 'người' → ng + uoi")
-    func testNguoi() {
+    func nguoi() {
         let parts = SyllableParser.parse("người")
         #expect(parts != nil)
         #expect(parts?.initialConsonant == "ng")

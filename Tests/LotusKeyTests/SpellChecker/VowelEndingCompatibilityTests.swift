@@ -1,5 +1,5 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Edge Case Tests: Vowel-Ending Compatibility
 
@@ -7,7 +7,7 @@ struct VowelEndingCompatibilityTests {
     let spellChecker = DefaultSpellChecker()
 
     @Test("'oa' allows ending consonants")
-    func testOaAllowsEnding() {
+    func oaAllowsEnding() {
         // "oan" should be valid (oa + n)
         let result = spellChecker.check("oan")
         #expect(result == .valid)
@@ -18,7 +18,7 @@ struct VowelEndingCompatibilityTests {
     }
 
     @Test("'ai' does NOT allow ending consonants")
-    func testAiNoEnding() {
+    func aiNoEnding() {
         // "ai" alone is valid
         let result1 = spellChecker.check("ai")
         #expect(result1 == .valid)
@@ -29,7 +29,7 @@ struct VowelEndingCompatibilityTests {
     }
 
     @Test("'oi' does NOT allow ending consonants")
-    func testOiNoEnding() {
+    func oiNoEnding() {
         let result = spellChecker.check("oi")
         #expect(result == .valid)
 
@@ -38,7 +38,7 @@ struct VowelEndingCompatibilityTests {
     }
 
     @Test("'iê' allows ending consonants")
-    func testIeAllowsEnding() {
+    func ieAllowsEnding() {
         // "tiên" (t + iê + n)
         let result = spellChecker.check("tiên")
         #expect(result == .valid)
@@ -49,7 +49,7 @@ struct VowelEndingCompatibilityTests {
     }
 
     @Test("'yê' allows ending consonants")
-    func testYeAllowsEnding() {
+    func yeAllowsEnding() {
         // "yên" (y + ê + n) - but actually yê is the vowel
         let result = spellChecker.check("yên")
         #expect(result == .valid)

@@ -18,45 +18,45 @@ public struct CharacterState: OptionSet, Sendable, Hashable {
     // MARK: - Bit 16: Capitalization
 
     /// Character is uppercase
-    public static let caps = CharacterState(rawValue: 1 << 16)
+    public static let caps = Self(rawValue: 1 << 16)
 
     // MARK: - Bits 17-18: Tone Modifiers (dấu mũ)
 
     /// Circumflex modifier (^) for â, ê, ô
-    public static let circumflex = CharacterState(rawValue: 1 << 17)
+    public static let circumflex = Self(rawValue: 1 << 17)
 
     /// Horn or breve modifier (w) for ơ, ư, ă
-    public static let hornOrBreve = CharacterState(rawValue: 1 << 18)
+    public static let hornOrBreve = Self(rawValue: 1 << 18)
 
     // MARK: - Bits 19-23: Tone Marks (dấu thanh)
 
     /// Acute mark - Sắc (́)
-    public static let acute = CharacterState(rawValue: 1 << 19)
+    public static let acute = Self(rawValue: 1 << 19)
 
     /// Grave mark - Huyền (̀)
-    public static let grave = CharacterState(rawValue: 1 << 20)
+    public static let grave = Self(rawValue: 1 << 20)
 
     /// Hook above mark - Hỏi (̉)
-    public static let hook = CharacterState(rawValue: 1 << 21)
+    public static let hook = Self(rawValue: 1 << 21)
 
     /// Tilde mark - Ngã (̃)
-    public static let tilde = CharacterState(rawValue: 1 << 22)
+    public static let tilde = Self(rawValue: 1 << 22)
 
     /// Dot below mark - Nặng (̣)
-    public static let dotBelow = CharacterState(rawValue: 1 << 23)
+    public static let dotBelow = Self(rawValue: 1 << 23)
 
     // MARK: - Bit 19: Consonant Modifier
 
     /// Stroke modifier for đ/Đ (separate from vowel modifiers)
-    public static let stroke = CharacterState(rawValue: 1 << 26)
+    public static let stroke = Self(rawValue: 1 << 26)
 
     // MARK: - Bits 24-25: Control Flags
 
     /// Character stands alone (not part of Vietnamese processing)
-    public static let standalone = CharacterState(rawValue: 1 << 24)
+    public static let standalone = Self(rawValue: 1 << 24)
 
     /// Value represents character code (vs keycode)
-    public static let isCharCode = CharacterState(rawValue: 1 << 25)
+    public static let isCharCode = Self(rawValue: 1 << 25)
 
     // MARK: - Convenience Sets
 
@@ -79,13 +79,13 @@ public struct CharacterState: OptionSet, Sendable, Hashable {
     }
 
     /// Get the current tone mark, if any
-    public var toneMark: CharacterState? {
+    public var toneMark: Self? {
         let mark = intersection(Self.allToneMarks)
         return mark.isEmpty ? nil : mark
     }
 
     /// Get the current modifier, if any
-    public var modifier: CharacterState? {
+    public var modifier: Self? {
         let mod = intersection(Self.allModifiers)
         return mod.isEmpty ? nil : mod
     }
@@ -103,13 +103,13 @@ public struct CharacterState: OptionSet, Sendable, Hashable {
     }
 
     /// Set a new tone mark, replacing any existing one
-    public mutating func setToneMark(_ mark: CharacterState) {
+    public mutating func setToneMark(_ mark: Self) {
         clearToneMark()
         insert(mark.intersection(Self.allToneMarks))
     }
 
     /// Set a new modifier, replacing any existing one
-    public mutating func setModifier(_ modifier: CharacterState) {
+    public mutating func setModifier(_ modifier: Self) {
         clearModifier()
         insert(modifier.intersection(Self.allModifiers))
     }

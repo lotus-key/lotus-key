@@ -1,23 +1,23 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Engine Integration Tests
 
 struct EngineSpellCheckerIntegrationTests {
     @Test("Engine spell check enabled by default")
-    func testSpellCheckEnabledByDefault() {
+    func spellCheckEnabledByDefault() {
         let engine = DefaultVietnameseEngine()
         #expect(engine.spellCheckEnabled == true)
     }
 
     @Test("Engine restoreIfWrongSpelling enabled by default")
-    func testRestoreIfWrongSpellingEnabledByDefault() {
+    func restoreIfWrongSpellingEnabledByDefault() {
         let engine = DefaultVietnameseEngine()
         #expect(engine.restoreIfWrongSpelling == true)
     }
 
     @Test("Engine disables transformation on invalid tone with sharp ending")
-    func testDisableTransformationOnInvalid() {
+    func disableTransformationOnInvalid() {
         let engine = DefaultVietnameseEngine()
         engine.spellCheckEnabled = true
 
@@ -33,7 +33,7 @@ struct EngineSpellCheckerIntegrationTests {
     }
 
     @Test("Valid Vietnamese word transforms correctly")
-    func testValidWordTransforms() {
+    func validWordTransforms() {
         let engine = DefaultVietnameseEngine()
         engine.spellCheckEnabled = true
 
@@ -43,7 +43,7 @@ struct EngineSpellCheckerIntegrationTests {
     }
 
     @Test("Valid word with non-sharp ending allows all tones")
-    func testValidNonSharpEndingAllTones() {
+    func validNonSharpEndingAllTones() {
         let engine = DefaultVietnameseEngine()
         engine.spellCheckEnabled = true
 

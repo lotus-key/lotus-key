@@ -2,12 +2,12 @@ import Foundation
 
 /// Result of spell checking a Vietnamese word
 public enum SpellCheckResult: Sendable, Equatable {
-    /// The word is valid Vietnamese
-    case valid
     /// The word is invalid (with reason)
     case invalid(reason: String)
     /// Unable to determine validity (e.g., incomplete input)
     case unknown
+    /// The word is valid Vietnamese
+    case valid
 }
 
 /// Protocol for Vietnamese spell checking
@@ -63,7 +63,7 @@ public struct SyllableParts: Sendable, Equatable {
         vowelNucleus: String = "",
         finalConsonant: String = "",
         tone: ToneMark? = nil,
-        vowelModifiers: [Int: VowelModifier] = [:]
+        vowelModifiers: [Int: VowelModifier] = [:],
     ) {
         self.initialConsonant = initialConsonant
         self.vowelNucleus = vowelNucleus
@@ -75,12 +75,12 @@ public struct SyllableParts: Sendable, Equatable {
 
 /// Vowel modifier types in Vietnamese
 public enum VowelModifier: Sendable, Equatable {
+    /// Breve for ă
+    case breve
     /// Circumflex (^) for â, ê, ô
     case circumflex
     /// Horn for ơ, ư
     case horn
-    /// Breve for ă
-    case breve
 }
 
 // Note: ToneMark enum is defined in InputMethod.swift to avoid duplication
@@ -100,7 +100,7 @@ public enum SyllableParser {
         // Convert Vietnamese characters to base + modifiers
         var baseChars: [Character] = []
         var modifiers: [Int: VowelModifier] = [:]
-        var tone: ToneMark? = nil
+        var tone: ToneMark?
 
         for char in normalized {
             if let (base, modifier, charTone) = decomposeVietnameseChar(char) {
@@ -109,8 +109,8 @@ public enum SyllableParser {
                 if let mod = modifier {
                     modifiers[index] = mod
                 }
-                if let t = charTone, t != .none {
-                    tone = t
+                if let charToneValue = charTone, charToneValue != .none {
+                    tone = charToneValue
                 }
             } else {
                 baseChars.append(char)
@@ -130,7 +130,7 @@ public enum SyllableParser {
         let initialLength = initial.count
         for (index, mod) in modifiers {
             let vowelIndex = index - initialLength
-            if vowelIndex >= 0 && vowelIndex < vowelPart.count {
+            if vowelIndex >= 0, vowelIndex < vowelPart.count {
                 vowelModifiers[vowelIndex] = mod
             }
         }
@@ -140,121 +140,110 @@ public enum SyllableParser {
             vowelNucleus: vowelPart,
             finalConsonant: final,
             tone: tone,
-            vowelModifiers: vowelModifiers
+            vowelModifiers: vowelModifiers,
         )
     }
 
+    // swiftlint:disable function_body_length
     /// Decompose a Vietnamese character into base + modifier + tone
     private static func decomposeVietnameseChar(_ char: Character) -> (Character, VowelModifier?, ToneMark?)? {
         // Map Vietnamese vowels to base + modifier + tone
         switch char {
         // a variants
-        case "a": return ("a", nil, ToneMark.none)
-        case "á": return ("a", nil, .acute)
-        case "à": return ("a", nil, .grave)
-        case "ả": return ("a", nil, .hook)
-        case "ã": return ("a", nil, .tilde)
-        case "ạ": return ("a", nil, .dot)
-
+        case "a": ("a", nil, ToneMark.none)
+        case "á": ("a", nil, .acute)
+        case "à": ("a", nil, .grave)
+        case "ả": ("a", nil, .hook)
+        case "ã": ("a", nil, .tilde)
+        case "ạ": ("a", nil, .dot)
         // ă variants (breve)
-        case "ă": return ("a", .breve, ToneMark.none)
-        case "ắ": return ("a", .breve, .acute)
-        case "ằ": return ("a", .breve, .grave)
-        case "ẳ": return ("a", .breve, .hook)
-        case "ẵ": return ("a", .breve, .tilde)
-        case "ặ": return ("a", .breve, .dot)
-
+        case "ă": ("a", .breve, ToneMark.none)
+        case "ắ": ("a", .breve, .acute)
+        case "ằ": ("a", .breve, .grave)
+        case "ẳ": ("a", .breve, .hook)
+        case "ẵ": ("a", .breve, .tilde)
+        case "ặ": ("a", .breve, .dot)
         // â variants (circumflex)
-        case "â": return ("a", .circumflex, ToneMark.none)
-        case "ấ": return ("a", .circumflex, .acute)
-        case "ầ": return ("a", .circumflex, .grave)
-        case "ẩ": return ("a", .circumflex, .hook)
-        case "ẫ": return ("a", .circumflex, .tilde)
-        case "ậ": return ("a", .circumflex, .dot)
-
+        case "â": ("a", .circumflex, ToneMark.none)
+        case "ấ": ("a", .circumflex, .acute)
+        case "ầ": ("a", .circumflex, .grave)
+        case "ẩ": ("a", .circumflex, .hook)
+        case "ẫ": ("a", .circumflex, .tilde)
+        case "ậ": ("a", .circumflex, .dot)
         // e variants
-        case "e": return ("e", nil, ToneMark.none)
-        case "é": return ("e", nil, .acute)
-        case "è": return ("e", nil, .grave)
-        case "ẻ": return ("e", nil, .hook)
-        case "ẽ": return ("e", nil, .tilde)
-        case "ẹ": return ("e", nil, .dot)
-
+        case "e": ("e", nil, ToneMark.none)
+        case "é": ("e", nil, .acute)
+        case "è": ("e", nil, .grave)
+        case "ẻ": ("e", nil, .hook)
+        case "ẽ": ("e", nil, .tilde)
+        case "ẹ": ("e", nil, .dot)
         // ê variants (circumflex)
-        case "ê": return ("e", .circumflex, ToneMark.none)
-        case "ế": return ("e", .circumflex, .acute)
-        case "ề": return ("e", .circumflex, .grave)
-        case "ể": return ("e", .circumflex, .hook)
-        case "ễ": return ("e", .circumflex, .tilde)
-        case "ệ": return ("e", .circumflex, .dot)
-
+        case "ê": ("e", .circumflex, ToneMark.none)
+        case "ế": ("e", .circumflex, .acute)
+        case "ề": ("e", .circumflex, .grave)
+        case "ể": ("e", .circumflex, .hook)
+        case "ễ": ("e", .circumflex, .tilde)
+        case "ệ": ("e", .circumflex, .dot)
         // i variants
-        case "i": return ("i", nil, ToneMark.none)
-        case "í": return ("i", nil, .acute)
-        case "ì": return ("i", nil, .grave)
-        case "ỉ": return ("i", nil, .hook)
-        case "ĩ": return ("i", nil, .tilde)
-        case "ị": return ("i", nil, .dot)
-
+        case "i": ("i", nil, ToneMark.none)
+        case "í": ("i", nil, .acute)
+        case "ì": ("i", nil, .grave)
+        case "ỉ": ("i", nil, .hook)
+        case "ĩ": ("i", nil, .tilde)
+        case "ị": ("i", nil, .dot)
         // o variants
-        case "o": return ("o", nil, ToneMark.none)
-        case "ó": return ("o", nil, .acute)
-        case "ò": return ("o", nil, .grave)
-        case "ỏ": return ("o", nil, .hook)
-        case "õ": return ("o", nil, .tilde)
-        case "ọ": return ("o", nil, .dot)
-
+        case "o": ("o", nil, ToneMark.none)
+        case "ó": ("o", nil, .acute)
+        case "ò": ("o", nil, .grave)
+        case "ỏ": ("o", nil, .hook)
+        case "õ": ("o", nil, .tilde)
+        case "ọ": ("o", nil, .dot)
         // ô variants (circumflex)
-        case "ô": return ("o", .circumflex, ToneMark.none)
-        case "ố": return ("o", .circumflex, .acute)
-        case "ồ": return ("o", .circumflex, .grave)
-        case "ổ": return ("o", .circumflex, .hook)
-        case "ỗ": return ("o", .circumflex, .tilde)
-        case "ộ": return ("o", .circumflex, .dot)
-
+        case "ô": ("o", .circumflex, ToneMark.none)
+        case "ố": ("o", .circumflex, .acute)
+        case "ồ": ("o", .circumflex, .grave)
+        case "ổ": ("o", .circumflex, .hook)
+        case "ỗ": ("o", .circumflex, .tilde)
+        case "ộ": ("o", .circumflex, .dot)
         // ơ variants (horn)
-        case "ơ": return ("o", .horn, ToneMark.none)
-        case "ớ": return ("o", .horn, .acute)
-        case "ờ": return ("o", .horn, .grave)
-        case "ở": return ("o", .horn, .hook)
-        case "ỡ": return ("o", .horn, .tilde)
-        case "ợ": return ("o", .horn, .dot)
-
+        case "ơ": ("o", .horn, ToneMark.none)
+        case "ớ": ("o", .horn, .acute)
+        case "ờ": ("o", .horn, .grave)
+        case "ở": ("o", .horn, .hook)
+        case "ỡ": ("o", .horn, .tilde)
+        case "ợ": ("o", .horn, .dot)
         // u variants
-        case "u": return ("u", nil, ToneMark.none)
-        case "ú": return ("u", nil, .acute)
-        case "ù": return ("u", nil, .grave)
-        case "ủ": return ("u", nil, .hook)
-        case "ũ": return ("u", nil, .tilde)
-        case "ụ": return ("u", nil, .dot)
-
+        case "u": ("u", nil, ToneMark.none)
+        case "ú": ("u", nil, .acute)
+        case "ù": ("u", nil, .grave)
+        case "ủ": ("u", nil, .hook)
+        case "ũ": ("u", nil, .tilde)
+        case "ụ": ("u", nil, .dot)
         // ư variants (horn)
-        case "ư": return ("u", .horn, ToneMark.none)
-        case "ứ": return ("u", .horn, .acute)
-        case "ừ": return ("u", .horn, .grave)
-        case "ử": return ("u", .horn, .hook)
-        case "ữ": return ("u", .horn, .tilde)
-        case "ự": return ("u", .horn, .dot)
-
+        case "ư": ("u", .horn, ToneMark.none)
+        case "ứ": ("u", .horn, .acute)
+        case "ừ": ("u", .horn, .grave)
+        case "ử": ("u", .horn, .hook)
+        case "ữ": ("u", .horn, .tilde)
+        case "ự": ("u", .horn, .dot)
         // y variants
-        case "y": return ("y", nil, ToneMark.none)
-        case "ý": return ("y", nil, .acute)
-        case "ỳ": return ("y", nil, .grave)
-        case "ỷ": return ("y", nil, .hook)
-        case "ỹ": return ("y", nil, .tilde)
-        case "ỵ": return ("y", nil, .dot)
-
+        case "y": ("y", nil, ToneMark.none)
+        case "ý": ("y", nil, .acute)
+        case "ỳ": ("y", nil, .grave)
+        case "ỷ": ("y", nil, .hook)
+        case "ỹ": ("y", nil, .tilde)
+        case "ỵ": ("y", nil, .dot)
         // đ (consonant with stroke)
-        case "đ": return ("d", nil, nil)
-
+        case "đ": ("d", nil, nil)
         // Regular consonants
         case "b", "c", "d", "g", "h", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "x":
-            return (char, nil, nil)
-
+            (char, nil, nil)
         default:
-            return nil
+            nil
         }
     }
+
+    // swiftlint:enable function_body_length
 
     /// Extract initial consonant from the beginning of a word
     /// - Returns: (initial consonant, remaining string)
@@ -264,7 +253,7 @@ public enum SyllableParser {
 
         // Check for trigraphs first (ngh)
         if chars.count >= 3 {
-            let trigraph = String(chars[0...2])
+            let trigraph = String(chars[0 ... 2])
             if trigraph == "ngh" {
                 return (trigraph, String(chars.dropFirst(3)))
             }
@@ -272,7 +261,7 @@ public enum SyllableParser {
 
         // Check for digraphs (ch, gh, gi, kh, ng, nh, ph, qu, th, tr)
         if chars.count >= 2 {
-            let digraph = String(chars[0...1])
+            let digraph = String(chars[0 ... 1])
             if VietnameseSpellingRules.initialConsonants.contains(digraph) {
                 // Special handling for "gi" and "qu"
                 if digraph == "gi" {
@@ -280,8 +269,10 @@ public enum SyllableParser {
                     // "gi" followed by vowel only: "gi" is consonant
                     // Check what follows
                     let remaining = String(chars.dropFirst(2))
-                    if !remaining.isEmpty {
-                        let firstRemaining = remaining.first!
+                    if
+                        !remaining.isEmpty,
+                        let firstRemaining = remaining.first
+                    {
                         // If followed by vowel and there's more after, check for consonant ending
                         if VietnameseSpellingRules.baseVowels.contains(firstRemaining) {
                             // "gi" + vowel: "gi" is the consonant
@@ -330,9 +321,11 @@ public enum SyllableParser {
         }
 
         // Check for single consonant ending
-        let last = chars.last!
-        if !VietnameseSpellingRules.baseVowels.contains(last) &&
-           VietnameseSpellingRules.finalConsonants.contains(String(last)) {
+        guard let last = chars.last else { return (str, "") }
+        if
+            !VietnameseSpellingRules.baseVowels.contains(last),
+            VietnameseSpellingRules.finalConsonants.contains(String(last))
+        {
             let vowelPart = String(chars.dropLast(1))
             if isAllVowels(vowelPart) {
                 return (vowelPart, String(last))
@@ -367,12 +360,12 @@ public enum VietnameseSpellingRules {
 
     /// Valid final consonants (8 patterns from OpenKey _endConsonantTable)
     public static let finalConsonants: Set<String> = [
-        "c", "ch", "m", "n", "ng", "nh", "p", "t"
+        "c", "ch", "m", "n", "ng", "nh", "p", "t",
     ]
 
     /// "Sharp" ending consonants - only sắc(´) and nặng(.) tones valid
     public static let sharpEndConsonants: Set<String> = [
-        "c", "ch", "p", "t"
+        "c", "ch", "p", "t",
     ]
 
     /// Vowel combinations that do NOT allow ending consonants
@@ -450,9 +443,9 @@ public enum VietnameseSpellingRules {
 
         // i-based
         "ia": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [:]),
-        "ie": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [1: .circumflex]),  // iê
+        "ie": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [1: .circumflex]), // iê
         "iu": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [:]),
-        "ieu": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [1: .circumflex]),  // iêu
+        "ieu": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [1: .circumflex]), // iêu
 
         // o-based
         "oa": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [:]),
@@ -466,21 +459,21 @@ public enum VietnameseSpellingRules {
 
         // u-based
         "ua": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [:]),
-        "ue": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [1: .circumflex]),  // uê
+        "ue": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [1: .circumflex]), // uê
         "ui": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [:]),
-        "uo": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [1: .circumflex]),  // uô
+        "uo": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [1: .circumflex]), // uô
         "uy": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [:]),
         "uao": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [:]),
         "uay": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [:]),
-        "uoi": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [1: .circumflex]),  // uôi
+        "uoi": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [1: .circumflex]), // uôi
         "uyu": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [:]),
         "uya": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [:]),
-        "uye": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [2: .circumflex]),  // uyê
+        "uye": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [2: .circumflex]), // uyê
 
         // ưu combination (ư + u = horn on first u)
         // Base pattern is "uu" - first u has horn modifier → "ưu"
         // Examples: cưu, hưu, lưu, mưu, thừu
-        "uu": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [0: .horn]),  // ưu
+        "uu": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [0: .horn]), // ưu
 
         // ư-based (horn on u)
         // ưa: u with horn + a
@@ -490,8 +483,8 @@ public enum VietnameseSpellingRules {
         // ươu: u with horn + o with horn + u
 
         // y-based
-        "ye": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [1: .circumflex]),  // yê
-        "yeu": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [1: .circumflex]),  // yêu
+        "ye": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [1: .circumflex]), // yê
+        "yeu": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [1: .circumflex]), // yêu
     ]
 
     /// Check if tone is valid with given ending consonant
@@ -504,7 +497,7 @@ public enum VietnameseSpellingRules {
         guard isSharp else { return true }
 
         // Sharp endings only allow acute, dot, or none
-        guard let tone = tone else { return true }
+        guard let tone else { return true }
         switch tone {
         case .none, .acute, .dot:
             return true
@@ -603,7 +596,11 @@ public struct DefaultSpellChecker: SpellChecker {
         }
 
         // Check if it's a single vowel
-        if normalized.count == 1 && VietnameseSpellingRules.baseVowels.contains(normalized.first!) {
+        if
+            normalized.count == 1,
+            let first = normalized.first,
+            VietnameseSpellingRules.baseVowels.contains(first)
+        {
             return true
         }
 
@@ -611,13 +608,17 @@ public struct DefaultSpellChecker: SpellChecker {
     }
 
     /// Validate vowel combination with modifier information
-    private func isValidVowelCombinationWithModifiers(_ vowels: String, modifiers: [Int: VowelModifier]) -> Bool {
+    private func isValidVowelCombinationWithModifiers(_ vowels: String, modifiers _: [Int: VowelModifier]) -> Bool {
         guard !vowels.isEmpty else { return false }
 
         let normalized = vowels.lowercased()
 
         // Single vowel is always valid
-        if normalized.count == 1 && VietnameseSpellingRules.baseVowels.contains(normalized.first!) {
+        if
+            normalized.count == 1,
+            let first = normalized.first,
+            VietnameseSpellingRules.baseVowels.contains(first)
+        {
             return true
         }
 
@@ -631,7 +632,7 @@ public struct DefaultSpellChecker: SpellChecker {
         let validPatterns: Set<String> = [
             "a", "e", "i", "o", "u", "y",
             "ai", "ao", "au", "ay", "ia", "ie", "iu", "oa", "oe", "oi", "oo",
-            "ua", "ue", "ui", "uo", "uy", "uu", "ye",  // "uu" for ưu pattern
+            "ua", "ue", "ui", "uo", "uy", "uu", "ye", // "uu" for ưu pattern
             "oai", "oao", "oay", "oeo", "uoi", "uya", "uye", "uyu", "uao", "uay",
             "ieu", "yeu",
         ]
@@ -640,7 +641,7 @@ public struct DefaultSpellChecker: SpellChecker {
     }
 
     /// Check if vowel combination allows ending consonant
-    private func vowelAllowsEnding(_ vowels: String, modifiers: [Int: VowelModifier]) -> Bool {
+    private func vowelAllowsEnding(_ vowels: String, modifiers _: [Int: VowelModifier]) -> Bool {
         let normalized = vowels.lowercased()
 
         // Single vowels always allow endings
@@ -664,27 +665,24 @@ public struct DefaultSpellChecker: SpellChecker {
 
 // MARK: - CharacterState to ToneMark Conversion
 
-extension ToneMark {
+public extension ToneMark {
     /// Create ToneMark from CharacterState
-    public init?(from state: CharacterState) {
-        if state.contains(.acute) { self = .acute }
-        else if state.contains(.grave) { self = .grave }
-        else if state.contains(.hook) { self = .hook }
-        else if state.contains(.tilde) { self = .tilde }
-        else if state.contains(.dotBelow) { self = .dot }
-        else if state.hasToneMark { return nil }
+    init?(from state: CharacterState) {
+        if state.contains(.acute) { self = .acute } else if state.contains(.grave) { self = .grave }
+        else if state.contains(.hook) { self = .hook } else if state.contains(.tilde) { self = .tilde }
+        else if state.contains(.dotBelow) { self = .dot } else if state.hasToneMark { return nil }
         else { self = .none }
     }
 
     /// Convert to CharacterState
-    public var asCharacterState: CharacterState {
+    var asCharacterState: CharacterState {
         switch self {
-        case .none: return []
-        case .acute: return .acute
-        case .grave: return .grave
-        case .hook: return .hook
-        case .tilde: return .tilde
-        case .dot: return .dotBelow
+        case .none: []
+        case .acute: .acute
+        case .grave: .grave
+        case .hook: .hook
+        case .tilde: .tilde
+        case .dot: .dotBelow
         }
     }
 }

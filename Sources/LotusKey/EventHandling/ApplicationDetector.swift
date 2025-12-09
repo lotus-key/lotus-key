@@ -94,7 +94,7 @@ public final class ApplicationDetector: ApplicationDetecting, @unchecked Sendabl
     public func startMonitoring() {
         // Subscribe to application activation notifications
         NSWorkspace.shared.notificationCenter.publisher(
-            for: NSWorkspace.didActivateApplicationNotification
+            for: NSWorkspace.didActivateApplicationNotification,
         )
         .receive(on: DispatchQueue.main)
         .sink { [weak self] notification in
@@ -135,24 +135,18 @@ public final class ApplicationDetector: ApplicationDetecting, @unchecked Sendabl
         }
 
         // Check for Sublime Text
-        for prefix in Self.sublimeTextPrefixes {
-            if bundleId.hasPrefix(prefix) {
-                return .sublimeText
-            }
+        if Self.sublimeTextPrefixes.contains(where: { bundleId.hasPrefix($0) }) {
+            return .sublimeText
         }
 
         // Check for Chromium browsers
-        for prefix in Self.chromiumBrowserPrefixes {
-            if bundleId.hasPrefix(prefix) {
-                return .chromiumBrowser
-            }
+        if Self.chromiumBrowserPrefixes.contains(where: { bundleId.hasPrefix($0) }) {
+            return .chromiumBrowser
         }
 
         // Check for Apple apps
-        for prefix in Self.appleAppPrefixes {
-            if bundleId.hasPrefix(prefix) {
-                return .unicodeCompound
-            }
+        if Self.appleAppPrefixes.contains(where: { bundleId.hasPrefix($0) }) {
+            return .unicodeCompound
         }
 
         return .standard
@@ -164,10 +158,10 @@ public final class ApplicationDetector: ApplicationDetecting, @unchecked Sendabl
 extension AppQuirk: CustomStringConvertible {
     public var description: String {
         switch self {
-        case .standard: return "Standard"
-        case .sublimeText: return "Sublime Text"
-        case .chromiumBrowser: return "Chromium Browser"
-        case .unicodeCompound: return "Unicode Compound"
+        case .chromiumBrowser: "Chromium Browser"
+        case .standard: "Standard"
+        case .sublimeText: "Sublime Text"
+        case .unicodeCompound: "Unicode Compound"
         }
     }
 }

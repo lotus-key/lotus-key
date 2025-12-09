@@ -1,7 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 final class SmartSwitchTests: XCTestCase {
+    // swiftlint:disable:next implicitly_unwrapped_optional
     private var smartSwitch: SmartSwitch!
     private let testStorageKey = "LotusKeySmartSwitch"
 

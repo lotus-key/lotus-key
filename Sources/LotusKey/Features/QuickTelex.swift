@@ -34,8 +34,10 @@ public final class QuickTelex: QuickTelexHandling, @unchecked Sendable {
     public init() {}
 
     public func processShortcut(_ character: Character, previousCharacter: Character?) -> String? {
-        guard isEnabled,
-              let prev = previousCharacter else {
+        guard
+            isEnabled,
+            let prev = previousCharacter
+        else {
             return nil
         }
 

@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for basic engine initialization and core functionality
 final class EngineBasicTests: EngineTestCase {
-
     // MARK: - Basic Tests
 
     func testEngineInitialization() {
@@ -77,8 +76,9 @@ final class EngineBasicTests: EngineTestCase {
 
     func testBufferDoesNotOverflow() {
         // Type 100 characters
-        for i in 0..<100 {
-            let char = Character(UnicodeScalar(97 + (i % 26))!)
+        for i in 0 ..< 100 {
+            guard let scalar = UnicodeScalar(97 + (i % 26)) else { continue }
+            let char = Character(scalar)
             _ = engine.processKey(keyCode: 0, character: char, modifiers: 0)
         }
         // Buffer should cap at 64

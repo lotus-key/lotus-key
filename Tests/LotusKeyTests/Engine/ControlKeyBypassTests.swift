@@ -1,11 +1,11 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Control Key Bypass Tests
 
 struct ControlKeyBypassTests {
     @Test("Control key temporarily disables spell check")
-    func testControlKeyBypass() {
+    func controlKeyBypass() {
         let engine = DefaultVietnameseEngine()
         engine.spellCheckEnabled = true
 
@@ -20,7 +20,7 @@ struct ControlKeyBypassTests {
     }
 
     @Test("Command key passes through")
-    func testCommandKeyPassThrough() {
+    func commandKeyPassThrough() {
         let engine = DefaultVietnameseEngine()
 
         // Simulate Command key held (modifier flag 0x100000)

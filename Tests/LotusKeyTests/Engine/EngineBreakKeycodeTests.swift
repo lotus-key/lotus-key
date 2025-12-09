@@ -1,9 +1,8 @@
-import XCTest
 @testable import LotusKey
+import XCTest
 
 /// Tests for break keycodes (ESC, arrows, Tab, Enter) and session reset
 final class EngineBreakKeycodeTests: EngineTestCase {
-
     func testBreakKeyCodesConstants() {
         XCTAssertEqual(BreakKeyCodes.escape, 53)
         XCTAssertEqual(BreakKeyCodes.tab, 48)

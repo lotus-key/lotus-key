@@ -24,8 +24,8 @@ public struct TypedCharacter: Sendable, Hashable {
     public init(character: Character, caps: Bool = false) {
         // Use lowercase ASCII value as base
         let lowercased = character.lowercased().first ?? character
-        self.baseCode = UInt16(lowercased.asciiValue ?? 0)
-        self.state = caps ? .caps : []
+        baseCode = UInt16(lowercased.asciiValue ?? 0)
+        state = caps ? .caps : []
     }
 
     /// Create from a Character, auto-detecting capitalization
@@ -33,22 +33,22 @@ public struct TypedCharacter: Sendable, Hashable {
     public init(character: Character) {
         // First try to decompose Vietnamese Unicode characters
         if let parsed = VietnameseTable.parse(character) {
-            self.baseCode = UInt16(parsed.base.asciiValue ?? 0)
-            self.state = parsed.state
+            baseCode = UInt16(parsed.base.asciiValue ?? 0)
+            state = parsed.state
             return
         }
-        
+
         // Standard ASCII character handling
         let isUpper = character.isUppercase
         let lowercased = character.lowercased().first ?? character
-        self.baseCode = UInt16(lowercased.asciiValue ?? 0)
-        self.state = isUpper ? .caps : []
+        baseCode = UInt16(lowercased.asciiValue ?? 0)
+        state = isUpper ? .caps : []
     }
 
     /// Unpack from UInt32 (OpenKey compatibility)
     public init(rawValue: UInt32) {
-        self.baseCode = UInt16(rawValue & 0xFFFF)
-        self.state = CharacterState(rawValue: rawValue & 0xFFFF_0000)
+        baseCode = UInt16(rawValue & 0xFFFF)
+        state = CharacterState(rawValue: rawValue & 0xFFFF_0000)
     }
 
     // MARK: - Computed Properties
@@ -115,13 +115,13 @@ public enum VietnameseConstants {
     /// Valid ending consonants in Vietnamese (9 patterns)
     /// These affect tone mark validity
     public static let endConsonants: Set<String> = [
-        "c", "ch", "m", "n", "ng", "nh", "p", "t"
+        "c", "ch", "m", "n", "ng", "nh", "p", "t",
     ]
 
     /// "Sharp" ending consonants - only sắc(´) and nặng(.) tones valid
     /// huyền(`), hỏi(?), ngã(~) are INVALID with these endings
     public static let sharpEndConsonants: Set<String> = [
-        "c", "ch", "p", "t"
+        "c", "ch", "p", "t",
     ]
 
     /// Characters that break a word
@@ -252,14 +252,14 @@ public enum BreakKeyCodes {
     /// Matches OpenKey's _breakCode array (excluding punctuation keycodes,
     /// which are handled separately via character-based word break detection).
     public static let navigationBreaks: Set<UInt16> = [
-        escape,      // ESC
-        tab,         // Tab
-        returnKey,   // Return
-        enter,       // Enter (numpad)
-        leftArrow,   // Left Arrow
-        rightArrow,  // Right Arrow
-        downArrow,   // Down Arrow
-        upArrow,     // Up Arrow
+        escape, // ESC
+        tab, // Tab
+        returnKey, // Return
+        enter, // Enter (numpad)
+        leftArrow, // Left Arrow
+        rightArrow, // Right Arrow
+        downArrow, // Down Arrow
+        upArrow, // Up Arrow
     ]
 
     // MARK: - Detection

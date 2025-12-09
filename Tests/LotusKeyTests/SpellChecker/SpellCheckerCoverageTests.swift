@@ -1,5 +1,5 @@
-import Testing
 @testable import LotusKey
+import Testing
 
 // MARK: - Coverage Edge Case Tests
 
@@ -7,7 +7,7 @@ struct SpellCheckerCoverageTests {
     let spellChecker = DefaultSpellChecker()
 
     @Test("Parse 'giê' pattern - 'g' as consonant, 'iê' as vowel")
-    func testGiePattern() {
+    func giePattern() {
         // The "giê" pattern should split as: g + iê
         // This is different from "gi" + vowel pattern
         // We need to test a word where "gi" is followed by "ê"
@@ -31,7 +31,7 @@ struct SpellCheckerCoverageTests {
     }
 
     @Test("Invalid: parse returns unknown for unparseable input")
-    func testUnknownForUnparseable() {
+    func unknownForUnparseable() {
         // Input that can't be parsed should return .unknown
         // Need to find input that makes SyllableParser.parse return nil
         // Looking at the code, this happens when no valid structure is found
@@ -41,7 +41,7 @@ struct SpellCheckerCoverageTests {
     }
 
     @Test("Invalid: no vowel or consonant returns specific error")
-    func testNoVowelOrConsonant() {
+    func noVowelOrConsonant() {
         // This is tricky - we need parts where both vowelNucleus is empty
         // and initialConsonant is empty
         // This might be unreachable in practice, but let's verify behavior
@@ -51,13 +51,13 @@ struct SpellCheckerCoverageTests {
     }
 
     @Test("Invalid final consonant returns specific error")
-    func testInvalidFinalConsonantError() {
+    func invalidFinalConsonantError() {
         // Need to construct a word with invalid final consonant
         // that passes initial parsing but fails final consonant check
         // 'k' is valid initial but invalid final
         // "bak" - b is valid initial, a is valid vowel, k is INVALID final
         let result = spellChecker.check("bak")
-        if case .invalid(let reason) = result {
+        if case let .invalid(reason) = result {
             #expect(reason.contains("final consonant") || reason.contains("Invalid"))
         } else {
             // Result should be invalid
@@ -66,7 +66,7 @@ struct SpellCheckerCoverageTests {
     }
 
     @Test("Vowel cannot have ending consonant returns specific error")
-    func testVowelCannotHaveEndingError() {
+    func vowelCannotHaveEndingError() {
         // "ai" + consonant should trigger this error
         // "ain" - ai cannot have ending consonant
         // But need to check how parser handles this
@@ -81,7 +81,7 @@ struct SpellCheckerCoverageTests {
     }
 
     @Test("Single vowel validation in isValidVowelCombination")
-    func testSingleVowelValidation() {
+    func singleVowelValidation() {
         // Direct test of isValidVowelCombination with single vowels
         #expect(spellChecker.isValidVowelCombination("a") == true)
         #expect(spellChecker.isValidVowelCombination("e") == true)
@@ -92,7 +92,7 @@ struct SpellCheckerCoverageTests {
     }
 
     @Test("Invalid vowel combination returns false")
-    func testInvalidVowelCombination() {
+    func invalidVowelCombination() {
         // Test vowel combinations that should return false
         #expect(spellChecker.isValidVowelCombination("xx") == false)
         #expect(spellChecker.isValidVowelCombination("bc") == false)
@@ -100,7 +100,7 @@ struct SpellCheckerCoverageTests {
     }
 
     @Test("vowelAllowsEnding fallback for unknown combinations")
-    func testVowelAllowsEndingFallback() {
+    func vowelAllowsEndingFallback() {
         // Test vowel combinations not in vowelCombinationInfo
         // These should fall back to checking vowelCombinationsNoEnding
         // "xx" is not in info, not in noEnding set, so should allow ending
@@ -108,7 +108,7 @@ struct SpellCheckerCoverageTests {
     }
 
     @Test("Parse 'giế' - gi followed by ê triggers giê pattern")
-    func testGiECircumflex() {
+    func giECircumflex() {
         // "giế" should trigger the code path where firstRemaining == "e" (after decomposition ê → e)
         let parts = SyllableParser.parse("giếc")
         #expect(parts != nil)
