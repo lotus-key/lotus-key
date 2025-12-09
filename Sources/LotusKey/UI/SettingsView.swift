@@ -24,6 +24,9 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.fixChromiumBrowser.rawValue) private var fixChromiumBrowser = true
     @AppStorage(SettingsKey.sendKeyStepByStep.rawValue) private var sendKeyStepByStep = false
 
+    // Shortcut
+    @AppStorage(SettingsKey.switchLanguageHotkey.rawValue) private var switchLanguageHotkey: Int = 0x8131
+
     // i18n
     @AppStorage(SettingsKey.appLanguage.rawValue) private var appLanguageRaw = AppLanguage.system.rawValue
     @State private var showRestartAlert = false
@@ -71,6 +74,15 @@ struct SettingsView: View {
                 Toggle(L("Auto-capitalize"), isOn: $autoCapitalize)
             } header: {
                 Label(L("Input"), systemImage: "keyboard")
+            }
+
+            Section {
+                ShortcutPicker(hotkeyBitfield: Binding(
+                    get: { UInt32(switchLanguageHotkey) },
+                    set: { switchLanguageHotkey = Int($0) }
+                ))
+            } header: {
+                Label(L("Shortcut"), systemImage: "command")
             }
 
             Section {

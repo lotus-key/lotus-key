@@ -101,4 +101,55 @@ final class HotkeyDetectorTests: XCTestCase {
         let detector = HotkeyDetector()
         XCTAssertNotNil(detector)
     }
+
+    // MARK: - Hotkey Struct Tests
+
+    func testHotkeyBitfieldConversion() {
+        // Ctrl+Space with beep = 0x31 | 0x100 | 0x8000 = 0x8131
+        let hotkey = Hotkey(bitfield: 0x8131)
+        XCTAssertEqual(hotkey.keyCode, 0x31)  // Space
+        XCTAssertTrue(hotkey.control)
+        XCTAssertFalse(hotkey.option)
+        XCTAssertFalse(hotkey.command)
+        XCTAssertFalse(hotkey.shift)
+        XCTAssertTrue(hotkey.enableBeep)
+    }
+
+    func testHotkeyToBitfield() {
+        let hotkey = Hotkey(
+            keyCode: 0x31,
+            control: true,
+            option: false,
+            command: false,
+            shift: false,
+            enableBeep: true
+        )
+        XCTAssertEqual(hotkey.toBitfield, 0x8131)
+    }
+
+    func testHotkeyPresetValues() {
+        // Cmd+Space = 0x31 | 0x400 | 0x8000 = 0x8431
+        let cmdSpace = Hotkey(bitfield: 0x8431)
+        XCTAssertEqual(cmdSpace.keyCode, 0x31)
+        XCTAssertFalse(cmdSpace.control)
+        XCTAssertTrue(cmdSpace.command)
+
+        // Ctrl+Shift+Space = 0x31 | 0x100 | 0x800 | 0x8000 = 0x8931
+        let ctrlShiftSpace = Hotkey(bitfield: 0x8931)
+        XCTAssertEqual(ctrlShiftSpace.keyCode, 0x31)
+        XCTAssertTrue(ctrlShiftSpace.control)
+        XCTAssertTrue(ctrlShiftSpace.shift)
+    }
+
+    func testSetAndGetHotkey() {
+        let detector = HotkeyDetector()
+        let customHotkey = Hotkey(bitfield: 0x8431)  // Cmd+Space
+
+        detector.setHotkey(customHotkey, for: .switchLanguage)
+        let retrieved = detector.getHotkey(for: .switchLanguage)
+
+        XCTAssertEqual(retrieved.keyCode, customHotkey.keyCode)
+        XCTAssertEqual(retrieved.command, customHotkey.command)
+        XCTAssertEqual(retrieved.control, customHotkey.control)
+    }
 }

@@ -64,11 +64,9 @@ The system SHALL provide a settings panel for configuration.
 - **WHEN** user accesses feature settings
 - **THEN** options include: Quick Telex, Smart Switch, auto-capitalization
 
-#### Scenario: Hotkey configuration
-- **WHEN** user accesses hotkey settings
-- **THEN** language switch hotkey can be customized
-
----
+#### Scenario: Shortcut configuration
+- **WHEN** user accesses shortcut settings
+- **THEN** language switch hotkey can be customized via picker with presets
 
 ### Requirement: About Window
 
@@ -287,4 +285,42 @@ The system SHALL provide settings to control text injection behavior for compati
 - **THEN** "Fix browser autocomplete" is reset to enabled (true)
 - **AND** "Fix Chromium browsers" is reset to enabled (true)
 - **AND** "Send keys one by one" is reset to disabled (false)
+
+### Requirement: Shortcut Configuration
+
+The system SHALL provide UI to configure the language toggle shortcut.
+
+#### Scenario: Display shortcut section
+- **WHEN** user accesses General settings tab
+- **THEN** a "Shortcut" section is displayed
+- **AND** current shortcut is shown in human-readable format (e.g., "⌃Space")
+
+#### Scenario: Preset shortcut selection
+- **WHEN** user clicks on shortcut picker
+- **THEN** preset options are displayed:
+  - Ctrl+Space (default)
+  - Cmd+Space
+  - Ctrl+Shift+Space
+  - Option+Space
+
+#### Scenario: Apply shortcut change
+- **WHEN** user selects a different shortcut
+- **THEN** setting is saved to UserDefaults with key `LotusKeySwitchLanguageHotkey`
+- **AND** `HotkeyDetector` is updated immediately
+- **AND** new shortcut takes effect without app restart
+
+#### Scenario: Shortcut persistence
+- **WHEN** application launches
+- **THEN** saved shortcut is loaded from UserDefaults
+- **AND** `HotkeyDetector` is configured with the saved hotkey
+
+#### Scenario: Default shortcut
+- **WHEN** no shortcut is configured (first launch)
+- **THEN** default shortcut is Ctrl+Space
+
+#### Scenario: Reset shortcut to default
+- **WHEN** user resets settings to defaults
+- **THEN** shortcut is reset to Ctrl+Space
+
+---
 

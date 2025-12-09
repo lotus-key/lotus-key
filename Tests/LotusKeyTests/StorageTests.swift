@@ -176,4 +176,55 @@ final class StorageTests: XCTestCase {
         XCTAssertEqual(SettingsKey.fixChromiumBrowser.rawValue, "LotusKeyFixChromiumBrowser")
         XCTAssertEqual(SettingsKey.sendKeyStepByStep.rawValue, "LotusKeySendKeyStepByStep")
     }
+
+    // MARK: - Shortcut Settings
+
+    func testSwitchLanguageHotkeyDefaultValue() {
+        // Default is Ctrl+Space with beep: 0x31 | 0x100 | 0x8000 = 0x8131
+        XCTAssertEqual(settings.switchLanguageHotkey, 0x8131)
+    }
+
+    func testSwitchLanguageHotkeyPersistence() {
+        // Given - default value
+        XCTAssertEqual(settings.switchLanguageHotkey, 0x8131)
+
+        // When - set to Cmd+Space with beep
+        let cmdSpace: UInt32 = 0x8431  // 0x31 | 0x400 | 0x8000
+        settings.switchLanguageHotkey = cmdSpace
+
+        // Then
+        XCTAssertEqual(settings.switchLanguageHotkey, cmdSpace)
+        XCTAssertEqual(testDefaults.integer(forKey: SettingsKey.switchLanguageHotkey.rawValue), Int(cmdSpace))
+    }
+
+    func testSwitchLanguageHotkeyPublisher() {
+        let expectation = expectation(description: "Publisher fires for switchLanguageHotkey")
+
+        settings.settingsChanged
+            .sink { key in
+                if key == .switchLanguageHotkey {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+
+        settings.switchLanguageHotkey = 0x8431  // Cmd+Space
+
+        waitForExpectations(timeout: 1.0)
+    }
+
+    func testResetToDefaultsResetsSwitchLanguageHotkey() {
+        // Given - change from default
+        settings.switchLanguageHotkey = 0x8431  // Cmd+Space
+
+        // When
+        settings.resetToDefaults()
+
+        // Then
+        XCTAssertEqual(settings.switchLanguageHotkey, 0x8131, "switchLanguageHotkey should reset to Ctrl+Space (0x8131)")
+    }
+
+    func testSwitchLanguageHotkeyKeyRawValue() {
+        XCTAssertEqual(SettingsKey.switchLanguageHotkey.rawValue, "LotusKeySwitchLanguageHotkey")
+    }
 }

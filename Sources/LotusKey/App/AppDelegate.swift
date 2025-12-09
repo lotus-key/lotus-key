@@ -38,6 +38,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Settings store
     private let settings = SettingsStore()
 
+    /// Observer for hotkey changes from @AppStorage (bypasses SettingsStore)
+    private var hotkeyObserver: Any?
+
     /// Current language mode menu item
     private var languageModeItem: NSMenuItem?
 
@@ -72,6 +75,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Cleanup resources
         eventHandler?.stop()
         applicationDetector?.stopMonitoring()
+        if let observer = hotkeyObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -374,6 +380,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let hotkey = HotkeyDetector()
         self.hotkeyDetector = hotkey
 
+        // Load saved hotkey from settings
+        let savedHotkey = Hotkey(bitfield: settings.switchLanguageHotkey)
+        hotkey.setHotkey(savedHotkey, for: .switchLanguage)
+        lastSyncedHotkey = settings.switchLanguageHotkey
+
         let inputSource = InputSourceDetector()
         self.inputSourceDetector = inputSource
 
@@ -423,10 +434,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             .store(in: &cancellables)
 
+        // Observe hotkey changes from @AppStorage (which bypasses SettingsStore)
+        hotkeyObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.syncHotkeyFromUserDefaults()
+            }
+        }
+
         print("LotusKey event handler started successfully")
     }
 
     // MARK: - Settings Handling
+
+    /// Last synced hotkey value to avoid redundant updates
+    private var lastSyncedHotkey: UInt32 = 0
+
+    /// Sync hotkey from UserDefaults (called when @AppStorage changes)
+    private func syncHotkeyFromUserDefaults() {
+        let currentValue = UInt32(UserDefaults.standard.integer(forKey: SettingsKey.switchLanguageHotkey.rawValue))
+        guard currentValue != lastSyncedHotkey, currentValue > 0 else { return }
+        lastSyncedHotkey = currentValue
+        let newHotkey = Hotkey(bitfield: currentValue)
+        hotkeyDetector?.setHotkey(newHotkey, for: .switchLanguage)
+    }
 
     private func handleSettingsChange(_ key: SettingsKey) {
         guard let engine = engine, eventHandler != nil else { return }
@@ -458,6 +492,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                let bundleId = applicationDetector?.currentBundleIdentifier {
                 smartSwitch.setVietnameseEnabled(handler.isVietnameseMode, for: bundleId)
             }
+        case .switchLanguageHotkey:
+            // Update hotkey detector with new shortcut
+            let newHotkey = Hotkey(bitfield: settings.switchLanguageHotkey)
+            hotkeyDetector?.setHotkey(newHotkey, for: .switchLanguage)
+            lastSyncedHotkey = settings.switchLanguageHotkey
         default:
             break
         }

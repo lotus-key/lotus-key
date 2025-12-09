@@ -17,6 +17,8 @@ public enum SettingsKey: String {
     case sendKeyStepByStep = "LotusKeySendKeyStepByStep"
     // i18n
     case appLanguage = "LotusKeyAppLanguage"
+    // Shortcut
+    case switchLanguageHotkey = "LotusKeySwitchLanguageHotkey"
 }
 
 /// App language selection for i18n
@@ -56,6 +58,9 @@ public protocol SettingsStoring: AnyObject, Sendable {
     // i18n
     var appLanguage: AppLanguage { get set }
 
+    // Shortcut (bitfield format: bits 0-7 keyCode, 8 ctrl, 9 opt, 10 cmd, 11 shift, 15 beep)
+    var switchLanguageHotkey: UInt32 { get set }
+
     // Publisher for settings changes
     var settingsChanged: AnyPublisher<SettingsKey, Never> { get }
 
@@ -94,6 +99,8 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
             SettingsKey.sendKeyStepByStep.rawValue: false,
             // i18n
             SettingsKey.appLanguage.rawValue: AppLanguage.system.rawValue,
+            // Shortcut: Ctrl+Space with beep (0x31 | 0x100 | 0x8000)
+            SettingsKey.switchLanguageHotkey.rawValue: 0x8131,
         ])
     }
 
@@ -293,6 +300,23 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
         }
     }
 
+    // MARK: - Shortcut
+
+    public var switchLanguageHotkey: UInt32 {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            let value = defaults.integer(forKey: SettingsKey.switchLanguageHotkey.rawValue)
+            return value > 0 ? UInt32(value) : 0x8131  // Default: Ctrl+Space with beep
+        }
+        set {
+            lock.lock()
+            defaults.set(Int(newValue), forKey: SettingsKey.switchLanguageHotkey.rawValue)
+            lock.unlock()
+            settingsChangedSubject.send(.switchLanguageHotkey)
+        }
+    }
+
     // MARK: - Reset
 
     public func resetToDefaults() {
@@ -306,6 +330,8 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
             .sendKeyStepByStep,
             // i18n
             .appLanguage,
+            // Shortcut
+            .switchLanguageHotkey,
         ]
 
         lock.lock()
