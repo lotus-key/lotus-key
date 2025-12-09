@@ -83,4 +83,45 @@ final class EngineVowelTests: EngineTestCase {
         let result = engine.processString("dduwowcj")
         XCTAssertEqual(result, "được")
     }
+
+    // MARK: - ưu Vowel Pattern Tests
+    // Bug fix: "uu" pattern (base form of ưu) was missing from spell checker validation
+
+    func testCuuWithTone() {
+        // "cuwus" -> "cứu" (tone on ư, the modified vowel)
+        let result = engine.processString("cuwus")
+        XCTAssertEqual(result, "cứu")
+    }
+
+    func testLuuWithTone() {
+        // "luwus" -> "lứu"
+        let result = engine.processString("luwus")
+        XCTAssertEqual(result, "lứu")
+    }
+
+    func testHuuWithTone() {
+        // "huwuf" -> "hừu"
+        let result = engine.processString("huwuf")
+        XCTAssertEqual(result, "hừu")
+    }
+
+    func testMuuWithTone() {
+        // "muwur" -> "mửu"
+        let result = engine.processString("muwur")
+        XCTAssertEqual(result, "mửu")
+    }
+
+    func testUuPatternMarkPosition() {
+        // Mark should go on modified vowel (ư), not the plain u
+        var buffer = TypingBuffer()
+        buffer.append("c")
+        var typedU = TypedCharacter(character: "u")
+        typedU.state.insert(.hornOrBreve)  // ư
+        buffer.append(typedU)
+        buffer.append("u")
+
+        let markPos = buffer.findMarkPosition()
+        XCTAssertEqual(markPos, 1, "Mark should be on position 1 (ư)")
+    }
 }
+

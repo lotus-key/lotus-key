@@ -477,6 +477,11 @@ public enum VietnameseSpellingRules {
         "uya": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [:]),
         "uye": VowelCombinationInfo(allowsEndConsonant: true, modifierPattern: [2: .circumflex]),  // uyê
 
+        // ưu combination (ư + u = horn on first u)
+        // Base pattern is "uu" - first u has horn modifier → "ưu"
+        // Examples: cưu, hưu, lưu, mưu, thừu
+        "uu": VowelCombinationInfo(allowsEndConsonant: false, modifierPattern: [0: .horn]),  // ưu
+
         // ư-based (horn on u)
         // ưa: u with horn + a
         // ươ: u with horn + o with horn
@@ -622,10 +627,11 @@ public struct DefaultSpellChecker: SpellChecker {
         }
 
         // Check with common Vietnamese vowel patterns
+        // Note: "uu" is the base form of "ưu" (horn on first u)
         let validPatterns: Set<String> = [
             "a", "e", "i", "o", "u", "y",
             "ai", "ao", "au", "ay", "ia", "ie", "iu", "oa", "oe", "oi", "oo",
-            "ua", "ue", "ui", "uo", "uy", "ye",
+            "ua", "ue", "ui", "uo", "uy", "uu", "ye",  // "uu" for ưu pattern
             "oai", "oao", "oay", "oeo", "uoi", "uya", "uye", "uyu", "uao", "uay",
             "ieu", "yeu",
         ]
