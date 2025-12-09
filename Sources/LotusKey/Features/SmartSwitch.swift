@@ -101,8 +101,11 @@ public final class SmartSwitch: SmartSwitching, @unchecked Sendable {
         let currentPrefs = preferences
         lock.unlock()
 
-        if let encoded = try? JSONEncoder().encode(currentPrefs) {
+        do {
+            let encoded = try JSONEncoder().encode(currentPrefs)
             UserDefaults.standard.set(encoded, forKey: storageKey)
+        } catch {
+            print("[SmartSwitch] Failed to encode preferences: \(error.localizedDescription)")
         }
     }
 }

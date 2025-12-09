@@ -35,6 +35,13 @@ None - uses only Apple built-in frameworks:
 - Combine (Reactive settings updates)
 - ServiceManagement (SMAppService for launch at login)
 
+## Test Coverage
+- **131 unit tests** in 17 test suites
+- Core engine tests: EngineTests, InputMethodTests, SpellCheckerTests, TypingBufferTests
+- Feature tests: SmartSwitchTests, HotkeyDetectorTests, QuickTelex (via EngineTests)
+- Storage tests: StorageTests, CharacterStateTests
+- Event handling tests: KeyboardEventHandlerTests, TextInjectorTests, ApplicationDetectorTests
+
 ## Reference Implementation
 - Original OpenKey: https://github.com/tuyenvm/OpenKey
 - Key files to reference:

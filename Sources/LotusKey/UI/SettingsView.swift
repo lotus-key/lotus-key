@@ -164,9 +164,6 @@ struct SettingsView: View {
     }
 
     private func restartApp() {
-        // Ensure UserDefaults is written to disk before restart
-        UserDefaults.standard.synchronize()
-
         // Clear localization cache so it reloads on next launch
         LocalizationManager.invalidateCache()
 

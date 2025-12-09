@@ -56,3 +56,8 @@ The system SHALL persist Smart Switch data.
 - **WHEN** user clears Smart Switch data
 - **THEN** all per-app preferences are removed
 
+#### Scenario: Storage error handling
+- **WHEN** JSON encoding fails during preference save
+- **THEN** error is logged for debugging
+- **AND** application continues to function normally
+
