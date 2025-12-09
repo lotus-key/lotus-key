@@ -206,8 +206,13 @@ public struct TelexInputMethod: InputMethod {
             }
 
         case .standaloneHorn:
-            // Not undoable in the same way
-            break
+            // ww → w, [[ → [, ]] → ] (undo standaloneHorn)
+            // When the same trigger key is pressed again, restore original character
+            if char == triggerLower {
+                state.disableKey(char)
+                state.lastTransformation = nil
+                return InputTransformation(type: .undo(originalChars: last.originalChars))
+            }
         }
 
         return nil

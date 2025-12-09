@@ -121,3 +121,4 @@ DerivedData/
 
 # Agents
 .factory
+.agent

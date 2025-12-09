@@ -715,6 +715,36 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(result, "bư", "bw should produce 'bư' in Telex")
     }
 
+    func testStandaloneWUndo() {
+        // w → ư, ww → w (undo standaloneHorn)
+        let result = engine.processString("ww")
+        XCTAssertEqual(result, "w", "ww should undo standalone to produce 'w'")
+    }
+
+    func testStandaloneWUndoAfterConsonant() {
+        // bw → bư, bww → bw (undo standaloneHorn after consonant)
+        let result = engine.processString("bww")
+        XCTAssertEqual(result, "bw", "bww should undo standalone to produce 'bw'")
+    }
+
+    func testStandaloneBracketOpenUndo() {
+        // [ → ơ, [[ → [ (undo standaloneHorn)
+        let result = engine.processString("[[")
+        XCTAssertEqual(result, "[", "[[ should undo standalone to produce '['")
+    }
+
+    func testStandaloneBracketCloseUndo() {
+        // ] → ư, ]] → ] (undo standaloneHorn)
+        let result = engine.processString("]]")
+        XCTAssertEqual(result, "]", "]] should undo standalone to produce ']'")
+    }
+
+    func testStandaloneUndoWithTempDisable() {
+        // www → ww (tempDisableKey prevents re-transformation after undo)
+        let result = engine.processString("www")
+        XCTAssertEqual(result, "ww", "www should produce 'ww' (tempDisableKey)")
+    }
+
     // MARK: - Simple Telex Engine Tests
 
     func testSimpleTelexOWHorn() {

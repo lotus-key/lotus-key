@@ -421,23 +421,29 @@ final class InputMethodTests: XCTestCase {
         XCTAssertNil(fwResult, "w after blocker 'f' should return nil")
     }
 
-    func testTelexStandaloneHornUndoAttemptReturnsNil() {
-        // Test undo attempt on standaloneHorn - should fall through to return nil
-        // The standaloneHorn case breaks, falls through to return nil, then normal processing continues
+    func testTelexStandaloneHornUndoReturnsUndo() {
+        // Test undo on standaloneHorn - now supported!
+        // When the same trigger key is pressed again, it should return undo transformation
         let telex = TelexInputMethod()
         var state = InputMethodState()
 
-        // Set lastTransformation to standaloneHorn
-        state.lastTransformation = LastTransformation(type: .standaloneHorn, triggerKey: "[", originalChars: "")
+        // Set lastTransformation to standaloneHorn with trigger key '['
+        state.lastTransformation = LastTransformation(type: .standaloneHorn, triggerKey: "[", originalChars: "[")
 
-        // Try pressing [ again with context ending in a vowel
-        // The checkForUndo will match the trigger key, enter standaloneHorn case,
-        // break (do nothing), and fall through to return nil from checkForUndo
-        // Then normal [ handling proceeds
-        let undoResult = telex.processCharacter("[", context: "a", state: &state)
-        // After standaloneHorn undo check fails, it should return nil from checkForUndo
-        // Then handleBracketKey is called, which returns nil for bracket after vowel
-        XCTAssertNil(undoResult, "standaloneHorn undo falls through to nil, then bracket after vowel is nil")
+        // Try pressing [ again - should trigger undo
+        let undoResult = telex.processCharacter("[", context: "ơ", state: &state)
+        
+        // Should return an undo transformation that restores original character
+        XCTAssertNotNil(undoResult, "standaloneHorn undo should return transformation")
+        if case .undo(let originalChars) = undoResult?.type {
+            XCTAssertEqual(originalChars, "[", "Undo should restore to original character '['")
+        } else {
+            XCTFail("Expected undo transformation, got: \(String(describing: undoResult?.type))")
+        }
+        
+        // State should be cleared after undo
+        XCTAssertNil(state.lastTransformation, "lastTransformation should be nil after undo")
+        XCTAssertTrue(state.isDisabled("["), "Trigger key should be temporarily disabled after undo")
     }
 
     func testTelexDisabledKeyReturnsNil() {
